@@ -106,11 +106,14 @@ public class RecordingsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 			@Override
 			public void onItemClick(AdapterView<?> AdapterView, View configurationView,int position, long id) {
 				recordingName = ((TextView) configurationView.findViewById(R.id.dli_name)).getText().toString();
-				File recordingZipFile = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
+				/*File recordingZipFile = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
 				if(fileSizeBiggerThan20Mb(recordingZipFile))
 					showRecordingTooBigDialog();
 				else
-					showSendRecordingOptions(recordingZipFile);
+					showSendRecordingOptions(recordingZipFile);*/
+				Intent intent = new Intent(RecordingsActivity.this, DisplayStoredGraphActivity.class);
+				intent.putExtra("FILE_NAME", recordingName);
+				startActivity(intent);
 			}
 		};
 		
@@ -196,7 +199,7 @@ public class RecordingsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 			
 			// gets selected recording file path
 			recordingName = recordings.get(position).getName();
-			File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
+			File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.TEXT_FILE_EXTENTION);
 			
 			// Checks if it exists and there was a problem deleting it from the file system
 			if(file.exists() && !file.delete()){
