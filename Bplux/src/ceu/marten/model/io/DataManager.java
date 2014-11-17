@@ -411,6 +411,19 @@ public class DataManager {
 			return false;
 		return true;
 	}
+	
+	/**
+	 * Saves a recording without compression. Returns true if the writing and the
+	 * compression were successful or false if either one of them failed
+	 */
+	public boolean saveFile(Messenger client) {
+		this.client = client;
+		if(!enoughStorageAvailable())
+			return false;
+		if (!appendHeader())
+			return false;
+		return true;
+	}
 
 	/**
 	 * Returns the internal storage available in bytes
