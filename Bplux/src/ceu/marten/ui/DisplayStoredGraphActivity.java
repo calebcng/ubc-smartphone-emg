@@ -27,6 +27,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -35,12 +36,27 @@ import android.widget.LinearLayout;
 import android.app.Activity;
 
 public class DisplayStoredGraphActivity extends Activity {
+    // Progress Dialog Object
+    private ProgressDialog prgDialog;
+    // Progress Dialog type (0 - for Horizontal progress bar)
+    public static final int progress_bar_type = 0;
+    
 	private final Handler mHandler = new Handler();
 //	private ArrayList<Double> dataSet = new ArrayList<Double>();
-	private Vector<Double> dataSet = new Vector<Double>();
-	private static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
-	String recordingName = "EMG_DATA";
-	String endOfHeader = "# EndOfHeader";
+	public Vector<Double> dataSet = new Vector<Double>();
+//	public Vector<Vector<Double>> dataSet = new Vector<Vector<Double>>();
+	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
+	public String recordingName = "EMG_DATA";
+	public String endOfHeader = "# EndOfHeader";
+	private GraphView graphView;
+	private GraphViewSeries exampleSeries1;
+	int n = 0;
+	int max=0;
+	int min=0;		  
+	public static double [] buffer;
+	Context context;
+	LinearLayout layout;
+
   
   /*
    * Retrieves data points from specified data file
@@ -91,7 +107,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	
 	  	return true;
   }*/
-  private Boolean retrieveDataPoints(String FILE_NAME) {
+ /* private Boolean retrieveDataPoints(String FILE_NAME) {
   	Scanner strings = null;
   	try {
   		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, FILE_NAME);
@@ -129,7 +145,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	strings.close();
 	  	
 	  	return true;
-  }
+  }*/
   
   	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -143,39 +159,13 @@ public class DisplayStoredGraphActivity extends Activity {
 			System.out.println("Unable to retrieve FILE_NAME");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.display_stored_graph_activity);
-		
-		LinearLayout layout = (LinearLayout) findViewById(R.id.dataGraph);
-		
-		ReadFileService readFile = new ReadFileService(this, layout);
-		readFile.execute(recordingName);
+				
+		new ReadFileService().execute();
 		
   }
-}
-
-
-//<Params, Progress, Result>
-class ReadFileService extends AsyncTask<String, String, Boolean> {
-	private GraphView graphView;
-	private GraphViewSeries exampleSeries1;
-	Vector<Double> dataSet = new Vector<Double>();
-	File externalStorageDirectory = Environment.getExternalStorageDirectory();
-	String recordingName = "EMG_DATA";	//Default filename
-	String endOfHeader = "# EndOfHeader";
-	int n = 0;
-	int max=0;
-	int min=0;		  
-	public static double [] buffer;
-	Context context;
-	LinearLayout layout;
-	static final int progress_bar_type = 0;
-	
-	public ReadFileService(Context context, LinearLayout layout) {
-		this.context = context;
-		this.layout = layout;
-	}
-		  
-	private double getRandom() {
-	double number = buffer[n];
+  	
+  	private double getRandom() {
+  		double number = buffer[n];
 		if (number > max){
 			max = (int)number;
 		}
@@ -213,7 +203,7 @@ class ReadFileService extends AsyncTask<String, String, Boolean> {
 	  }
 	  
 	  System.out.println("Defining data set.");
-	  GraphView graphView = new LineGraphView(context, recordingName) {
+	  GraphView graphView = new LineGraphView(this, recordingName) {
 	  	   protected String formatLabel(double value, boolean isValueX) {
 	  	      // return as Integer
 	  	      return ""+((int) value);
@@ -251,6 +241,7 @@ class ReadFileService extends AsyncTask<String, String, Boolean> {
 	  graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setVerticalLabelsWidth(80);
 
+	  LinearLayout layout = (LinearLayout) findViewById(R.id.dataGraph);
 	  layout.addView(graphView);
 	}
 	
@@ -304,71 +295,132 @@ class ReadFileService extends AsyncTask<String, String, Boolean> {
 		return xInterval;
 	}
 	
-	@Override
-	protected Boolean doInBackground(String... FILE_NAME) {		
-		Scanner strings = null;
-		recordingName = FILE_NAME[0];
-	  	try {
-	  		System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.TEXT_FILE_EXTENTION);
-	  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.TEXT_FILE_EXTENTION);
-	  		
-	  		if (file.exists()) {
-	  			FileReader read = new FileReader(file);
-	  			strings = new Scanner(read);
-	  			
-	      		strings.findWithinHorizon(endOfHeader,0);    		
-	      		strings.useDelimiter("\t *");
-	      		strings.next();
-	  		}
+	 // Show Dialog Box with Progress bar
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+        case progress_bar_type:
+        	prgDialog = new ProgressDialog(this);
+            prgDialog.setMessage("Reading from file.\nPlease wait...");
+            prgDialog.setIndeterminate(true);
+            prgDialog.show();
+            return prgDialog;
+        default:
+            return null;
+        }
+    }
+  	
+	//<Params, Progress, Result>
+	class ReadFileService extends AsyncTask<Void, String, Boolean> {		
+		@Override
+		protected Boolean doInBackground(Void... args) {		
+			/*Scanner strings = null;
+			try {
+		  		System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.TEXT_FILE_EXTENTION);
+		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.TEXT_FILE_EXTENTION);
+		  		
+		  		if (file.exists()) {
+		  			FileReader read = new FileReader(file);
+		  			strings = new Scanner(read);
+		  			
+		      		strings.findWithinHorizon(endOfHeader,0);    		
+		      		strings.useDelimiter("\t *");
+		      		strings.next();
+		  		}
+			}
+			catch (FileNotFoundException error) {
+				System.out.println("@IOERROR: " + error);
+				return false;
+			}
+			catch (IOException error) {
+				System.out.println("@IOERROR: " + error);
+				return false;
+			}
+			while (strings.hasNext())
+			{
+				double dataPoint = Double.parseDouble(strings.next());
+				System.out.println("Adding " + dataPoint + " to vector.");
+				dataSet.add(dataPoint);
+				System.out.println("testData size: " + dataSet.size());
+				if (strings.hasNext())
+					strings.next();
+				else
+					break;
+			}
+			System.out.println("Closing strings.");
+		  	strings.close();
+			
+			return true;*/
+			
+		  	Scanner strings = null;
+		  	try {
+		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.TEXT_FILE_EXTENTION);
+		  		
+		  		if (file.exists()) {
+		  			FileReader read = new FileReader(file);
+		  			BufferedReader r = new BufferedReader(read);
+		  			String line;
+		  			
+		  			while((line=r.readLine())!=null) {
+		  				strings = new Scanner(r);
+		  	  			
+		  	      		strings.findWithinHorizon(endOfHeader,0);    		
+		  	      		strings.useDelimiter("\t *");
+		  	      		strings.next();
+		  	      		
+			  	      	while (strings.hasNext())
+				  	  	{
+				  	  		double dataPoint = Double.parseDouble(strings.next());
+				  	  		System.out.println("Adding " + dataPoint + " to vector.");
+				  	  		dataSet.add(dataPoint);
+				  	  		System.out.println("testData size: " + dataSet.size());
+				  	  		if (strings.hasNext())
+				  	  			strings.next();
+				  	  		else
+				  	  			break;
+				  	  	}
+		  			}
+		  		}
+				}
+				catch (FileNotFoundException error) {
+					System.out.println("@IOERROR: " + error);
+					return false;
+				}
+				catch (IOException error) {
+					System.out.println("@IOERROR: " + error);
+					return false;
+				}
+				System.out.println("Closing strings.");
+				strings.close();
+				return true;
 		}
-		catch (FileNotFoundException error) {
-			System.out.println("@IOERROR: " + error);
-			return false;
-		}
-		catch (IOException error) {
-			System.out.println("@IOERROR: " + error);
-			return false;
-		}
-		while (strings.hasNext())
-		{
-			double dataPoint = Double.parseDouble(strings.next());
-			System.out.println("Adding " + dataPoint + " to vector.");
-			dataSet.add(dataPoint);
-			System.out.println("testData size: " + dataSet.size());
-			if (strings.hasNext())
-				strings.next();
-			else
-				break;
-		}
-		System.out.println("Closing strings.");
-	  	strings.close();
 		
-		return true;
-	}
-	
-	protected void onProgressUpdate() {
-		//called when the background task makes any progress
-	}
+		protected void onProgressUpdate(String...progress) {
+			//called when the background task makes any progress
+//			prgDialog.setProgress(Integer.parseInt(progress[0]));
+		}
 
-	protected void onPreExecute() {
-/*		//called before doInBackground() is started
-		super.onPreExecute();
-		// Show Progress Bar Dialog before calling doInBackground method
-		showDialog(progress_bar_type);*/
-	}
-	
-	protected void onPostExecute(Boolean readFileSuccess) {
-		//called after doInBackground() has finished 
-		if(!readFileSuccess) {
-			Random randomGenerator = new Random();			
-			System.out.println("@IOERROR: Unable to read from file. Creating random dataset");
-			for(int i=0; i<100; i++)
-		    {
-				dataSet.add(randomGenerator.nextDouble());
-		    }
+		@SuppressWarnings("deprecation")
+		protected void onPreExecute() {
+			//called before doInBackground() is started
+			super.onPreExecute();
+			// Show Progress Bar Dialog before calling doInBackground method
+			showDialog(progress_bar_type);
 		}
 		
-		this.graphData();
+		protected void onPostExecute(Boolean readFileSuccess) {
+			//called after doInBackground() has finished 
+			if(!readFileSuccess) {
+				Random randomGenerator = new Random();			
+				System.out.println("@IOERROR: Unable to read from file. Creating random dataset");
+				for(int i=0; i<100; i++)
+			    {
+					dataSet.add(randomGenerator.nextDouble());
+			    }
+			}
+			dismissDialog(progress_bar_type);
+			graphData();
+		}
 	}
 }
 
