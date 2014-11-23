@@ -50,9 +50,9 @@ public class DisplayStoredGraphActivity extends Activity {
 	public String endOfHeader = "# EndOfHeader";
 	private GraphView graphView;
 	private GraphViewSeries exampleSeries1;
-	int n = 0;
+	int setSize = 0;
 	int max=0;
-	int min=0;		  
+	int min=0;	
 	public static double [] buffer;
 	Context context;
 	LinearLayout layout;
@@ -164,8 +164,8 @@ public class DisplayStoredGraphActivity extends Activity {
 		
   }
   	
-  	private double getRandom() {
-  		double number = buffer[n];
+  	/*private double getRandom() {
+  		double number = buffer[setSize];
 		if (number > max){
 			max = (int)number;
 		}
@@ -175,7 +175,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		n++;
 		return number;
 	}
-	  
+	  */
 	  /*
 	   * Calculates the range (min and max) of values of the dataSet vector
 	   * Parameters:	none
@@ -192,7 +192,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	
 	private void graphData() {
 		
-		exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
+		/*exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
 	        });
 				
 	  for (int i=0; i<dataSet.size(); i++) {
@@ -200,7 +200,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	double pointY = dataSet.get(i);
 	  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSet.size());
 	  	System.out.println("X = " + pointX + ", Y = " + pointY);
-	  }
+	  }*/
 	  
 	  System.out.println("Defining data set.");
 	  GraphView graphView = new LineGraphView(this, recordingName) {
@@ -229,10 +229,10 @@ public class DisplayStoredGraphActivity extends Activity {
 	  
 	  graphView.setScalable(true);  
 	  graphView.setScrollable(true);
-	  if (dataSet.size() < 50)
+	  if (dataSet.size() < 100)
 	  	graphView.setViewPort(0,dataSet.size());
 	  else
-	  	graphView.setViewPort(0, 50);
+	  	graphView.setViewPort(0, 100);
 	  graphView.setManualYAxisBounds(yLabel, min);
 	  graphView.getGraphViewStyle().setNumVerticalLabels(((yLabel-min)/yInterval) + 1);
 	//  graphView.getGraphViewStyle().setNumHorizontalLabels(xLabel/xInterval + 1);
@@ -314,7 +314,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	class ReadFileService extends AsyncTask<Void, String, Boolean> {		
 		@Override
 		protected Boolean doInBackground(Void... args) {		
-			/*Scanner strings = null;
+			Scanner strings = null;
 			try {
 		  		System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.TEXT_FILE_EXTENTION);
 		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.TEXT_FILE_EXTENTION);
@@ -339,9 +339,9 @@ public class DisplayStoredGraphActivity extends Activity {
 			while (strings.hasNext())
 			{
 				double dataPoint = Double.parseDouble(strings.next());
-				System.out.println("Adding " + dataPoint + " to vector.");
+//				System.out.println("Adding " + dataPoint + " to vector.");
 				dataSet.add(dataPoint);
-				System.out.println("testData size: " + dataSet.size());
+//				System.out.println("testData size: " + dataSet.size());
 				if (strings.hasNext())
 					strings.next();
 				else
@@ -350,9 +350,11 @@ public class DisplayStoredGraphActivity extends Activity {
 			System.out.println("Closing strings.");
 		  	strings.close();
 			
-			return true;*/
-			
+			return true;
+			/*exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
+	        });
 		  	Scanner strings = null;
+		  	int pointX=0;
 		  	try {
 		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.TEXT_FILE_EXTENTION);
 		  		
@@ -370,10 +372,13 @@ public class DisplayStoredGraphActivity extends Activity {
 		  	      		
 			  	      	while (strings.hasNext())
 				  	  	{
-				  	  		double dataPoint = Double.parseDouble(strings.next());
-				  	  		System.out.println("Adding " + dataPoint + " to vector.");
-				  	  		dataSet.add(dataPoint);
-				  	  		System.out.println("testData size: " + dataSet.size());
+				  	  		double pointY = Double.parseDouble(strings.next());
+							exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, ++setSize);
+							System.out.println("X = " + pointX + ", Y = " + pointY);
+							pointX++;
+//				  	  		System.out.println("Adding " + pointY + " to vector.");
+//				  	  		dataSet.add(dataPoint);
+//				  	  		System.out.println("testData size: " + dataSet.size());
 				  	  		if (strings.hasNext())
 				  	  			strings.next();
 				  	  		else
@@ -392,7 +397,7 @@ public class DisplayStoredGraphActivity extends Activity {
 				}
 				System.out.println("Closing strings.");
 				strings.close();
-				return true;
+				return true;*/
 		}
 		
 		protected void onProgressUpdate(String...progress) {
@@ -418,8 +423,16 @@ public class DisplayStoredGraphActivity extends Activity {
 					dataSet.add(randomGenerator.nextDouble());
 			    }
 			}
-			dismissDialog(progress_bar_type);
+			exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
+	        });
+			for (int i=0; i<dataSet.size(); i++) {
+			  	double pointX = i;
+			  	double pointY = dataSet.get(i);
+			  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSet.size());
+//			  	System.out.println("X = " + pointX + ", Y = " + pointY);
+			}
 			graphData();
+			dismissDialog(progress_bar_type);
 		}
 	}
 }
