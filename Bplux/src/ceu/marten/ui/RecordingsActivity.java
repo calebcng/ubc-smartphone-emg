@@ -19,6 +19,7 @@ import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -106,16 +107,28 @@ public class RecordingsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 			@Override
 			public void onItemClick(AdapterView<?> AdapterView, View configurationView,int position, long id) {
 				recordingName = ((TextView) configurationView.findViewById(R.id.dli_name)).getText().toString();
+				Intent intent = new Intent(RecordingsActivity.this, DisplayStoredGraphActivity.class);
+				intent.putExtra("FILE_NAME", recordingName);
+				startActivity(intent);
+			}
+		};
+		
+		// LONG CLICK LISTENER
+		final OnItemLongClickListener longPressListener = new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> adapterView,View view, int position, long id) {
 				File recordingZipFile = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
 				if(fileSizeBiggerThan20Mb(recordingZipFile))
 					showRecordingTooBigDialog();
 				else
 					showSendRecordingOptions(recordingZipFile);
+				return true;
 			}
 		};
 		
 		recordingsLV = (ListView) findViewById(R.id.lvSessions);
 		recordingsLV.setOnItemClickListener(shortPressListener);
+		recordingsLV.setOnItemLongClickListener(longPressListener);
 		recordingsLV.setEmptyView(findViewById(R.id.empty_list_recordings));
 		
 		baseAdapter = new RecordingsListAdapter(this, recordings);
@@ -196,7 +209,7 @@ public class RecordingsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 			
 			// gets selected recording file path
 			recordingName = recordings.get(position).getName();
-			File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
+			File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.TEXT_FILE_EXTENTION);
 			
 			// Checks if it exists and there was a problem deleting it from the file system
 			if(file.exists() && !file.delete()){

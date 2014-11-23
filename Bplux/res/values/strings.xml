@@ -12,6 +12,7 @@
     <string name="recordings_label">Recordings</string>
     <string name="new_configurations_label">New Configurations</string>
     <string name="new_recordings_label">New Recording</string>
+    <string name="display_stored_graph_label">Displaying Recording</string>
     
      <!-- GLOBAL MENU ITEMS -->
      <string name="gm_settings">Settings</string>

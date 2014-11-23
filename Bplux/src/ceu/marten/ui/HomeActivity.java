@@ -72,4 +72,11 @@ public class HomeActivity extends Activity implements android.widget.PopupMenu.O
 		startActivity(new Intent(this, RecordingsActivity.class));
 		overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 	}
+	
+	public void onClickedTest(View view) {
+		Intent intent = new Intent(HomeActivity.this, DisplayStoredGraphActivity.class);
+		intent.putExtra("FILE_NAME", "leah10000");
+		startActivity(intent);
+		overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+	}
 }
