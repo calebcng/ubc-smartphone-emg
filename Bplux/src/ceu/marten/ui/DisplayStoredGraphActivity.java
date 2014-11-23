@@ -2,14 +2,20 @@ package ceu.marten.ui;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.Collections;
 import java.util.Random;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 //import com.example.bluetoothnew.R;
 import ceu.marten.bitadroid.R;
@@ -31,6 +37,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.LinearLayout;
 import android.app.Activity;
@@ -159,6 +166,7 @@ public class DisplayStoredGraphActivity extends Activity {
 			System.out.println("Unable to retrieve FILE_NAME");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.display_stored_graph_activity);
+		prgDialog = new ProgressDialog(this);
 				
 		new ReadFileService().execute();
 		
@@ -190,18 +198,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		return dataRange;
 	}
 	
-	private void graphData() {
-		
-		/*exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
-	        });
-				
-	  for (int i=0; i<dataSet.size(); i++) {
-	  	double pointX = i;
-	  	double pointY = dataSet.get(i);
-	  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSet.size());
-	  	System.out.println("X = " + pointX + ", Y = " + pointY);
-	  }*/
-	  
+	private void graphData() {	  
 	  System.out.println("Defining data set.");
 	  GraphView graphView = new LineGraphView(this, recordingName) {
 	  	   protected String formatLabel(double value, boolean isValueX) {
@@ -296,7 +293,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	}
 	
 	 // Show Dialog Box with Progress bar
-    @Override
+   /* @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
         case progress_bar_type:
@@ -308,22 +305,33 @@ public class DisplayStoredGraphActivity extends Activity {
         default:
             return null;
         }
-    }
+    }*/
   	
 	//<Params, Progress, Result>
-	class ReadFileService extends AsyncTask<Void, String, Boolean> {		
+	class ReadFileService extends AsyncTask<Void, String, Boolean> {
+		
 		@Override
 		protected Boolean doInBackground(Void... args) {		
 			Scanner strings = null;
+			InputStream stream = null;
+			ZipInputStream zipInput = null;
 			try {
-		  		System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.TEXT_FILE_EXTENTION);
-		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.TEXT_FILE_EXTENTION);
-		  		
-		  		if (file.exists()) {
-		  			FileReader read = new FileReader(file);
-		  			strings = new Scanner(read);
-		  			
-		      		strings.findWithinHorizon(endOfHeader,0);    		
+				System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
+		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.ZIP_FILE_EXTENTION);
+		  		ZipFile zipFile = new ZipFile(file);
+		  		Enumeration<? extends ZipEntry> entries = zipFile.entries();
+		  				  		
+		  		while (entries.hasMoreElements()) {
+		  			ZipEntry zipEntry = entries.nextElement();
+		  			stream = zipFile.getInputStream(zipEntry);
+		  			strings = new Scanner(stream);
+		  			/*if (!zipEntry.isDirectory()) {
+		  				String fileName = zipEntry.getName();
+		  				if (fileName.endsWith(".txt")) {
+		  					zipInput = new ZipInputStream(new FileInputStream(fileName));
+		  				}
+		  			}*/
+		  			strings.findWithinHorizon(endOfHeader,0);    		
 		      		strings.useDelimiter("\t *");
 		      		strings.next();
 		  		}
@@ -341,76 +349,37 @@ public class DisplayStoredGraphActivity extends Activity {
 				double dataPoint = Double.parseDouble(strings.next());
 //				System.out.println("Adding " + dataPoint + " to vector.");
 				dataSet.add(dataPoint);
-//				System.out.println("testData size: " + dataSet.size());
+//				System.out.println("testData size: "  dataSet.size());
 				if (strings.hasNext())
 					strings.next();
 				else
 					break;
 			}
 			System.out.println("Closing strings.");
+			try {
+				stream.close();
+//				zipInput.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		  	strings.close();
 			
 			return true;
-			/*exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
-	        });
-		  	Scanner strings = null;
-		  	int pointX=0;
-		  	try {
-		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.TEXT_FILE_EXTENTION);
-		  		
-		  		if (file.exists()) {
-		  			FileReader read = new FileReader(file);
-		  			BufferedReader r = new BufferedReader(read);
-		  			String line;
-		  			
-		  			while((line=r.readLine())!=null) {
-		  				strings = new Scanner(r);
-		  	  			
-		  	      		strings.findWithinHorizon(endOfHeader,0);    		
-		  	      		strings.useDelimiter("\t *");
-		  	      		strings.next();
-		  	      		
-			  	      	while (strings.hasNext())
-				  	  	{
-				  	  		double pointY = Double.parseDouble(strings.next());
-							exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, ++setSize);
-							System.out.println("X = " + pointX + ", Y = " + pointY);
-							pointX++;
-//				  	  		System.out.println("Adding " + pointY + " to vector.");
-//				  	  		dataSet.add(dataPoint);
-//				  	  		System.out.println("testData size: " + dataSet.size());
-				  	  		if (strings.hasNext())
-				  	  			strings.next();
-				  	  		else
-				  	  			break;
-				  	  	}
-		  			}
-		  		}
-				}
-				catch (FileNotFoundException error) {
-					System.out.println("@IOERROR: " + error);
-					return false;
-				}
-				catch (IOException error) {
-					System.out.println("@IOERROR: " + error);
-					return false;
-				}
-				System.out.println("Closing strings.");
-				strings.close();
-				return true;*/
 		}
 		
 		protected void onProgressUpdate(String...progress) {
 			//called when the background task makes any progress
-//			prgDialog.setProgress(Integer.parseInt(progress[0]));
 		}
 
-		@SuppressWarnings("deprecation")
 		protected void onPreExecute() {
 			//called before doInBackground() is started
 			super.onPreExecute();
 			// Show Progress Bar Dialog before calling doInBackground method
-			showDialog(progress_bar_type);
+//			showDialog(progress_bar_type);
+			prgDialog.setTitle("Opening File");
+			prgDialog.setMessage("Opening " + recordingName + "\nPlease wait...");
+			prgDialog.show();
 		}
 		
 		protected void onPostExecute(Boolean readFileSuccess) {
@@ -432,7 +401,9 @@ public class DisplayStoredGraphActivity extends Activity {
 //			  	System.out.println("X = " + pointX + ", Y = " + pointY);
 			}
 			graphData();
-			dismissDialog(progress_bar_type);
+//			dismissDialog(progress_bar_type);
+			prgDialog.dismiss();
+			prgDialog = null;
 		}
 	}
 }
