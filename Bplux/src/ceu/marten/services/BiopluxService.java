@@ -435,11 +435,7 @@ public class BiopluxService extends Service {
 				@Override
 				public void run() {
 					boolean errorSavingRecording = false;
-					/*if (!dataManager.saveAndCompressFile(client)) {
-						errorSavingRecording = true;
-						sendErrorToActivity(CODE_ERROR_SAVING_RECORDING);
-					}*/
-					if (!dataManager.saveFile(client)) {
+					if (!dataManager.saveAndCompressFile(client)) {
 						errorSavingRecording = true;
 						sendErrorToActivity(CODE_ERROR_SAVING_RECORDING);
 					}

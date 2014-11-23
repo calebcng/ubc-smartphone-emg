@@ -1,9 +1,11 @@
 package ceu.marten.ui;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.Collections;
@@ -19,6 +21,7 @@ import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -33,6 +36,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	private final Handler mHandler = new Handler();
 	private GraphView graphView;
 	private GraphViewSeries exampleSeries1;
+//	private ArrayList<Double> dataSet = new ArrayList<Double>();
 	private Vector<Double> dataSet = new Vector<Double>();
 	private static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	String recordingName = "EMG_DATA";
@@ -77,6 +81,50 @@ public class DisplayStoredGraphActivity extends Activity {
    * Parameters:	FILE_NAME string, terminated by ".txt"
    * Outputs:	BOOLEAN denoting whether or not the function was successful
    */
+  /*private Boolean retrieveDataPoints(String FILE_NAME) {
+  	Scanner strings = null;
+  	try {
+  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, FILE_NAME);
+  		
+  		if (file.exists()) {
+  			FileReader read = new FileReader(file);
+  			BufferedReader r = new BufferedReader(read);
+  			String line;
+  			
+  			while((line=r.readLine())!=null) {
+  				strings = new Scanner(r);
+  	  			
+  	      		strings.findWithinHorizon(endOfHeader,0);    		
+  	      		strings.useDelimiter("\t *");
+  	      		strings.next();
+  	      		
+	  	      	while (strings.hasNext())
+		  	  	{
+		  	  		double dataPoint = Double.parseDouble(strings.next());
+		  	  		System.out.println("Adding " + dataPoint + " to vector.");
+		  	  		dataSet.add(dataPoint);
+		  	  		System.out.println("testData size: " + dataSet.size());
+		  	  		if (strings.hasNext())
+		  	  			strings.next();
+		  	  		else
+		  	  			break;
+		  	  	}
+  			}
+  		}
+	}
+	catch (FileNotFoundException error) {
+		System.out.println("@IOERROR: " + error);
+		return false;
+	}
+	catch (IOException error) {
+		System.out.println("@IOERROR: " + error);
+		return false;
+	}
+	System.out.println("Closing strings.");
+	  	strings.close();
+	  	
+	  	return true;
+  }*/
   private Boolean retrieveDataPoints(String FILE_NAME) {
   	Scanner strings = null;
   	try {
@@ -84,6 +132,7 @@ public class DisplayStoredGraphActivity extends Activity {
   		
   		if (file.exists()) {
   			FileReader read = new FileReader(file);
+  			BufferedReader r = new BufferedReader(read);
   			strings = new Scanner(read);
   			
       		strings.findWithinHorizon(endOfHeader,0);    		
@@ -115,6 +164,58 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	
 	  	return true;
   }
+  
+  private int calculateYScale() {
+	// Calculate range of y values
+	double yBounds[] = {0,0};
+	yBounds = calculateRange();
+	// Calculate the appropriate max value and min values in y-direction 
+	max = (int) yBounds[1] + 1;
+	if (yBounds[0] >= 0) {    
+	min = (int) yBounds[0];
+	}
+	else {
+		min = (int) yBounds[0] - 1;
+	}
+	
+	// Calculate interval level of labels in y-direction
+	int yInterval;
+	if ((max-min) <= 10) {
+		yInterval = 1;
+	}
+	else if ((max-min) <= 50) {
+		yInterval = 2;
+	}
+	else if ((max-min) <=100) {
+	  	yInterval = 5;
+	}
+	else if ((max-min) <= 200){
+	  	yInterval = 10;
+	}
+	else {
+	  	yInterval = 25;
+	}
+	
+	return yInterval;
+  }
+  
+  	private int calculateXScale() {
+  		int xInterval;
+  		int xMax = dataSet.size();
+  		if (xMax <= 10) {
+  			xInterval = 1;
+  		}
+  		else if (xMax <= 50) {
+  			xInterval = 5;
+  		}
+  		else if (xMax <=100) {
+  			xInterval = 10;
+  		}
+  		else {
+  			xInterval = 20;
+  		}
+  		return xInterval;
+  	}
 
 
 	@Override
@@ -129,8 +230,7 @@ public class DisplayStoredGraphActivity extends Activity {
 			System.out.println("Unable to retrieve FILE_NAME");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.display_stored_graph_activity);
-		Random randomGenerator = new Random();
-		double yBounds[] = {0,0};		
+		Random randomGenerator = new Random();		
 		
 		if (!retrieveDataPoints(recordingName + Constants.TEXT_FILE_EXTENTION))
 		{
@@ -147,7 +247,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  for (int i=0; i<dataSet.size(); i++) {
 	  	double pointX = i;
 	  	double pointY = dataSet.get(i);
-	  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, 1024);
+	  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSet.size());
 	  	System.out.println("X = " + pointX + ", Y = " + pointY);
 	  }
 	  
@@ -159,55 +259,15 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	   }
 	  	};
 	  
-	  // Calculate range of y values
-	  yBounds = calculateRange();
-	  // Calculate the appropriate max value and min values in y-direction 
-	 	max = (int) yBounds[1] + 1;
-	    if (yBounds[0] >= 0) {    
-	  	min = (int) yBounds[0];
-	    }
-	    else {
-	        min = (int) yBounds[0] - 1;
-	    }
-	    
-	    // Calculate interval level of labels in y-direction
-	    int yInterval;
-	  if ((max-min) <= 10) {
-	  	yInterval = 1;
-	  }
-	  else if ((max-min) <= 50) {
-	  	yInterval = 2;
-	  }
-	  else if ((max-min) <=100) {
-	  	yInterval = 5;
-	  }
-	  else if ((max-min) <= 200){
-	  	yInterval = 10;
-	  }
-	  else {
-	  	yInterval = 25;
-	  }
+	  int yInterval = calculateYScale();
 	  int yLabel = max;
 	  while ((yLabel-min) % yInterval != 0) {
 	  	yLabel++;
 	  }
 	    
 	    // Calculate appropriate interval value in x-direction
-	  int xInterval;
-	  int xMax = dataSet.size();
-	  if (xMax <= 10) {
-	  	xInterval = 1;
-	  }
-	  else if (xMax <= 50) {
-	  	xInterval = 5;
-	  }
-	  else if (xMax <=100) {
-	  	xInterval = 10;
-	  }
-	  else {
-	  	xInterval = 20;
-	  }
-	  int xLabel = xMax;
+	  int xInterval = calculateXScale();	  
+	  int xLabel = dataSet.size();
 	  while (xLabel % xInterval != 0) {
 	  	xLabel++;
 	  }
@@ -215,7 +275,6 @@ public class DisplayStoredGraphActivity extends Activity {
 	
 	  graphView.addSeries(exampleSeries1); 
 	  ((LineGraphView) graphView).setDrawBackground(false);
-//	  ((LineGraphView) graphView).setDrawDataPoints(true);
 	  
 	  graphView.setScalable(true);  
 	  graphView.setScrollable(true);
@@ -235,3 +294,5 @@ public class DisplayStoredGraphActivity extends Activity {
       layout.addView(graphView);
   }
 }
+
+
