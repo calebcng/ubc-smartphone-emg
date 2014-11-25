@@ -1,3 +1,6 @@
+//Modified by Brittaney Geisler November 2014
+//NOTE: changed max sample frequency to 1000, originally 100 **THIS COULD CREATE ISSUES
+
 package ceu.marten.ui;
 
 import java.text.DateFormat;
@@ -46,24 +49,27 @@ import ceu.marten.ui.adapters.DisplayChannelsListAdapter;
 public class NewConfigurationActivity extends Activity {
 
 	// FREQUENCIES MIN, MAX AND DEFUALT VALUES 
-	private static final int RECEPTION_FREQ_MAX = 1000;
-	private static final int RECEPTION_FREQ_MIN = 1;
-	private static final int DEFAULT_RECEPTION_FREQ = 100;
-	private static final int SAMPLING_FREQ_MAX = 100;
+	//private static final int RECEPTION_FREQ_MAX = 1000;
+	//private static final int RECEPTION_FREQ_MIN = 1;
+	//private static final int DEFAULT_RECEPTION_FREQ = 100;
+	private static final int SAMPLING_FREQ_MAX = 1000;//why is 100 max?
 	private static final int SAMPLING_FREQ_MIN = 1;
-	private static final int DEFAULT_SAMPLING_FREQ = 50;
+	private static final int DEFAULT_SAMPLING_FREQ = 100;
 	private static final int DEFAULT_NUMBER_OF_BITS = 12;
-	 private static final TreeSet<Integer> ALLOW_RECEPTION_FREQ = new TreeSet<Integer>(Arrays.asList(1,10,100,1000));
+	 //private static final TreeSet<Integer> ALLOW_RECEPTION_FREQ = new TreeSet<Integer>(Arrays.asList(1,10,100,1000));
 	    	    
 	
 
 	// ANDROID' WIDGETS AND ITS LAYOUT INFLATER
-	private SeekBar receptionfreqSeekbar, samplingfreqSeekbar;
-	private EditText configurationName, macAddress, receptionFreqEditor, samplingFreqEditor;
+	private SeekBar samplingfreqSeekbar;//,receptionfreqSeekbar;
+	private EditText configurationName;//receptionFreqEditor;
+	public static EditText macAddress;
+	//public static String macAdd;
+	private EditText samplingFreqEditor;
 	private TextView activeChannelsTV, displayChannelsTV;
 	private LayoutInflater inflater;
 
-	private String[]  activeChannels = null;
+	private String[]  activeChannels = {"EMG"};//{"EMG",null,null,null,null,"BATTERY"};//{"EMG"};
 	private boolean[] channelsSelected = null;
 	private boolean isUpdatingConfiguration = false;
 	
@@ -92,24 +98,24 @@ public class NewConfigurationActivity extends Activity {
 
 		// CREATES AND SETS DEFAULT VALUES FOR THE NEW CONFIGURATION
 		newConfiguration = new DeviceConfiguration(this);
-		newConfiguration.setVisualizationFrequency(DEFAULT_RECEPTION_FREQ);
+		//newConfiguration.setVisualizationFrequency(DEFAULT_RECEPTION_FREQ);
 		newConfiguration.setSamplingFrequency(DEFAULT_SAMPLING_FREQ);
 		newConfiguration.setNumberOfBits(DEFAULT_NUMBER_OF_BITS);
 		
 		
 		// GETS ALL THE VIEWS
-		receptionfreqSeekbar = (SeekBar) findViewById(R.id.nc_reception_seekbar);
+		//receptionfreqSeekbar = (SeekBar) findViewById(R.id.nc_reception_seekbar);
 		samplingfreqSeekbar = (SeekBar) findViewById(R.id.nc_sampling_seekbar);
-		receptionFreqEditor = (EditText) findViewById(R.id.nc_reception_freq_view);
+		//receptionFreqEditor = (EditText) findViewById(R.id.nc_reception_freq_view);
 		samplingFreqEditor = (EditText) findViewById(R.id.nc_sampling_freq_view);
 		configurationName = (EditText) findViewById(R.id.dev_name);
 		macAddress = (EditText) findViewById(R.id.nc_mac_address);
-		activeChannelsTV = (TextView) findViewById(R.id.nc_txt_active_channels);
+		//activeChannelsTV = (TextView) findViewById(R.id.nc_txt_active_channels);
 		displayChannelsTV = (TextView) findViewById(R.id.nc_txt_channels_to_show);
 		
 
 		// INIT SEEKBARS AND EDITORS TO DEFAULT STATE
-		receptionfreqSeekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+		/*receptionfreqSeekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 					public void onProgressChanged(SeekBar seekBar,
 							int progress, boolean changedByUser) {
 						if (changedByUser) {
@@ -123,9 +129,9 @@ public class NewConfigurationActivity extends Activity {
 					// needed for the listener
 					public void onStartTrackingTouch(SeekBar seekBar) {}
 					public void onStopTrackingTouch(SeekBar seekBar) {}
-				});
+				});*/
 		
-		receptionFreqEditor.setOnEditorActionListener(new OnEditorActionListener() {
+		/*receptionFreqEditor.setOnEditorActionListener(new OnEditorActionListener() {
 					@Override
 					public boolean onEditorAction(TextView receptionFreqEditorTextView,int actionId, KeyEvent event) {
 						boolean handled = false;
@@ -169,14 +175,37 @@ public class NewConfigurationActivity extends Activity {
 						inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
 
 					}
-				});
+				});*/
 
 		samplingfreqSeekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 					public void onProgressChanged(SeekBar seekBar,
 							int progress, boolean changedByUser) {
 						if (changedByUser) {
-							samplingFreqEditor.setText(String.valueOf(progress + SAMPLING_FREQ_MIN));
-							newConfiguration.setSamplingFrequency(progress + SAMPLING_FREQ_MIN);
+							int value=1;
+							boolean progressChanged = false;
+							if (progress == 0) {
+								value = 1;
+								progressChanged = true;
+							}
+							else if(progress > 250 && progress < 500){
+								value = 10;
+								progressChanged = true;
+							}
+							else if (progress >= 500 && progress < 750){
+								value = 100;
+								progressChanged = true;
+							}
+							else if (progress == 999){
+								value = 1000;
+								progressChanged = true;
+							}
+							if (progressChanged == true){
+								samplingFreqEditor.setText(String.valueOf(value));
+								newConfiguration.setSamplingFrequency(value);
+							}
+							//samplingFreqEditor.setText(String.valueOf(progress + SAMPLING_FREQ_MIN));
+							//samplingFreqEditor.setText(String.valueOf(y + SAMPLING_FREQ_MIN));
+							//newConfiguration.setSamplingFrequency(progress + SAMPLING_FREQ_MIN);
 						}
 					}
 					// needed for the listener
@@ -239,22 +268,25 @@ public class NewConfigurationActivity extends Activity {
 			//FILL WIDGETS FIELDS WITH CONFIGURATION TO EDIT DETAILS
 			configurationName.setText(oldConfiguration.getName());
 			macAddress.setText(oldConfiguration.getMacAddress());
-			receptionfreqSeekbar.setProgress(oldConfiguration.getVisualizationFrequency()- RECEPTION_FREQ_MIN);
-			receptionFreqEditor.setText(String.valueOf(oldConfiguration.getVisualizationFrequency()));
+			//receptionfreqSeekbar.setProgress(oldConfiguration.getVisualizationFrequency()- RECEPTION_FREQ_MIN);
+			//receptionFreqEditor.setText(String.valueOf(oldConfiguration.getVisualizationFrequency()));
 			samplingfreqSeekbar.setProgress(oldConfiguration.getSamplingFrequency());
 			samplingFreqEditor.setText(String.valueOf(oldConfiguration.getSamplingFrequency()));
-			activeChannelsTV.setVisibility(View.VISIBLE);
-			activeChannelsTV.setText(getString(R.string.nc_channels_to_activate)+" "+oldConfiguration.getActiveChannels());
+			//activeChannelsTV.setVisibility(View.VISIBLE);
+			//activeChannelsTV.setText(getString(R.string.nc_channels_to_activate)+" "+oldConfiguration.getActiveChannels());
 			displayChannelsTV.setVisibility(View.VISIBLE);
 			displayChannelsTV.setText(oldConfiguration.getDisplayChannelsWithSensors());
 			
 			// MODIFY VARIABLES FOR VALIDATION PURPOSES
-			activeChannels = oldConfiguration.getActiveSensors();
+			//activeChannels = oldConfiguration.getActiveSensors();
 			boolean[] boolArray = {true};
 			channelsSelected = boolArray;
 			configurations.remove(configurations.get(getIntent().getExtras().getInt(ConfigurationsActivity.KEY_CONFIGURATION_POSITION))); 
 			newConfiguration = oldConfiguration;
 		}
+		newConfiguration.setVisualizationFrequency(100);
+		newConfiguration.setActiveChannels(activeChannels);
+		newConfiguration.setDisplayChannels(activeChannels);	
 	}
 
 	/**
@@ -274,7 +306,7 @@ public class NewConfigurationActivity extends Activity {
 	 * Sets up and shows the active channels picker dialog
 	 * 
 	 */
-	private void showActiveChannelsDialog() {
+	/*private void showActiveChannelsDialog() {
 
 		// get channel numbers from values, converts them to list and pass as an attribute to the adapter
 		String[] rawChannelNumbers = getResources().getStringArray(R.array.channels);
@@ -336,7 +368,7 @@ public class NewConfigurationActivity extends Activity {
 		activeChannelsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		activeChannelsListView.setItemsCanFocus(false);
 		activeChannelsListView.setAdapter(activeChannelsListAdapter);
-	}
+	}*/
 
 	/**
 	 * Creates and shows a dialog for picking which of the active channels the
@@ -498,19 +530,29 @@ public class NewConfigurationActivity extends Activity {
 		}
 	
 		// VALIDATE MAC FIELD
-		String macSyntax = "^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$";
-		if (macAddress.getText().toString() == null || macAddress.getText().toString().compareTo("") == 0 
-													|| !macAddress.getText().toString().matches(macSyntax)
-													&& macAddress.getText().toString().compareTo("test") != 0) {
+		/*if (macAddress.getText().toString()==null){
 			macAddress.setError(getString(R.string.nc_error_message_mac));
 			if (validated){
 				macAddress.requestFocus();
 			}
 			validated = false;
-		}
+		}*/
+		
+		//String macSyntax = "^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$";
+		//if (macAddress.getText().toString() == null || macAddress.getText().toString().compareTo("") == 0 
+													//|| !macAddress.getText().toString().matches(macSyntax)
+													//&& macAddress.getText().toString().compareTo("test") != 0) {
+		/*if (macAddress.getText().toString() == null) {
+
+			macAddress.setError(getString(R.string.nc_error_message_mac));
+			if (validated){
+				macAddress.requestFocus();
+			}
+			validated = false;
+		}*/
 		
 		// VALIDATE RECEPTION FREQUENCY
-		if (receptionFreqEditor.getText().toString() == null || 
+		/*if (receptionFreqEditor.getText().toString() == null || 
 				receptionFreqEditor.getText().toString().compareTo("") == 0 
 				|| Integer.parseInt(receptionFreqEditor.getText().toString()) < RECEPTION_FREQ_MIN
 				|| Integer.parseInt(receptionFreqEditor.getText().toString()) > RECEPTION_FREQ_MAX) {
@@ -519,11 +561,11 @@ public class NewConfigurationActivity extends Activity {
 				receptionFreqEditor.requestFocus();
 			}
 			validated = false;
-		}
+		}*/
 		
 		// VALIDATE SAMPLING FREQUENCY
 		if (samplingFreqEditor.getText().toString() == null || 
-				receptionFreqEditor.getText().toString().compareTo("") == 0 
+				samplingFreqEditor.getText().toString().compareTo("") == 0 
 				|| Integer.parseInt(samplingFreqEditor.getText().toString()) < SAMPLING_FREQ_MIN
 				|| Integer.parseInt(samplingFreqEditor.getText().toString()) > SAMPLING_FREQ_MAX) {
 			samplingFreqEditor.setError("invalid frequency");
@@ -561,9 +603,10 @@ public class NewConfigurationActivity extends Activity {
 	 */
 	public void onClickedSubmit(View submitButtonView) {
 		
+		//macAdd = macAddress.getText().toString();
 		newConfiguration.setName(configurationName.getText().toString());
 		newConfiguration.setMacAddress(macAddress.getText().toString());
-		newConfiguration.setVisualizationFrequency(Integer.parseInt(receptionFreqEditor.getText().toString()));
+		newConfiguration.setVisualizationFrequency(Integer.parseInt(samplingFreqEditor.getText().toString()));
 		newConfiguration.setSamplingFrequency(Integer.parseInt(samplingFreqEditor.getText().toString()));
 
 		if(!isUpdatingConfiguration){
@@ -571,6 +614,12 @@ public class NewConfigurationActivity extends Activity {
 			Date date = new Date();
 			newConfiguration.setCreateDate(dateFormat.format(date));
 		}
+		
+		//if (newConfiguration.getMacAddress().equals("EMG_Sensor"))
+		//		Toast.makeText(this, newConfiguration.getMacAddress(), Toast.LENGTH_SHORT).show();
+		//else 	Toast.makeText(this, "not equal"+newConfiguration.getMacAddress(), Toast.LENGTH_SHORT).show();
+		
+		HomeActivity.btName = newConfiguration.getMacAddress();
 		
 		if (validateFields()) {
 			Intent returnIntent = new Intent();
@@ -582,6 +631,10 @@ public class NewConfigurationActivity extends Activity {
 				returnIntent.putExtra(ConfigurationsActivity.KEY_OLD_CONFIGURATION, oldConfiguration);
 				displayInfoToast(getString(R.string.nc_info_modified));
 			}
+			//if (newConfiguration.getMacAddress() == "EMG_Sensor")
+					//Toast.makeText(this, macAddress.getText().toString(), Toast.LENGTH_SHORT).show();
+			//else 	Toast.makeText(this, "not equal"+macAddress.getText().toString(), Toast.LENGTH_SHORT).show();
+			//Toast.makeText(this, newConfiguration.getMacAddress(), Toast.LENGTH_SHORT).show();
 			setResult(RESULT_OK, returnIntent);
 			finish();
 			overridePendingTransition(R.anim.slide_in_top,R.anim.slide_out_bottom);
@@ -603,9 +656,13 @@ public class NewConfigurationActivity extends Activity {
 	 * Shows active channels dialog calling
 	 * {@link NewConfigurationActivity#showActiveChannelsDialog()}
 	 */
-	public void onClickedActiveChannelsButton(View activeChannelsButton) {
-		showActiveChannelsDialog();
-	}
+	/*public void onClickedActiveChannelsButton(View activeChannelsButton) {
+		//Hard code in the channels for now
+		//String[] channels = {"1","2","3","4"};
+		newConfiguration.setActiveChannels(activeChannels);
+		newConfiguration.setDisplayChannels(activeChannels);
+		//showActiveChannelsDialog();
+	}*/
 
 	/**
 	 * Shows display channels picker dialog or displays an error toast if active

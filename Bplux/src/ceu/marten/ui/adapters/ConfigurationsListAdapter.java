@@ -43,10 +43,10 @@ public class ConfigurationsListAdapter extends ArrayAdapter<DeviceConfiguration>
 		DeviceConfiguration configuration = getItem(position);
 
 		name.setText(configuration.getName());
-		receptionFreq.setText(String.valueOf(configuration.getVisualizationFrequency()) + " Hz");
+		//receptionFreq.setText(String.valueOf(configuration.getVisualizationFrequency()) + " Hz");
 		samplingFreq.setText(String.valueOf(configuration.getSamplingFrequency()) + " Hz");
 		mac.setText(configuration.getMacAddress());
-		bits.setText(String.valueOf(configuration.getNumberOfBits()) + " bits");
+		//bits.setText(String.valueOf(configuration.getNumberOfBits()) + " bits");
 		date.setText(configuration.getCreateDate());
 		activeChannels.setText(context.getString(R.string.cl_active) + " " + configuration.getActiveChannels().toString());
 		channelsToDisplay.setText(context.getString(R.string.cl_display)

@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Bitadroid</string>
+    <string name="app_name">EMG Sensor</string>
     <string name="divider_image_content">divider</string>
     
     <!-- ACTIVITIES LABELS -->
-    <string name="home_label">Bitadroid</string>
+    <string name="home_label">EMG Sensor</string>
     <string name="global_settings_label">Global settings</string>
     <string name="recording_settings_label">Recording Settings</string>
     <string name="configurations_label">Configurations</string>
     <string name="recordings_label">Recordings</string>
     <string name="new_configurations_label">New Configurations</string>
     <string name="new_recordings_label">New Recording</string>
-    <string name="display_stored_graph_label">Displaying Recording</string>
     
      <!-- GLOBAL MENU ITEMS -->
      <string name="gm_settings">Settings</string>
@@ -28,11 +27,15 @@
     
     <!-- LAYOUTS -->
     <!-- HOME ACTIVITY -->
-    <string name="ha_title">Welcome,</string>
-    <string name="ha_description">Before starting a recording check that the Bitalino device is on and it has enough battery to perform the recording.</string>
-    <string name="ha_button1">Start Recording</string>
-    <string name="ha_button2">Browse Recordings</string>
-    
+    <string name="ha_title">Sunny Hill Health Center</string>
+    <string name="ha_description">Press START to begin EMG sensing</string>
+    <string name="ha_description1">Press SAVED DATA to view stored graphs</string>
+    <string name="ha_description2">Press CONFIGURATION to change settings</string>
+    <string name="ha_button1">START</string>
+    <string name="ha_button2">SAVED DATA</string>
+    <string name="ha_button3">CONFIGURATION</string>
+    <string name="ha_button4">SET PATIENT NAME</string>
+        
     <!-- SETTINGS ACTIVITY -->
     <string name="sa_category_title">CONFIRMATION DIALOGS</string>
     <string name="sa_nr_category_title">GRAPHS</string>
@@ -95,8 +98,8 @@
     <!-- NEW CONFIGURATION ACTIVITY -->
     <string name="nc_header_title">New configuration</string>
     <string name="nc_configuration_name">Configuration name</string>
-    <string name="nc_mac_address">MAC address</string>
-    <string name="nc_mac_address_hint">00:B0:D0:86:BB:F7</string>
+    <string name="nc_mac_address">Bluetooth Device Name</string>
+    <string name="nc_mac_address_hint">98:D3:31:B2:BD:55</string>
     <string name="nc_frequency_reception">"Reception frequency"</string>
     <string name="nc_frequency_reception_default">"100"</string>
     <string name="nc_frequency_metric">"Hz"</string>

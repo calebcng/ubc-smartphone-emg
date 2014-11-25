@@ -1,3 +1,5 @@
+//Modified by Brittaney Geisler November 2014
+
 package ceu.marten.ui;
 
 import java.sql.SQLException;
@@ -70,17 +72,17 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	
 	private ConfigurationsListAdapter baseAdapter;
 
-	private ArrayList<DeviceConfiguration> configurations = null;
+	public static ArrayList<DeviceConfiguration> configurations = null;
 	// to compare new rec. name with existing rec. names to avoid duplicates
-	private ArrayList<DeviceRecording> recordings = null;
+	//public static ArrayList<DeviceRecording> recordings = null;
 
-	private int configurationClickedPosition = 0;
+	public static int configurationClickedPosition = 0;
 	
 	// to delete swiped configurations
 	private int[] reverseSortedPositions;
 
-	private AlertDialog recordingNameDialog, confirmationDialog;
-
+	private AlertDialog confirmationDialog;//recordingNameDialog, confirmationDialog;
+	
 	/**
 	 * Loads configurations from Android internal Database and sets up the
 	 * configuration's list view, the recording name dialog and the confirmation
@@ -92,11 +94,13 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.ly_configurations);
 
+		
 		inflater = this.getLayoutInflater();
 		if (loadConfigurations()) {
 			setupConfigurationsListView();
 			setupConfirmationDialog();
 		}
+		
 	}
 	
 	/**
@@ -104,11 +108,11 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	 * recording name editText is cleared when user comes back from a recording
 	 * session
 	 */
-	@Override
+	/*@Override
 	protected void onStart() {
 		setupRecordingNameDialog();
 		super.onStart();
-	}
+	}*/
 
 	/**
 	 * Loads configurations from database and orders them by date
@@ -141,11 +145,26 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	 */
 	private void setupConfigurationsListView() {
 
-		// SHORT PRESS LISTENER
 		final OnItemClickListener shortPressListener = new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> AdapterView, View v,int position, long id) {
+				Intent modifyConfigurationIntent = new Intent(classContext, NewConfigurationActivity.class);
+				modifyConfigurationIntent.putExtra(KEY_CONFIGURATIONS, configurations);
+				modifyConfigurationIntent.putExtra(KEY_CONFIGURATION_POSITION, position);
+				startActivityForResult(modifyConfigurationIntent, MODIFY_CONFIGURATION_CODE_REQUEST);
+				overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_top);
 				configurationClickedPosition = position;
+				HomeActivity.configset = true;
+				//return true;
+			}
+		};
+		
+		// SHORT PRESS LISTENER
+		/*final OnItemClickListener shortPressListener = new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> AdapterView, View v,int position, long id) {
+				configurationClickedPosition = position;
+				HomeActivity.configset = true;
 				recordingNameDialog.show();
 			}
 		};
@@ -160,14 +179,16 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 				modifyConfigurationIntent.putExtra(KEY_CONFIGURATION_POSITION, position);
 				startActivityForResult(modifyConfigurationIntent, MODIFY_CONFIGURATION_CODE_REQUEST);
 				overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_top);
+				configurationClickedPosition = position;
+				HomeActivity.configset = true;
 				return true;
 			}
-		};
+		};*/
 
 		// gets the listView, sets the listeners and set emptyView
 		ListView configurationsListView = (ListView) findViewById(R.id.lvConfigs);
 		configurationsListView.setOnItemClickListener(shortPressListener);
-		configurationsListView.setOnItemLongClickListener(longPressListener);
+		//configurationsListView.setOnItemLongClickListener(longPressListener);
 		configurationsListView.setEmptyView(findViewById(R.id.empty_list_configurations));
 
 		// SETTING UP THE ADAPTER
@@ -181,7 +202,7 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	 * adds custom title and content
 	 * disables 'close by touching outside dialog' feature
 	 */
-	private void setupRecordingNameDialog() {
+	/*private void setupRecordingNameDialog() {
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -191,7 +212,7 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 				
 		recordingNameDialog = builder.create();
 		recordingNameDialog.setCanceledOnTouchOutside(false);
-	}
+	}*/
 
 	/**
 	 * Sets up delete confirmation dialog used when user swipes configuration away to delete it
@@ -392,6 +413,9 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	 * @param oldConfig the configuration before the user' modification
 	 * @param newConfig new configuration sent from the newConfigurationActivity
 	 */
+	public static DeviceConfiguration myconfig;
+	public static String krn;
+	public static String kc;
 	private boolean updateConfiguration(DeviceConfiguration oldConfig,DeviceConfiguration newConfig) {
 		Dao<DeviceConfiguration, Integer> dao;
 		try {
@@ -403,6 +427,9 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 			showErrorDialog(getResources().getString(R.string.ca_error_updating_configuration_message));
 			return false;
 		}
+		//myconfig = configurations.get(configurationClickedPosition);
+		//krn = KEY_RECORDING_NAME;
+		//kc = KEY_CONFIGURATION;
 		return true;
 	}
 
@@ -421,6 +448,9 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 			showErrorDialog(getResources().getString(R.string.ca_error_saving_configs_message));
 			return false;
 		}
+		//myconfig = configurations.get(configurationClickedPosition);
+		//krn = KEY_RECORDING_NAME;
+		//kc = KEY_CONFIGURATION;
 		return true;
 	}
 
@@ -428,7 +458,7 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	 * Loads recordings from Android's internal Database
 	 * @return true if loading was successful. false when exception is caught 
 	 */
-	private boolean loadRecordings() {
+	/*private boolean loadRecordings() {
 		Dao<DeviceRecording, Integer> dao;
 		recordings = new ArrayList<DeviceRecording>();
 		try {
@@ -442,7 +472,7 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 			return false;
 		}
 		return true;
-	}
+	}*/
 
 	/*************************** BUTTON EVENTS ****************************/
 
@@ -492,7 +522,7 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	 * 
 	 * @param positiveButton view of the positive button
 	 */
-	public void onPositiveClick(View positiveButton) {
+	/*public void onPositiveClick(View positiveButton) {
 		EditText recordingNameEText = (EditText) recordingNameDialog.findViewById(R.id.dialog_txt_new_recording_name);
 		String newRecordingName = recordingNameEText.getText().toString();
 		
@@ -521,7 +551,7 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 				overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * Clears the error set by positive button code (if there were any) and
@@ -529,9 +559,9 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	 * 
 	 * @param negativeButton
 	 */
-	public void onNegativeClick(View negativeButton) {
+	/*public void onNegativeClick(View negativeButton) {
 		EditText recordingNameEText = (EditText) recordingNameDialog.findViewById(R.id.dialog_txt_new_recording_name);
 		recordingNameEText.setError(null);
 		recordingNameDialog.dismiss();
-	}
+	}*/
 }

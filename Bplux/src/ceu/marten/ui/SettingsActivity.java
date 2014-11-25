@@ -1,3 +1,5 @@
+//NOT USED - Brittaney Geisler November 2014
+
 package ceu.marten.ui;
 
 import android.os.Bundle;

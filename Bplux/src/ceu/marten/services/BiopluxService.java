@@ -272,6 +272,7 @@ public class BiopluxService extends Service {
 		if (connection.connect(configuration.getVisualizationFrequency(),
 				activeChannelsArray) != 0) {
 			Log.e(TAG, "Bitalino connection error");
+			
 			killServiceError = true;
 			stopSelf();
 

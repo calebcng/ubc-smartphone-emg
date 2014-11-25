@@ -36,7 +36,7 @@ public class RecordingsListAdapter extends ArrayAdapter<DeviceRecording> {
 
 		DeviceRecording recording = getItem(position);
 		name.setText(recording.getName());
-		date.setText(recording.getSavedDate());
+		//date.setText(recording.getSavedDate());
 		duration.setText(context.getString(R.string.ra_duration) + " " + recording.getDuration());
 
 		return rowView;
