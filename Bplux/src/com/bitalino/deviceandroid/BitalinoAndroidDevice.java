@@ -1,11 +1,19 @@
+//Modified by Brittaney Geisler November 2014
+
 package com.bitalino.deviceandroid;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.widget.Toast;
+
+import ceu.marten.ui.HomeActivity;
+import ceu.marten.ui.NewConfigurationActivity;
+import ceu.marten.ui.NewRecordingActivity;
 
 import com.bitalino.comm.BITalinoDevice;
 import com.bitalino.comm.BITalinoException;
@@ -21,7 +29,8 @@ import com.bitalino.comm.BITalinoFrame;
 
 public class BitalinoAndroidDevice{
 	private String remoteDeviceMAC = "98:D3:31:B2:BD:41";
-	private int sampleRate=1000;
+	//public static String btName = "defualt";
+	private int sampleRate = 1000;
 	private static final UUID MY_UUID = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	BITalinoDevice bitalino;
@@ -65,8 +74,53 @@ public class BitalinoAndroidDevice{
 	public int connect(int sampleRate, int[] activeChannelsArray) {		
 		this.sampleRate=sampleRate;
 		final BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();	
-		BluetoothDevice dev = btAdapter.getRemoteDevice(remoteDeviceMAC);
-		btAdapter.cancelDiscovery();
+		BluetoothDevice dev = null; //= btAdapter.getRemoteDevice(remoteDeviceMAC);
+		//BluetoothDevice dev = btAdapter.getRemoteDevice("bitalino");
+		
+		//START OF MY CODE
+		//BluetoothDevice dev;
+		Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
+	    if(pairedDevices.size() > 0)
+	    {
+	        for(BluetoothDevice device : pairedDevices)
+	        {
+	            if(device.getName().equals(HomeActivity.btName)) //HomeActivity.btName//98:D3:31:B2:BD:55//EMG_Sensor//NewConfigurationActivity.macAdd
+	            {
+	                dev = device;
+	                
+	                //START
+	        		btAdapter.cancelDiscovery();
+	        		BluetoothSocket sock;
+	        		try {
+	        			sock = dev.createRfcommSocketToServiceRecord(MY_UUID);
+	        			sock.connect();
+
+	        		} catch (IOException e) {
+	        			e.printStackTrace();
+	        			return -1;
+	        		}
+	        		
+	        		try {
+	        			bitalino = new BITalinoDevice(sampleRate, activeChannelsArray);
+	        		} catch (BITalinoException e) {
+	        			e.printStackTrace();
+	        			return -2;
+	        		}
+	        		try {
+	        			bitalino.open(sock.getInputStream(), sock.getOutputStream());
+	        		} catch (BITalinoException | IOException e) {
+	        			e.printStackTrace();
+	        		}
+	        		//END
+	                return 0;
+	                //break;
+	            }
+	            //else Toast.makeText(this, NewConfigurationActivity.macAddress.getText().toString(), Toast.LENGTH_SHORT).show();
+	        }
+	    }
+		//END OF MY CODE
+		
+		/*btAdapter.cancelDiscovery();
 		BluetoothSocket sock;
 		try {
 			sock = dev.createRfcommSocketToServiceRecord(MY_UUID);
@@ -87,10 +141,10 @@ public class BitalinoAndroidDevice{
 			bitalino.open(sock.getInputStream(), sock.getOutputStream());
 		} catch (BITalinoException | IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 
-
-		return 0;
+	    NewRecordingActivity.btConnectError = true;
+		return 1;
 	}
 	
 	

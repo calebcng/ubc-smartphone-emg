@@ -50,7 +50,9 @@ final class BITalinoFrameDecoder {
       }
       // if the message was correctly received, start decoding
       if (CRC == ((x3 << 3) | (x2 << 2) | (x1 << 1) | x0)) {
-        frame = new BITalinoFrame();
+      //int check = 1;
+      //if (check == 1){  
+      	frame = new BITalinoFrame();
         frame.setSequence(((buffer[j - 0] & 0xF0) >> 4) & 0xf);
         frame.setDigital(0, (buffer[j - 1] >> 7) & 0x01);
         frame.setDigital(1, (buffer[j - 1] >> 6) & 0x01);

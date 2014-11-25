@@ -44,6 +44,7 @@ public class Graph implements Serializable {
 		graphView = new LineGraphView(context, ""); 
 
 		// ADD SERIES TO GRAPHVIEW and SET SCROLLABLE
+		graphView.setManualYAxisBounds(600, 300);
 		graphView.addSeries(basicSerie);
 		graphView.setViewPort(
 				2,
