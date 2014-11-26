@@ -7,8 +7,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@xml/header_color"
-        android:paddingBottom="2dip"
-        android:paddingTop="5dip" >
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp" >
 
         
 
@@ -18,18 +18,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@android:color/white"
-            android:textSize="25sp" />
+            android:textSize="20sp" />
+        
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@null"
-            android:contentDescription="@string/app_name"
-            android:onClick="onClikedMenuItems"
-            android:paddingRight="15dp"
-            android:src="@drawable/menu_button" />
     </RelativeLayout>
 
     <include layout="@layout/header_shadow" />
@@ -39,7 +30,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/shadow"
-        android:layout_marginBottom="60dip" >
+        android:layout_marginBottom="60dip"
+        android:fillViewport="true" >
 
         <LinearLayout
             android:id="@+id/nr_graphs"
@@ -81,17 +73,19 @@
 
             <Button
                 android:id="@+id/nr_bttn_StartPause"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:background="@xml/button_selector"
                 android:onClick="onMainButtonClicked"
                 android:text="@string/nr_button_start"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
 
             <ImageButton
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="2"
                 android:layout_marginLeft="5dp"
                 android:background="@xml/button_zoom_out"
                 android:contentDescription="@string/divider_image_content"
@@ -99,8 +93,9 @@
                 android:src="@drawable/zoom_out" />
 
             <ImageButton
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="2"
                 android:layout_marginLeft="1dp"
                 android:background="@xml/button_zoom_in"
                 android:contentDescription="@string/divider_image_content"
