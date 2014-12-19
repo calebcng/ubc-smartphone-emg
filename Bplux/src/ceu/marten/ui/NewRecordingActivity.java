@@ -158,10 +158,16 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case BiopluxService.MSG_DATA: {
+			/*case BiopluxService.MSG_DATA: {
 				appendDataToGraphs(
 						msg.getData().getDouble(BiopluxService.KEY_X_VALUE),
 						msg.getData().getShortArray(BiopluxService.KEY_FRAME_DATA));
+				break;
+			}*/
+			case BiopluxService.MSG_DATA: {
+				appendDataToGraphs(
+						msg.getData().getDouble(BiopluxService.KEY_X_VALUE),
+						msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
 				break;
 			}
 			case BiopluxService.MSG_CONNECTION_ERROR: {
@@ -233,7 +239,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 * Appends x and y values received from service to all active graphs. The
 	 * graph always moves to the last value added
 	 */
-	 void appendDataToGraphs(double xValue, short[] data) {
+	 /*void appendDataToGraphs(double xValue, short[] data) {
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
 				graphs[i].getSerie().appendData(
@@ -241,7 +247,18 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 								data[displayChannelPosition[i]]), goToEnd, maxDataCount);
 			}
 		}
+	}*/
+	void appendDataToGraphs(double xValue, double[] data) {
+		if(!serviceError){
+			for (int i = 0; i < graphs.length; i++) {
+				graphs[i].getSerie().appendData(
+						new GraphViewData(xValue,
+								data[displayChannelPosition[i]]), goToEnd, maxDataCount);
+				System.out.println(xValue + " : " + data[displayChannelPosition[i]]);
+			}
+		}
 	}
+	
 
 	/**
 	 * Sends recording duration to the service by message when recording is
@@ -859,8 +876,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 * Widens the graphs' view port
 	 */
 	public void zoomIn(View view){
-		for (int i = 0; i < graphs.length; i++)
-			graphs[i].getGraphView().zoomIn(currentZoomValue); 
+//		for (int i = 0; i < graphs.length; i++)
+//			graphs[i].getGraphView().zoomIn(currentZoomValue); 
 	}
 	
 	/**
@@ -874,8 +891,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			zoomOutValue = 33.3;
 		else if(currentZoomValue == 400)
 			zoomOutValue = 25;
-		for (int i = 0; i < graphs.length; i++)
-			graphs[i].getGraphView().zoomOut(zoomOutValue); 
+//		for (int i = 0; i < graphs.length; i++)
+//			graphs[i].getGraphView().zoomOut(zoomOutValue); 
 	}
 	
 	

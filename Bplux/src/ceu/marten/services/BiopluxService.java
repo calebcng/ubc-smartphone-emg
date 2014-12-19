@@ -7,6 +7,7 @@ import java.util.TimerTask;
 
 import com.bitalino.comm.BITalinoFrame;
 import com.bitalino.deviceandroid.BitalinoAndroidDevice;
+import com.bitalino.util.SensorDataConverter;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -350,17 +351,20 @@ public class BiopluxService extends Service {
 		int[] activeChannelsArray = convertToBitalinoChannelsArray(activeChannels);
 				
 		short[] frameShort = new short[6];
+		double[] frameDouble = new double[6];
 		
 		for(int indTemp=0;indTemp<6;indTemp++){
 			frameShort[indTemp]=0;
+			frameDouble[indTemp]=0;
 		}
 
 		for(int ind=0; ind<activeChannelsArray.length;ind++){
 			frameShort[ind]=(short) (frame.getAnalog(activeChannelsArray[ind]));
+			frameDouble[ind]= SensorDataConverter.scaleEMG(activeChannelsArray[ind], frame.getAnalog(activeChannelsArray[ind]));
 		}
 		
-		
-		b.putShortArray(KEY_FRAME_DATA, frameShort);
+		b.putDoubleArray(KEY_FRAME_DATA, frameDouble);
+//		b.putShortArray(KEY_FRAME_DATA, frameShort);
 		Message message = Message.obtain(null, MSG_DATA);
 		message.setData(b);
 		try {
