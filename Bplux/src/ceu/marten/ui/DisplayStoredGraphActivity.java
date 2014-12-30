@@ -7,30 +7,41 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.Collections;
 import java.util.Random;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+import java.lang.String;
+
+import com.bitalino.util.SensorDataConverter;
 
 //import com.example.bluetoothnew.R;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
 
-import com.jjoe64.graphview.BarGraphView;
+import com.jjoe64.graphview.CustomLabelFormatter;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GraphViewSeries;
-import com.jjoe64.graphview.LineGraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphView.LegendAlign;
+import com.jjoe64.graphview.GraphViewSeries;
+import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
+import com.jjoe64.graphview.GraphViewStyle;
+import com.jjoe64.graphview.LineGraphView;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -41,6 +52,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.widget.LinearLayout;
 import android.app.Activity;
+
+/** 
+ * Reads the data stored in a target recordings text file and plots
+ * the data onto a graph.
+ * 
+ * @author Caleb Ng
+ */
 
 public class DisplayStoredGraphActivity extends Activity {
     // Progress Dialog Object
@@ -54,8 +72,8 @@ public class DisplayStoredGraphActivity extends Activity {
 //	public Vector<Vector<Double>> dataSet = new Vector<Vector<Double>>();
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
+	public String samplingFrequencyHeader = "\"SamplingFrequency\": ";
 	public String endOfHeader = "# EndOfHeader";
-	private GraphView graphView;
 	private GraphViewSeries exampleSeries1;
 	int setSize = 0;
 	int max=0;
@@ -63,96 +81,8 @@ public class DisplayStoredGraphActivity extends Activity {
 	public static double [] buffer;
 	Context context;
 	LinearLayout layout;
+	private int samplingFrequency = 1;
 
-  
-  /*
-   * Retrieves data points from specified data file
-   * Parameters:	FILE_NAME string, terminated by ".txt"
-   * Outputs:	BOOLEAN denoting whether or not the function was successful
-   */
-  /*private Boolean retrieveDataPoints(String FILE_NAME) {
-  	Scanner strings = null;
-  	try {
-  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, FILE_NAME);
-  		
-  		if (file.exists()) {
-  			FileReader read = new FileReader(file);
-  			BufferedReader r = new BufferedReader(read);
-  			String line;
-  			
-  			while((line=r.readLine())!=null) {
-  				strings = new Scanner(r);
-  	  			
-  	      		strings.findWithinHorizon(endOfHeader,0);    		
-  	      		strings.useDelimiter("\t *");
-  	      		strings.next();
-  	      		
-	  	      	while (strings.hasNext())
-		  	  	{
-		  	  		double dataPoint = Double.parseDouble(strings.next());
-		  	  		System.out.println("Adding " + dataPoint + " to vector.");
-		  	  		dataSet.add(dataPoint);
-		  	  		System.out.println("testData size: " + dataSet.size());
-		  	  		if (strings.hasNext())
-		  	  			strings.next();
-		  	  		else
-		  	  			break;
-		  	  	}
-  			}
-  		}
-	}
-	catch (FileNotFoundException error) {
-		System.out.println("@IOERROR: " + error);
-		return false;
-	}
-	catch (IOException error) {
-		System.out.println("@IOERROR: " + error);
-		return false;
-	}
-	System.out.println("Closing strings.");
-	  	strings.close();
-	  	
-	  	return true;
-  }*/
- /* private Boolean retrieveDataPoints(String FILE_NAME) {
-  	Scanner strings = null;
-  	try {
-  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, FILE_NAME);
-  		
-  		if (file.exists()) {
-  			FileReader read = new FileReader(file);
-  			BufferedReader r = new BufferedReader(read);
-  			strings = new Scanner(read);
-  			
-      		strings.findWithinHorizon(endOfHeader,0);    		
-      		strings.useDelimiter("\t *");
-      		strings.next();
-  		}
-	}
-	catch (FileNotFoundException error) {
-		System.out.println("@IOERROR: " + error);
-		return false;
-	}
-	catch (IOException error) {
-		System.out.println("@IOERROR: " + error);
-		return false;
-	}
-	while (strings.hasNext())
-	{
-		double dataPoint = Double.parseDouble(strings.next());
-		System.out.println("Adding " + dataPoint + " to vector.");
-		dataSet.add(dataPoint);
-		System.out.println("testData size: " + dataSet.size());
-		if (strings.hasNext())
-			strings.next();
-		else
-			break;
-	}
-	System.out.println("Closing strings.");
-	  	strings.close();
-	  	
-	  	return true;
-  }*/
   
   	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -171,19 +101,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		new ReadFileService().execute();
 		
   }
-  	
-  	/*private double getRandom() {
-  		double number = buffer[setSize];
-		if (number > max){
-			max = (int)number;
-		}
-		else if (number < min){
-			min = (int)number;
-		}
-		n++;
-		return number;
-	}
-	  */
+
 	  /*
 	   * Calculates the range (min and max) of values of the dataSet vector
 	   * Parameters:	none
@@ -200,12 +118,36 @@ public class DisplayStoredGraphActivity extends Activity {
 	
 	private void graphData() {	  
 	  System.out.println("Defining data set.");
+	  /*GraphView graphViews = new LineGraphView(this, recordingName);
+	  graphViews.setCustomLabelFormatter(new CustomLabelFormatter() {
+			@SuppressLint("DefaultLocale")
+			@Override
+			public String formatLabel(long value, boolean isValueX) {
+				if (isValueX) {
+					return String.format("%d", (int) value);
+				} else {
+					return String.format("%.2f", (double) value);
+//					return null;
+				}
+			}
+		});*/
 	  GraphView graphView = new LineGraphView(this, recordingName) {
-	  	   protected String formatLabel(double value, boolean isValueX) {
-	  	      // return as Integer
-	  	      return ""+((int) value);
-	  	   }
-	  	};
+		  protected String formatLabel(double value, boolean isValueX) {
+			  if (isValueX) {
+//				return String.format("%d", (int) value);
+				  long xValue;
+				  if (value < 0.000){
+					  xValue = 0;
+					  return "00:00:00";
+				  }
+				  xValue = (long) value;
+				  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) (xValue / samplingFrequency) % 60);
+			  } else {
+				return String.format("%.2f", (double) value);
+	//			return null;
+			}
+		  }
+	  };
 	  
 	  int yInterval = calculateYScale();
 	  int yLabel = max;
@@ -231,12 +173,25 @@ public class DisplayStoredGraphActivity extends Activity {
 	  else
 	  	graphView.setViewPort(0, 100);
 	  graphView.setManualYAxisBounds(yLabel, min);
-	  graphView.getGraphViewStyle().setNumVerticalLabels(((yLabel-min)/yInterval) + 1);
+//	  graphView.getGraphViewStyle().setNumVerticalLabels(((yLabel-min)/yInterval) + 1);
 	//  graphView.getGraphViewStyle().setNumHorizontalLabels(xLabel/xInterval + 1);
 	  graphView.getGraphViewStyle().setGridColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setVerticalLabelsWidth(80);
+	  
+	  /*graphView.setCustomLabelFormatter(new CustomLabelFormatter() {
+			@SuppressLint("DefaultLocale")
+			@Override
+			public String formatLabel(long value, boolean isValueX) {
+				if (isValueX) {
+					return String.format("%d", (int) value);
+				} else {
+//					return String.format("%.2f", (double) value);
+					return null;
+				}
+			}
+		});*/
 
 	  LinearLayout layout = (LinearLayout) findViewById(R.id.dataGraph);
 	  layout.addView(graphView);
@@ -256,7 +211,11 @@ public class DisplayStoredGraphActivity extends Activity {
 		}		
 		// Calculate interval level of labels in y-direction
 		int yInterval;
-		if ((max-min) <= 10) {
+//		if ((max-min) <= 5) {
+//			yInterval = 0.5;
+//		}
+//		else 
+			if ((max-min) <= 10) {
 			yInterval = 1;
 		}
 		else if ((max-min) <= 50) {
@@ -292,20 +251,14 @@ public class DisplayStoredGraphActivity extends Activity {
 		return xInterval;
 	}
 	
-	 // Show Dialog Box with Progress bar
-   /* @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-        case progress_bar_type:
-        	prgDialog = new ProgressDialog(this);
-            prgDialog.setMessage("Reading from file.\nPlease wait...");
-            prgDialog.setIndeterminate(true);
-            prgDialog.show();
-            return prgDialog;
-        default:
-            return null;
-        }
-    }*/
+	/**
+	 * Destroys activity
+	 */
+	@Override
+	public void onBackPressed() {
+	    super.onBackPressed();
+	    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+	}
   	
 	//<Params, Progress, Result>
 	class ReadFileService extends AsyncTask<Void, String, Boolean> {
@@ -324,6 +277,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		  		while (entries.hasMoreElements()) {
 		  			ZipEntry zipEntry = entries.nextElement();
 		  			stream = zipFile.getInputStream(zipEntry);
+//		  			freqString = new Scanner(stream);
 		  			strings = new Scanner(stream);
 		  			/*if (!zipEntry.isDirectory()) {
 		  				String fileName = zipEntry.getName();
@@ -331,6 +285,27 @@ public class DisplayStoredGraphActivity extends Activity {
 		  					zipInput = new ZipInputStream(new FileInputStream(fileName));
 		  				}
 		  			}*/
+		  			System.out.println("Extracting value of sampling frequency.");
+		  			String regexPattern = "\"ColumnLabels\"";
+		  			strings.useDelimiter(regexPattern);
+		  			String extracted = strings.next();
+		  			System.out.println("Extracted: " + extracted);
+		  			
+		  			Pattern pattern = Pattern.compile("\"SamplingFrequency\": \"(\\d+)\"");
+		  			Matcher matcher = pattern.matcher(extracted);
+		  			if (matcher.find()) {
+		  				samplingFrequency = Integer.parseInt(matcher.group(1));
+		  				System.out.println(samplingFrequency);
+		  			}
+		  			
+		  			/*regexPattern = "\"SamplingFrequency\": \"(\\d+)\"";
+		  			freqString = new Scanner(extracted);
+		  			freqString.findInLine("\"SamplingFrequency\": \"(\\d+)\"");
+		  			MatchResult result = freqString.match();
+		  			for(int i=1; i<result.groupCount(); i++)
+		  				System.out.println("Extracted: " + result.group(i));
+		  			freqString.close();*/
+		  			
 		  			strings.findWithinHorizon(endOfHeader,0);    		
 		      		strings.useDelimiter("\t *");
 		      		strings.next();
@@ -348,7 +323,7 @@ public class DisplayStoredGraphActivity extends Activity {
 			{
 				double dataPoint = Double.parseDouble(strings.next());
 //				System.out.println("Adding " + dataPoint + " to vector.");
-				dataSet.add(dataPoint);
+				dataSet.add(SensorDataConverter.scaleEMG(dataPoint));
 //				System.out.println("testData size: "  dataSet.size());
 				if (strings.hasNext())
 					strings.next();
@@ -363,8 +338,7 @@ public class DisplayStoredGraphActivity extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		  	strings.close();
-			
+		  	strings.close();			
 			return true;
 		}
 		
@@ -396,6 +370,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	        });
 			for (int i=0; i<dataSet.size(); i++) {
 			  	double pointX = i;
+//			  	double pointY = SensorDataConverter.scaleEMG(dataSet.get(i));
 			  	double pointY = dataSet.get(i);
 			  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSet.size());
 //			  	System.out.println("X = " + pointX + ", Y = " + pointY);
