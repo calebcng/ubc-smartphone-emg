@@ -1,3 +1,7 @@
+//Modified by Brittaney Geisler November 2014
+//I have commented out the error box, should be commented back in once the
+	//recording names are worked out
+
 package ceu.marten.ui;
 
 import java.sql.SQLException;
@@ -113,6 +117,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private int bpErrorCode   = 0;
 	private boolean serviceError = false;
 	private boolean connectionError = false;
+	public static boolean btConnectError = false;
 	
 	// MESSENGERS USED TO COMMUNICATE ACTIVITY AND SERVICE
 	private Messenger serviceMessenger = null;
@@ -153,10 +158,16 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case BiopluxService.MSG_DATA: {
+			/*case BiopluxService.MSG_DATA: {
 				appendDataToGraphs(
 						msg.getData().getDouble(BiopluxService.KEY_X_VALUE),
 						msg.getData().getShortArray(BiopluxService.KEY_FRAME_DATA));
+				break;
+			}*/
+			case BiopluxService.MSG_DATA: {
+				appendDataToGraphs(
+						msg.getData().getDouble(BiopluxService.KEY_X_VALUE),
+						msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
 				break;
 			}
 			case BiopluxService.MSG_CONNECTION_ERROR: {
@@ -228,7 +239,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 * Appends x and y values received from service to all active graphs. The
 	 * graph always moves to the last value added
 	 */
-	 void appendDataToGraphs(double xValue, short[] data) {
+	 /*void appendDataToGraphs(double xValue, short[] data) {
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
 				graphs[i].getSerie().appendData(
@@ -236,7 +247,18 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 								data[displayChannelPosition[i]]), goToEnd, maxDataCount);
 			}
 		}
+	}*/
+	void appendDataToGraphs(double xValue, double[] data) {
+		if(!serviceError){
+			for (int i = 0; i < graphs.length; i++) {
+				graphs[i].getSerie().appendData(
+						new GraphViewData(xValue,
+								data[displayChannelPosition[i]]), goToEnd, maxDataCount);
+				System.out.println(xValue + " : " + data[displayChannelPosition[i]]);
+			}
+		}
 	}
+	
 
 	/**
 	 * Sends recording duration to the service by message when recording is
@@ -269,9 +291,10 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		// GETTING EXTRA INFO FROM INTENT
 		extras = getIntent().getExtras();
 		recordingConfiguration = (DeviceConfiguration) extras.getSerializable(ConfigurationsActivity.KEY_CONFIGURATION);
+		//recordingConfiguration = (DeviceConfiguration) ConfigurationsActivity.myconfig;
 		recording = new DeviceRecording();
 		recording.setName(extras.getString(ConfigurationsActivity.KEY_RECORDING_NAME).toString());
-		
+		//recording.setName("Data");
 
 		// INIT GLOBAL VARIABLES
 		savingDialog = new ProgressDialog(classContext);
@@ -336,6 +359,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		}
 		super.onResume();
 		Log.i(TAG, "onResume()");
+		
 	}
 
 	private void initActivityContentLayout() {
@@ -590,6 +614,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 * progress dialog  spinning circle when we test the connection
 	 */
 	private boolean startRecording() {
+		
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		final ProgressDialog progress;
 		if(recordingConfiguration.getMacAddress().compareTo("test")!= 0){ // 'test' is used to launch device emulator
@@ -601,13 +626,17 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 				showBluetoothDialog();
 				return false;
 			}
+			
 		}
+		//Toast.makeText(getApplicationContext(), "Recording",Toast.LENGTH_LONG).show();
 		
 		progress = ProgressDialog.show(this,getResources().getString(R.string.nr_progress_dialog_title),getResources().getString(R.string.nr_progress_dialog_message), true);
-		Thread connectionThread = 
-				new Thread(new Runnable() {
+		
+		Thread connectionThread = new Thread(new Runnable() {
+					
 			@Override
 			public void run() {
+				
 				
 				//Revisar		BitalinoAndroidDevice connectionTest = new BitalinoAndroidDevice(recordingConfiguration.getMacAddress()); 
 					//Revisar
@@ -629,6 +658,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 							uiMainbutton.setText(getString(R.string.nr_button_stop));
 							displayInfoToast(getString(R.string.nr_info_started));
 							drawState = false;
+							if (btConnectError == true) Toast.makeText(classContext, "Bluetooth Connection Error", Toast.LENGTH_LONG).show();
 						}
 				    }
 				});
@@ -636,12 +666,17 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		});
 		
 		if(recordingConfiguration.getMacAddress().compareTo("test")==0 && !isServiceRunning() && !recordingOverride)
-			connectionThread.start();
+			{
+				
+				connectionThread.start();
+			}
 		else if(mBluetoothAdapter.isEnabled() && !isServiceRunning() && !recordingOverride) {
 			connectionThread.start();
 		}
+		
 		return false;
 	}
+
 	
 	/**
 	 * Displays an error dialog with corresponding message based on the
@@ -651,7 +686,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		// Initializes custom title
 		TextView customTitleView = (TextView) inflater.inflate(R.layout.dialog_custom_title, null);
 		customTitleView.setBackgroundColor(getResources().getColor(R.color.error_dialog));
-		switch(errorCode){
+		/*switch(errorCode){
 		case 1:
 			connectionErrorDialog.setMessage(getResources().getString(R.string.bp_address_incorrect));
 			break;
@@ -681,7 +716,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			connectionErrorDialog.setMessage("FATAL ERROR");
 			break;
 		}
-		connectionErrorDialog.show();
+		connectionErrorDialog.show();*/
 	}
 
 	/**
@@ -841,8 +876,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 * Widens the graphs' view port
 	 */
 	public void zoomIn(View view){
-		for (int i = 0; i < graphs.length; i++)
-			graphs[i].getGraphView().zoomIn(currentZoomValue); 
+//		for (int i = 0; i < graphs.length; i++)
+//			graphs[i].getGraphView().zoomIn(currentZoomValue); 
 	}
 	
 	/**
@@ -856,8 +891,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			zoomOutValue = 33.3;
 		else if(currentZoomValue == 400)
 			zoomOutValue = 25;
-		for (int i = 0; i < graphs.length; i++)
-			graphs[i].getGraphView().zoomOut(zoomOutValue); 
+//		for (int i = 0; i < graphs.length; i++)
+//			graphs[i].getGraphView().zoomOut(zoomOutValue); 
 	}
 	
 	

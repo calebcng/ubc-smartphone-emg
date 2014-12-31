@@ -34,6 +34,7 @@
             android:background="@xml/button_selector"
             android:onClick="onClickedStartStop"
             android:text="@string/nr_button_start"
+            android:textSize="16sp"
             android:textColor="@android:color/white" />
     </LinearLayout>
 

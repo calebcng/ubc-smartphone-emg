@@ -113,7 +113,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class id {
         public static final int TAG_POSITION=0x7f0c0000;
         public static final int TAG_SPINNER=0x7f0c0001;
-        public static final int btnRegister=0x7f0c003b;
+        public static final int btnRegister=0x7f0c0038;
         public static final int bttnAddConfig=0x7f0c002b;
         public static final int bttn_negative=0x7f0c000a;
         public static final int bttn_positive=0x7f0c0009;
@@ -123,7 +123,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int dataGraph=0x7f0c000b;
         public static final int dev_name=0x7f0c0030;
         public static final int dialog_txt_new_recording_name=0x7f0c0008;
-        public static final int display_text=0x7f0c0041;
+        public static final int display_text=0x7f0c003e;
         public static final int dli_active_channels=0x7f0c0024;
         public static final int dli_channels_to_display=0x7f0c0025;
         public static final int dli_date=0x7f0c0026;
@@ -134,10 +134,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int dli_reception_freq=0x7f0c0020;
         public static final int dli_sampling_freq=0x7f0c0022;
         public static final int empty_list_configurations=0x7f0c0029;
-        public static final int empty_list_recordings=0x7f0c003f;
-        public static final int gm_about=0x7f0c0044;
-        public static final int gm_help=0x7f0c0043;
-        public static final int gm_settings=0x7f0c0042;
+        public static final int empty_list_recordings=0x7f0c003c;
+        public static final int gm_about=0x7f0c0041;
+        public static final int gm_help=0x7f0c0040;
+        public static final int gm_settings=0x7f0c003f;
         public static final int graph_view=0x7f0c0011;
         public static final int help_info_text=0x7f0c0007;
         public static final int info_text=0x7f0c0002;
@@ -148,39 +148,36 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int li_ctd_channelNumber=0x7f0c001c;
         public static final int li_ctd_checkbox=0x7f0c001e;
         public static final int li_ctd_sensor=0x7f0c001d;
+        public static final int linearLayout1=0x7f0c002e;
         public static final int lvConfigs=0x7f0c002a;
-        public static final int lvSessions=0x7f0c0040;
+        public static final int lvSessions=0x7f0c003d;
         public static final int lv_channelsSelection=0x7f0c0004;
         public static final int lyHeader=0x7f0c000d;
         public static final int lyTitle=0x7f0c002c;
         public static final int nc_mac_address=0x7f0c0031;
-        public static final int nc_reception_freq_view=0x7f0c0033;
-        public static final int nc_reception_seekbar=0x7f0c0032;
-        public static final int nc_sampling_freq_view=0x7f0c0036;
-        public static final int nc_sampling_seekbar=0x7f0c0035;
-        public static final int nc_txt_active_channels=0x7f0c0037;
-        public static final int nc_txt_channels_to_show=0x7f0c0038;
+        public static final int nc_sampling_freq_view=0x7f0c0033;
+        public static final int nc_sampling_seekbar=0x7f0c0032;
+        public static final int nc_txt_active_channels=0x7f0c0034;
+        public static final int nc_txt_channels_to_show=0x7f0c0035;
         public static final int nr_bttn_StartPause=0x7f0c0010;
         public static final int nr_buttons=0x7f0c000e;
         public static final int nr_graph_details=0x7f0c0012;
-        public static final int nr_graphs=0x7f0c003e;
+        public static final int nr_graphs=0x7f0c003b;
         public static final int nr_reception_freq=0x7f0c0015;
-        public static final int nr_restore_zoom=0x7f0c0046;
+        public static final int nr_restore_zoom=0x7f0c0043;
         public static final int nr_sampling_freq=0x7f0c0016;
-        public static final int nr_scroll_view=0x7f0c003d;
-        public static final int nr_settings=0x7f0c0045;
+        public static final int nr_scroll_view=0x7f0c003a;
+        public static final int nr_settings=0x7f0c0042;
         public static final int nr_txt_channels_active=0x7f0c0018;
         public static final int nr_txt_configName=0x7f0c0014;
         public static final int nr_txt_config_nbits=0x7f0c0017;
         public static final int nr_txt_mac=0x7f0c0013;
-        public static final int nr_txt_recordingName=0x7f0c003c;
-        public static final int radioBttn8=0x7f0c0034;
+        public static final int nr_txt_recordingName=0x7f0c0039;
         public static final int regForm=0x7f0c002f;
         public static final int shadow=0x7f0c000c;
-        public static final int sl_bttnCancel=0x7f0c003a;
+        public static final int sl_bttnCancel=0x7f0c0037;
         public static final int sl_button=0x7f0c0028;
-        public static final int sl_buttons=0x7f0c0039;
-        public static final int txtDescription=0x7f0c002e;
+        public static final int sl_buttons=0x7f0c0036;
         public static final int txtTitle=0x7f0c002d;
     }
     public static final class layout {
@@ -219,61 +216,61 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class string {
         public static final int active_channel_dialog_spinner_text=0x7f090000;
         public static final int app_name=0x7f090007;
-        public static final int bp_adapter_not_found=0x7f090088;
+        public static final int bp_adapter_not_found=0x7f09008c;
         /**  BIO ERROR/WARNING MESSAGES 
  BIOPLUX NOTIFICATION MESSAGES 
          */
-        public static final int bp_address_incorrect=0x7f090087;
-        public static final int bp_contacting_device=0x7f09008a;
-        public static final int bp_device_not_found=0x7f090089;
-        public static final int bp_error_saving_recording=0x7f09008d;
-        public static final int bp_error_writing_a_frame=0x7f09008c;
-        public static final int bp_port_could_not_be_opened=0x7f09008b;
-        public static final int bp_positive_button=0x7f09008e;
-        public static final int bs_header_active_channels=0x7f090095;
-        public static final int bs_header_bits=0x7f090092;
-        public static final int bs_header_date=0x7f090090;
-        public static final int bs_header_duration=0x7f090093;
-        public static final int bs_header_frequency=0x7f090091;
+        public static final int bp_address_incorrect=0x7f09008b;
+        public static final int bp_contacting_device=0x7f09008e;
+        public static final int bp_device_not_found=0x7f09008d;
+        public static final int bp_error_saving_recording=0x7f090091;
+        public static final int bp_error_writing_a_frame=0x7f090090;
+        public static final int bp_port_could_not_be_opened=0x7f09008f;
+        public static final int bp_positive_button=0x7f090092;
+        public static final int bs_header_active_channels=0x7f090099;
+        public static final int bs_header_bits=0x7f090096;
+        public static final int bs_header_date=0x7f090094;
+        public static final int bs_header_duration=0x7f090097;
+        public static final int bs_header_frequency=0x7f090095;
         /**  BIOPLUX SERVICE 
  BIOPLUX SERVICE 
          */
-        public static final int bs_header_name=0x7f09008f;
-        public static final int bs_header_seconds=0x7f090094;
-        public static final int bs_notification_message=0x7f090097;
-        public static final int bs_notification_title=0x7f090096;
-        public static final int ca_button=0x7f09002a;
-        public static final int ca_configuration_removed=0x7f090038;
-        public static final int ca_confirm_dialog_message=0x7f09002e;
-        public static final int ca_confirm_dialog_negative=0x7f090030;
-        public static final int ca_confirm_dialog_positive=0x7f09002f;
-        public static final int ca_confirm_dialog_title=0x7f09002d;
-        public static final int ca_dialog_duplicate_name=0x7f09003a;
-        public static final int ca_dialog_null_name=0x7f090039;
-        public static final int ca_empty_list=0x7f090037;
-        public static final int ca_error_deleting_configuration_message=0x7f090035;
-        public static final int ca_error_dialog_title=0x7f090031;
-        public static final int ca_error_loading_configs_message=0x7f090033;
-        public static final int ca_error_loading_recordings_message=0x7f090034;
-        public static final int ca_error_saving_configs_message=0x7f090032;
-        public static final int ca_error_updating_configuration_message=0x7f090036;
+        public static final int bs_header_name=0x7f090093;
+        public static final int bs_header_seconds=0x7f090098;
+        public static final int bs_notification_message=0x7f09009b;
+        public static final int bs_notification_title=0x7f09009a;
+        public static final int ca_button=0x7f09002e;
+        public static final int ca_configuration_removed=0x7f09003c;
+        public static final int ca_confirm_dialog_message=0x7f090032;
+        public static final int ca_confirm_dialog_negative=0x7f090034;
+        public static final int ca_confirm_dialog_positive=0x7f090033;
+        public static final int ca_confirm_dialog_title=0x7f090031;
+        public static final int ca_dialog_duplicate_name=0x7f09003e;
+        public static final int ca_dialog_null_name=0x7f09003d;
+        public static final int ca_empty_list=0x7f09003b;
+        public static final int ca_error_deleting_configuration_message=0x7f090039;
+        public static final int ca_error_dialog_title=0x7f090035;
+        public static final int ca_error_loading_configs_message=0x7f090037;
+        public static final int ca_error_loading_recordings_message=0x7f090038;
+        public static final int ca_error_saving_configs_message=0x7f090036;
+        public static final int ca_error_updating_configuration_message=0x7f09003a;
         /**  CONFIGURATIONS ACTIVITY 
  CONFIGURATIONS ACTIVITY 
          */
-        public static final int ca_header_title=0x7f090029;
-        public static final int ca_info_recording_canceled=0x7f09002b;
-        public static final int ca_name_dialog_title=0x7f09002c;
+        public static final int ca_header_title=0x7f09002d;
+        public static final int ca_info_recording_canceled=0x7f09002f;
+        public static final int ca_name_dialog_title=0x7f090030;
         /**  CONFIGURATION LIST ADAPTER 
  CONFIGURATION LIST ADAPTER 
          */
-        public static final int cl_active=0x7f09003b;
-        public static final int cl_display=0x7f09003c;
+        public static final int cl_active=0x7f09003f;
+        public static final int cl_display=0x7f090040;
         public static final int configurations_label=0x7f09000c;
-        public static final int d_confirmationCheck=0x7f090099;
+        public static final int d_confirmationCheck=0x7f09009d;
         /**  DIALOGS 
  DIALOG NAME 
          */
-        public static final int d_hint=0x7f090098;
+        public static final int d_hint=0x7f09009c;
         public static final int display_stored_graph_label=0x7f090010;
         public static final int divider_image_content=0x7f090008;
         public static final int global_settings_label=0x7f09000a;
@@ -303,9 +300,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
  GRAPH DIMENSIONS 
          */
         public static final int graph_viewport_size=0x7f090002;
-        public static final int ha_button1=0x7f09001a;
-        public static final int ha_button2=0x7f09001b;
+        public static final int ha_button1=0x7f09001c;
+        public static final int ha_button2=0x7f09001d;
+        public static final int ha_button3=0x7f09001e;
+        public static final int ha_button4=0x7f09001f;
         public static final int ha_description=0x7f090019;
+        public static final int ha_description1=0x7f09001a;
+        public static final int ha_description2=0x7f09001b;
         /**  LAYOUTS 
  HOME ACTIVITY 
  LAYOUTS 
@@ -316,115 +317,115 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
  ACTIVITIES LABELS 
          */
         public static final int home_label=0x7f090009;
-        public static final int nc_active_channels_list_adapter_comparation=0x7f09006d;
-        public static final int nc_bits=0x7f090053;
-        public static final int nc_bits_eight=0x7f090054;
-        public static final int nc_bits_twelve=0x7f090055;
-        public static final int nc_button_active_channels=0x7f090056;
-        public static final int nc_button_cancel=0x7f090058;
-        public static final int nc_button_channels_to_display=0x7f090057;
-        public static final int nc_button_submit=0x7f090059;
-        public static final int nc_channels_to_activate=0x7f09005a;
-        public static final int nc_configuration_name=0x7f09004b;
-        public static final int nc_dialog_channel=0x7f09006c;
-        public static final int nc_dialog_negative_button=0x7f09006a;
-        public static final int nc_dialog_positive_button=0x7f090069;
-        public static final int nc_dialog_title_channels_to_activate=0x7f090068;
-        public static final int nc_dialog_title_channels_to_display=0x7f090067;
-        public static final int nc_dialog_with_sensor=0x7f09006b;
-        public static final int nc_error_button_channels_to_display=0x7f09005e;
-        public static final int nc_error_channels_to_display=0x7f09005b;
-        public static final int nc_error_max_frequency=0x7f09005c;
-        public static final int nc_error_message_active_channels=0x7f090062;
-        public static final int nc_error_message_channels_to_display=0x7f090063;
-        public static final int nc_error_message_mac=0x7f090061;
-        public static final int nc_error_message_name_duplicate=0x7f090060;
-        public static final int nc_error_message_name_null=0x7f09005f;
-        public static final int nc_error_min_frequency=0x7f09005d;
-        public static final int nc_frequency_metric=0x7f090050;
-        public static final int nc_frequency_reception=0x7f09004e;
-        public static final int nc_frequency_reception_default=0x7f09004f;
-        public static final int nc_frequency_sampling=0x7f090051;
-        public static final int nc_frequency_sampling_default=0x7f090052;
+        public static final int nc_active_channels_list_adapter_comparation=0x7f090071;
+        public static final int nc_bits=0x7f090057;
+        public static final int nc_bits_eight=0x7f090058;
+        public static final int nc_bits_twelve=0x7f090059;
+        public static final int nc_button_active_channels=0x7f09005a;
+        public static final int nc_button_cancel=0x7f09005c;
+        public static final int nc_button_channels_to_display=0x7f09005b;
+        public static final int nc_button_submit=0x7f09005d;
+        public static final int nc_channels_to_activate=0x7f09005e;
+        public static final int nc_configuration_name=0x7f09004f;
+        public static final int nc_dialog_channel=0x7f090070;
+        public static final int nc_dialog_negative_button=0x7f09006e;
+        public static final int nc_dialog_positive_button=0x7f09006d;
+        public static final int nc_dialog_title_channels_to_activate=0x7f09006c;
+        public static final int nc_dialog_title_channels_to_display=0x7f09006b;
+        public static final int nc_dialog_with_sensor=0x7f09006f;
+        public static final int nc_error_button_channels_to_display=0x7f090062;
+        public static final int nc_error_channels_to_display=0x7f09005f;
+        public static final int nc_error_max_frequency=0x7f090060;
+        public static final int nc_error_message_active_channels=0x7f090066;
+        public static final int nc_error_message_channels_to_display=0x7f090067;
+        public static final int nc_error_message_mac=0x7f090065;
+        public static final int nc_error_message_name_duplicate=0x7f090064;
+        public static final int nc_error_message_name_null=0x7f090063;
+        public static final int nc_error_min_frequency=0x7f090061;
+        public static final int nc_frequency_metric=0x7f090054;
+        public static final int nc_frequency_reception=0x7f090052;
+        public static final int nc_frequency_reception_default=0x7f090053;
+        public static final int nc_frequency_sampling=0x7f090055;
+        public static final int nc_frequency_sampling_default=0x7f090056;
         /**  NEW CONFIGURATION ACTIVITY 
  NEW CONFIGURATION ACTIVITY 
          */
-        public static final int nc_header_title=0x7f09004a;
-        public static final int nc_info_canceled=0x7f090066;
-        public static final int nc_info_created=0x7f090064;
-        public static final int nc_info_modified=0x7f090065;
-        public static final int nc_mac_address=0x7f09004c;
-        public static final int nc_mac_address_hint=0x7f09004d;
+        public static final int nc_header_title=0x7f09004e;
+        public static final int nc_info_canceled=0x7f09006a;
+        public static final int nc_info_created=0x7f090068;
+        public static final int nc_info_modified=0x7f090069;
+        public static final int nc_mac_address=0x7f090050;
+        public static final int nc_mac_address_hint=0x7f090051;
         public static final int new_configurations_label=0x7f09000e;
         public static final int new_recordings_label=0x7f09000f;
-        public static final int nr_active_channels=0x7f090072;
-        public static final int nr_back_dialog_message=0x7f09007e;
-        public static final int nr_back_dialog_positive_button=0x7f090080;
-        public static final int nr_back_dialog_title=0x7f090078;
-        public static final int nr_bits=0x7f090071;
-        public static final int nr_bluetooth_dialog_message=0x7f09007f;
-        public static final int nr_bluetooth_dialog_positive_button=0x7f090081;
-        public static final int nr_bluetooth_dialog_title=0x7f090079;
-        public static final int nr_bluetooth_not_supported=0x7f090074;
-        public static final int nr_button_start=0x7f090073;
-        public static final int nr_button_stop=0x7f090075;
+        public static final int nr_active_channels=0x7f090076;
+        public static final int nr_back_dialog_message=0x7f090082;
+        public static final int nr_back_dialog_positive_button=0x7f090084;
+        public static final int nr_back_dialog_title=0x7f09007c;
+        public static final int nr_bits=0x7f090075;
+        public static final int nr_bluetooth_dialog_message=0x7f090083;
+        public static final int nr_bluetooth_dialog_positive_button=0x7f090085;
+        public static final int nr_bluetooth_dialog_title=0x7f09007d;
+        public static final int nr_bluetooth_not_supported=0x7f090078;
+        public static final int nr_button_start=0x7f090077;
+        public static final int nr_button_stop=0x7f090079;
         /**  NEW RECORDING ACTIVITY 
  NEW RECORDING ACTIVITY 
          */
-        public static final int nr_configuration_name=0x7f09006e;
-        public static final int nr_info_rec_saved=0x7f090077;
-        public static final int nr_info_started=0x7f090076;
-        public static final int nr_overwrite_dialog_message=0x7f09007c;
-        public static final int nr_overwrite_dialog_positive_button=0x7f09007d;
-        public static final int nr_overwrite_dialog_title=0x7f09007b;
-        public static final int nr_progress_dialog_message=0x7f090083;
-        public static final int nr_progress_dialog_title=0x7f090082;
-        public static final int nr_reception_frequency=0x7f09006f;
+        public static final int nr_configuration_name=0x7f090072;
+        public static final int nr_info_rec_saved=0x7f09007b;
+        public static final int nr_info_started=0x7f09007a;
+        public static final int nr_overwrite_dialog_message=0x7f090080;
+        public static final int nr_overwrite_dialog_positive_button=0x7f090081;
+        public static final int nr_overwrite_dialog_title=0x7f09007f;
+        public static final int nr_progress_dialog_message=0x7f090087;
+        public static final int nr_progress_dialog_title=0x7f090086;
+        public static final int nr_reception_frequency=0x7f090073;
         public static final int nr_recording_settings=0x7f090016;
         public static final int nr_restore_zoom_text=0x7f090017;
-        public static final int nr_sampling_frequency=0x7f090070;
-        public static final int nr_saving_dialog_adding_header_message=0x7f090085;
-        public static final int nr_saving_dialog_compressing_message=0x7f090086;
-        public static final int nr_saving_dialog_title=0x7f090084;
-        public static final int nr_storage_error_dialog_title=0x7f09007a;
-        public static final int ra_confirm_dialog_message=0x7f090043;
-        public static final int ra_confirm_dialog_negative=0x7f090045;
-        public static final int ra_confirm_dialog_positive=0x7f090044;
-        public static final int ra_confirm_dialog_title=0x7f090042;
-        public static final int ra_display_path_dialog_message=0x7f090049;
-        public static final int ra_display_path_dialog_title=0x7f090048;
-        public static final int ra_duration=0x7f090040;
-        public static final int ra_empty_list=0x7f09003e;
-        public static final int ra_error_message_deleting_recording_from_database=0x7f090046;
-        public static final int ra_error_message_deleting_recording_from_filesystem=0x7f090047;
+        public static final int nr_sampling_frequency=0x7f090074;
+        public static final int nr_saving_dialog_adding_header_message=0x7f090089;
+        public static final int nr_saving_dialog_compressing_message=0x7f09008a;
+        public static final int nr_saving_dialog_title=0x7f090088;
+        public static final int nr_storage_error_dialog_title=0x7f09007e;
+        public static final int ra_confirm_dialog_message=0x7f090047;
+        public static final int ra_confirm_dialog_negative=0x7f090049;
+        public static final int ra_confirm_dialog_positive=0x7f090048;
+        public static final int ra_confirm_dialog_title=0x7f090046;
+        public static final int ra_display_path_dialog_message=0x7f09004d;
+        public static final int ra_display_path_dialog_title=0x7f09004c;
+        public static final int ra_duration=0x7f090044;
+        public static final int ra_empty_list=0x7f090042;
+        public static final int ra_error_message_deleting_recording_from_database=0x7f09004a;
+        public static final int ra_error_message_deleting_recording_from_filesystem=0x7f09004b;
         /**  RECORDINGS ACTIVITY 
  RECORDINGS ACTIVITY 
          */
-        public static final int ra_header_title=0x7f09003d;
-        public static final int ra_recording_removed=0x7f09003f;
-        public static final int ra_send_dialog_title=0x7f090041;
+        public static final int ra_header_title=0x7f090041;
+        public static final int ra_recording_removed=0x7f090043;
+        public static final int ra_send_dialog_title=0x7f090045;
         public static final int recording_settings_label=0x7f09000b;
         public static final int recordings_label=0x7f09000d;
         /**  SETTINGS ACTIVITY 
  SETTINGS ACTIVITY 
          */
-        public static final int sa_category_title=0x7f09001c;
-        public static final int sa_configuration_summary=0x7f090020;
-        public static final int sa_configuration_title=0x7f09001e;
-        public static final int sa_draw_in_background_summary=0x7f090023;
-        public static final int sa_draw_in_background_title=0x7f090022;
-        public static final int sa_nr_category_title=0x7f09001d;
-        public static final int sa_recording_summary=0x7f090021;
-        public static final int sa_recording_title=0x7f09001f;
-        public static final int sa_zoom_default_summary=0x7f090026;
-        public static final int sa_zoom_dialog_title=0x7f090025;
-        public static final int sa_zoom_summary_message=0x7f090028;
-        public static final int sa_zoom_title=0x7f090024;
-        public static final int sa_zoom_unit_measure=0x7f090027;
+        public static final int sa_category_title=0x7f090020;
+        public static final int sa_configuration_summary=0x7f090024;
+        public static final int sa_configuration_title=0x7f090022;
+        public static final int sa_draw_in_background_summary=0x7f090027;
+        public static final int sa_draw_in_background_title=0x7f090026;
+        public static final int sa_nr_category_title=0x7f090021;
+        public static final int sa_recording_summary=0x7f090025;
+        public static final int sa_recording_title=0x7f090023;
+        public static final int sa_zoom_default_summary=0x7f09002a;
+        public static final int sa_zoom_dialog_title=0x7f090029;
+        public static final int sa_zoom_summary_message=0x7f09002c;
+        public static final int sa_zoom_title=0x7f090028;
+        public static final int sa_zoom_unit_measure=0x7f09002b;
         /**  IDs 
  IDs 
          */
-        public static final int service_id=0x7f09009a;
+        public static final int service_id=0x7f09009e;
     }
     public static final class style {
         /** 

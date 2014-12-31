@@ -38,7 +38,7 @@ public class DeviceConfiguration implements Serializable {
 	private String name = null;
 
 	@DatabaseField(canBeNull = true)
-	private String macAddress = null;
+	public static String macAddress = null;
 
 	@DatabaseField(canBeNull = true)
 	private String createDate = null;

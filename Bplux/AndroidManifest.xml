@@ -75,9 +75,7 @@
 
         <service
             android:name="ceu.marten.services.BiopluxService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":BpluxService" />
+            android:enabled="true" />
     </application>
 
 </manifest>

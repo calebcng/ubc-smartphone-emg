@@ -36,9 +36,22 @@ public class SensorDataConverter {
    */
   public static double scaleEMG(final int port, final int raw) {
     final double result = (raw * VCC / getResolution(port) - VCC / 2);
-    return new BigDecimal(result).setScale(2, RoundingMode.HALF_UP)
-        .doubleValue();
+    return new BigDecimal(result).setScale(2, RoundingMode.HALF_UP).doubleValue();
   }
+  /**
+   * Variation of the Electromyography conversion. Assumes that port 1 is being used.
+   * 
+   * @param raw
+   * 			the initial value
+   * @return a value ranging between -1.65 and 1.65 mV
+   * 
+   * @author Caleb Ng
+   */
+  public static double scaleEMG(final double raw) {
+	  	int port = 1;
+	    final double result = (raw * VCC / getResolution(port) - VCC / 2);
+	    return new BigDecimal(result).setScale(2, RoundingMode.HALF_UP).doubleValue();
+	  }
 
   /**
    * ElectroCardioGraphy conversion.

@@ -19,11 +19,11 @@
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
             android:text="@string/ca_header_title"
-            android:textSize="25sp" />
+            android:textSize="20sp" />
     </LinearLayout>
-  
-    <include layout="@layout/header_shadow" />
     
+    <include layout="@layout/header_shadow" />
+  
     <LinearLayout
         android:id="@+id/sl_button"
         android:layout_width="fill_parent"
@@ -42,7 +42,7 @@
             android:textSize="20sp"
             android:textColor="@color/light_grey"
             android:visibility="gone" />
-        
+
         <ListView
             android:id="@+id/lvConfigs"
             android:layout_width="fill_parent"
@@ -63,7 +63,8 @@
         android:background="@xml/button_selector"
         android:drawableEnd="@drawable/new_configuration"
         android:paddingLeft="20dip"
-        android:paddingRight="40dip"
+        android:paddingRight="30dip"
+        android:textSize="16sp"
         android:textColor="@android:color/white"
         android:onClick="onClickedNewConfig"
         android:text="@string/ca_button" />

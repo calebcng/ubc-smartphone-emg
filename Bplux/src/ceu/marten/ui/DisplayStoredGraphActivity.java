@@ -72,7 +72,6 @@ public class DisplayStoredGraphActivity extends Activity {
 //	public Vector<Vector<Double>> dataSet = new Vector<Vector<Double>>();
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
-	public String samplingFrequencyHeader = "\"SamplingFrequency\": ";
 	public String endOfHeader = "# EndOfHeader";
 	private GraphViewSeries exampleSeries1;
 	int setSize = 0;
@@ -141,7 +140,7 @@ public class DisplayStoredGraphActivity extends Activity {
 					  return "00:00:00";
 				  }
 				  xValue = (long) value;
-				  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) (xValue / samplingFrequency) % 60);
+				  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) (value / samplingFrequency) % 60);
 			  } else {
 				return String.format("%.2f", (double) value);
 	//			return null;

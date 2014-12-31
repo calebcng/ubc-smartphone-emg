@@ -1,3 +1,5 @@
+//Modified by Brittaney Geisler November 2014
+
 package ceu.marten.model;
 
 import java.io.Serializable;

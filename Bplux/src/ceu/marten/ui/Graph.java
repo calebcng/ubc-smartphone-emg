@@ -44,6 +44,8 @@ public class Graph implements Serializable {
 		graphView = new LineGraphView(context, ""); 
 
 		// ADD SERIES TO GRAPHVIEW and SET SCROLLABLE
+//		graphView.setManualYAxisBounds(600, 300);
+		graphView.setManualYAxisBounds(2.0, -2.0);
 		graphView.addSeries(basicSerie);
 		graphView.setViewPort(
 				2,
@@ -53,16 +55,16 @@ public class Graph implements Serializable {
 		graphView.setCustomLabelFormatter(new CustomLabelFormatter() {
 			@SuppressLint("DefaultLocale")
 			@Override
-			public String formatLabel(long value, boolean isValueX) {
+			public String formatLabel(double value, boolean isValueX) {
 				if (isValueX) {
 					if (value < 0.000){
 						xValue = 0;
 						return "00:00:00";
 					}
-					xValue = value;
+					xValue = (long) value;
 					return String.format("%02d:%02d:%02d",(int) ((value / (1000*60*60)) % 24), (int) ((value / (1000*60)) % 60), (int) (value / 1000) % 60);
 				} else
-					return String.valueOf((int)(value)); // vertical labels value
+					return String.format("%.2f", (double) value); // vertical labels value
 			}
 		});
 

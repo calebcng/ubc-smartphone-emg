@@ -18,6 +18,8 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import android.widget.Toast;
+
 /**
  * Abstract socket implementation that implements BITalino I/O streams handling.
  */
@@ -55,7 +57,7 @@ final class BITalinoSocket {
 
       // parse frames
       while (sampleCounter < numberOfSamples) {
-        // read number_bytes from buffer
+    	 // read number_bytes from buffer
         dis.readFully(buffer, 0, totalBytes);
         // let's try to decode the buffer
         BITalinoFrame f = BITalinoFrameDecoder.decode(buffer, analogChannels, totalBytes);

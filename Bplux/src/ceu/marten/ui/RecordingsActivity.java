@@ -3,6 +3,7 @@ package ceu.marten.ui;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -42,6 +43,9 @@ import com.j256.ormlite.stmt.QueryBuilder;
  * 
  * @author Carlos Marten
  * 
+ * Modification by @author Caleb Ng:
+ * Sharing a recording has been reassigned to a long click of a recordings item.
+ * Short item click has now been assigned to graphing the recording data. 
  */
 public class RecordingsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 		implements OnDismissCallback{
@@ -209,7 +213,7 @@ public class RecordingsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 			
 			// gets selected recording file path
 			recordingName = recordings.get(position).getName();
-			File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.TEXT_FILE_EXTENTION);
+			File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
 			
 			// Checks if it exists and there was a problem deleting it from the file system
 			if(file.exists() && !file.delete()){
