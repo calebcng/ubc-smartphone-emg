@@ -39,6 +39,11 @@
             android:parentActivityName="ceu.marten.ui.HomeActivity"
             android:windowSoftInputMode="adjustPan" >
         </activity>
+        <activity 
+            android:name="ceu.marten.ui.ConnectionStatusActivity"
+            android:label="Connection Status"
+            android:parentActivityName="ceu.marten.ui.HomeActivity" >            
+        </activity>
         <activity
             android:name="ceu.marten.ui.NewRecordingActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

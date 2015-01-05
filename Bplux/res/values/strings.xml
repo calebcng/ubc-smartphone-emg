@@ -79,6 +79,11 @@
     <string name="cl_active">Active</string>
     <string name="cl_display">Display</string>
     
+    <!--  CONNECTION STATUS ACTIVITY -->
+    <string name="status_label">Current connection status:</string>
+    <string name="device_connection">DISCONNECTED</string>
+    <string name="battery_level"></string>
+    
     <!-- RECORDINGS ACTIVITY -->
     <string name="ra_header_title">Stored recordings</string>
     <string name="ra_empty_list">There are no recordings</string>
