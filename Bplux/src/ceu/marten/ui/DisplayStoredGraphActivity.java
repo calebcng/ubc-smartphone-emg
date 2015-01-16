@@ -67,9 +67,7 @@ public class DisplayStoredGraphActivity extends Activity {
     public static final int progress_bar_type = 0;
     
 	private final Handler mHandler = new Handler();
-//	private ArrayList<Double> dataSet = new ArrayList<Double>();
 	public Vector<Double> dataSet = new Vector<Double>();
-//	public Vector<Vector<Double>> dataSet = new Vector<Vector<Double>>();
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
 	public String endOfHeader = "# EndOfHeader";
@@ -80,7 +78,19 @@ public class DisplayStoredGraphActivity extends Activity {
 	public static double [] buffer;
 	Context context;
 	LinearLayout layout;
+	// Data for determining the appropriate scale for the x-axis
 	private int samplingFrequency = 1;
+	// Data for determining the appropriate time stamp
+	private String startDate = "Jan 1, 2000";
+	private int startHour = 00;
+	private int startMinute = 00;
+	private int startSecond = 00;
+	private String endDate = "Jan 1, 2000";
+	private int endHour = 00;
+	private int endMinute = 00;
+	private int endSecond = 00;
+	private String PeridOfDay = "AM";
+	private int sampleLength = 0;
 
   
   	@Override
@@ -117,19 +127,6 @@ public class DisplayStoredGraphActivity extends Activity {
 	
 	private void graphData() {	  
 	  System.out.println("Defining data set.");
-	  /*GraphView graphViews = new LineGraphView(this, recordingName);
-	  graphViews.setCustomLabelFormatter(new CustomLabelFormatter() {
-			@SuppressLint("DefaultLocale")
-			@Override
-			public String formatLabel(long value, boolean isValueX) {
-				if (isValueX) {
-					return String.format("%d", (int) value);
-				} else {
-					return String.format("%.2f", (double) value);
-//					return null;
-				}
-			}
-		});*/
 	  GraphView graphView = new LineGraphView(this, recordingName) {
 		  protected String formatLabel(double value, boolean isValueX) {
 			  if (isValueX) {
@@ -140,7 +137,7 @@ public class DisplayStoredGraphActivity extends Activity {
 					  return "00:00:00";
 				  }
 				  xValue = (long) value;
-				  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) (value / samplingFrequency) % 60);
+				  return String.format("%02d:%02d:%02d",(int) (startHour + (xValue / (samplingFrequency*60*60)) % 24), (int) (startMinute + (xValue / (samplingFrequency*60)) % 60), (int) (startSecond + (xValue / samplingFrequency)) % 60);
 			  } else {
 				return String.format("%.2f", (double) value);
 	//			return null;
@@ -173,24 +170,11 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	graphView.setViewPort(0, 100);
 	  graphView.setManualYAxisBounds(yLabel, min);
 //	  graphView.getGraphViewStyle().setNumVerticalLabels(((yLabel-min)/yInterval) + 1);
-	//  graphView.getGraphViewStyle().setNumHorizontalLabels(xLabel/xInterval + 1);
+//  graphView.getGraphViewStyle().setNumHorizontalLabels(xLabel/xInterval + 1);
 	  graphView.getGraphViewStyle().setGridColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setVerticalLabelsWidth(80);
-	  
-	  /*graphView.setCustomLabelFormatter(new CustomLabelFormatter() {
-			@SuppressLint("DefaultLocale")
-			@Override
-			public String formatLabel(long value, boolean isValueX) {
-				if (isValueX) {
-					return String.format("%d", (int) value);
-				} else {
-//					return String.format("%.2f", (double) value);
-					return null;
-				}
-			}
-		});*/
 
 	  LinearLayout layout = (LinearLayout) findViewById(R.id.dataGraph);
 	  layout.addView(graphView);
@@ -276,20 +260,25 @@ public class DisplayStoredGraphActivity extends Activity {
 		  		while (entries.hasMoreElements()) {
 		  			ZipEntry zipEntry = entries.nextElement();
 		  			stream = zipFile.getInputStream(zipEntry);
-//		  			freqString = new Scanner(stream);
 		  			strings = new Scanner(stream);
-		  			/*if (!zipEntry.isDirectory()) {
+		  			/*
+		  			  // Process non-compressed text files
+		  			  if (!zipEntry.isDirectory()) {
 		  				String fileName = zipEntry.getName();
 		  				if (fileName.endsWith(".txt")) {
 		  					zipInput = new ZipInputStream(new FileInputStream(fileName));
 		  				}
 		  			}*/
-		  			System.out.println("Extracting value of sampling frequency.");
-		  			String regexPattern = "\"ColumnLabels\"";
+		  			
+		  			// Extract a substring of the file header text
+//		  			System.out.println("Extracting header substring.");
+		  			String regexPattern = endOfHeader; //"\"ColumnLabels\"";
 		  			strings.useDelimiter(regexPattern);
 		  			String extracted = strings.next();
 		  			System.out.println("Extracted: " + extracted);
 		  			
+		  			// Determine the sampling frequency from the header text
+		  			System.out.println("Extracting sampling frequency.");
 		  			Pattern pattern = Pattern.compile("\"SamplingFrequency\": \"(\\d+)\"");
 		  			Matcher matcher = pattern.matcher(extracted);
 		  			if (matcher.find()) {
@@ -297,14 +286,26 @@ public class DisplayStoredGraphActivity extends Activity {
 		  				System.out.println(samplingFrequency);
 		  			}
 		  			
-		  			/*regexPattern = "\"SamplingFrequency\": \"(\\d+)\"";
-		  			freqString = new Scanner(extracted);
-		  			freqString.findInLine("\"SamplingFrequency\": \"(\\d+)\"");
-		  			MatchResult result = freqString.match();
-		  			for(int i=1; i<result.groupCount(); i++)
-		  				System.out.println("Extracted: " + result.group(i));
-		  			freqString.close();*/
+		  			// Determine the start date and time from the header text
+		  			System.out.println("Extracting start date and time.");
+		  			pattern = Pattern.compile("StartDateTime\": \"(\\w+\\s\\d+,\\s\\d+) (\\d+):(\\d+):(\\d+) (\\w+)\"");
+		  			matcher = pattern.matcher(extracted);
+		  			if (matcher.find()) {
+		  				if (matcher.groupCount() == 5) {
+			  				startDate = matcher.group(1);
+			  				startHour = Integer.parseInt(matcher.group(2));
+			  				startMinute = Integer.parseInt(matcher.group(3));
+			  				startSecond = Integer.parseInt(matcher.group(4));
+			  				PeridOfDay = matcher.group(5);
+			  				if (PeridOfDay == "PM")
+			  					endHour += 12;
+			  				System.out.println("Extracted end time to be: " + startHour + ":" + startMinute + ":" + startSecond + " on " + startDate);
+		  				}
+		  				else
+		  					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+		  			}
 		  			
+		  			// Use tabs as a delimiter for file data
 		  			strings.findWithinHorizon(endOfHeader,0);    		
 		      		strings.useDelimiter("\t *");
 		      		strings.next();
@@ -318,12 +319,11 @@ public class DisplayStoredGraphActivity extends Activity {
 				System.out.println("@IOERROR: " + error);
 				return false;
 			}
+			// Loops for as long as there are more data points to be read from the text file
 			while (strings.hasNext())
 			{
 				double dataPoint = Double.parseDouble(strings.next());
-//				System.out.println("Adding " + dataPoint + " to vector.");
 				dataSet.add(SensorDataConverter.scaleEMG(dataPoint));
-//				System.out.println("testData size: "  dataSet.size());
 				if (strings.hasNext())
 					strings.next();
 				else
@@ -332,7 +332,6 @@ public class DisplayStoredGraphActivity extends Activity {
 			System.out.println("Closing strings.");
 			try {
 				stream.close();
-//				zipInput.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -357,6 +356,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		
 		protected void onPostExecute(Boolean readFileSuccess) {
 			//called after doInBackground() has finished 
+			// Check if the file was read successfully. If not, output error message and generate sample set of data
 			if(!readFileSuccess) {
 				Random randomGenerator = new Random();			
 				System.out.println("@IOERROR: Unable to read from file. Creating random dataset");
@@ -365,11 +365,12 @@ public class DisplayStoredGraphActivity extends Activity {
 					dataSet.add(randomGenerator.nextDouble());
 			    }
 			}
+
+			// Prepare data set for graphing
 			exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
 	        });
 			for (int i=0; i<dataSet.size(); i++) {
 			  	double pointX = i;
-//			  	double pointY = SensorDataConverter.scaleEMG(dataSet.get(i));
 			  	double pointY = dataSet.get(i);
 			  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSet.size());
 //			  	System.out.println("X = " + pointX + ", Y = " + pointY);
