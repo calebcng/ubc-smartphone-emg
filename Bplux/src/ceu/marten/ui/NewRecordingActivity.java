@@ -117,6 +117,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private int bpErrorCode   = 0;
 	private boolean serviceError = false;
 	private boolean connectionError = false;
+	
+	
 	public static boolean btConnectError = false;
 	
 	// MESSENGERS USED TO COMMUNICATE ACTIVITY AND SERVICE

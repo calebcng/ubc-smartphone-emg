@@ -92,6 +92,8 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
+		
+		
 		setContentView(R.layout.ly_configurations);
 
 		
