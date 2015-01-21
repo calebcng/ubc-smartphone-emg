@@ -1,4 +1,4 @@
-package ceu.marten.ui;
+package com.ubc.capstonegroup70;
 
 import java.io.BufferedReader;
 import java.io.File;

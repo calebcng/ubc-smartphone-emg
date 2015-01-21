@@ -72,9 +72,15 @@
             </intent-filter>
         </activity>
          <activity
-            android:name="ceu.marten.ui.DisplayStoredGraphActivity"
+            android:name="com.ubc.capstonegroup70.DisplayStoredGraphActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/display_stored_graph_label"
+            android:parentActivityName="ceu.marten.ui.HomeActivity">
+        </activity>
+        <activity 
+            android:name="com.mburman.fileexplore"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/recordings_label"
             android:parentActivityName="ceu.marten.ui.HomeActivity">
         </activity>
 

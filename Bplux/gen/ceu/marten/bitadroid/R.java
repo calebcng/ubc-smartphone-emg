@@ -94,21 +94,25 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int biosignalsplux_logo=0x7f020000;
         public static final int browse=0x7f020001;
         public static final int chronometer=0x7f020002;
-        public static final int error=0x7f020003;
-        public static final int ic_launcher=0x7f020004;
-        public static final int ic_launcher_new=0x7f020005;
-        public static final int info=0x7f020006;
-        public static final int menu_button=0x7f020007;
-        public static final int new_configuration=0x7f020008;
-        public static final int notification=0x7f020009;
-        public static final int pluxlogo=0x7f02000a;
-        public static final int right_arrow=0x7f02000b;
-        public static final int select=0x7f02000c;
-        public static final int share=0x7f02000d;
-        public static final int start=0x7f02000e;
-        public static final int title_bar_shadow=0x7f02000f;
-        public static final int zoom_in=0x7f020010;
-        public static final int zoom_out=0x7f020011;
+        public static final int directory_icon=0x7f020003;
+        public static final int directory_up=0x7f020004;
+        public static final int error=0x7f020005;
+        public static final int file_icon=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int ic_launcher_new=0x7f020008;
+        public static final int icon=0x7f020009;
+        public static final int info=0x7f02000a;
+        public static final int menu_button=0x7f02000b;
+        public static final int new_configuration=0x7f02000c;
+        public static final int notification=0x7f02000d;
+        public static final int pluxlogo=0x7f02000e;
+        public static final int right_arrow=0x7f02000f;
+        public static final int select=0x7f020010;
+        public static final int share=0x7f020011;
+        public static final int start=0x7f020012;
+        public static final int title_bar_shadow=0x7f020013;
+        public static final int zoom_in=0x7f020014;
+        public static final int zoom_out=0x7f020015;
     }
     public static final class id {
         public static final int TAG_POSITION=0x7f0c0000;
@@ -206,8 +210,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ly_new_configuration=0x7f030013;
         public static final int ly_new_recording=0x7f030014;
         public static final int ly_recordings=0x7f030015;
-        public static final int toast_error=0x7f030016;
-        public static final int toast_info=0x7f030017;
+        public static final int main=0x7f030016;
+        public static final int toast_error=0x7f030017;
+        public static final int toast_info=0x7f030018;
     }
     public static final class menu {
         public static final int global_menu=0x7f0d0000;
@@ -221,29 +226,29 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int active_channel_dialog_spinner_text=0x7f090000;
         public static final int app_name=0x7f090007;
         public static final int battery_level=0x7f090043;
-        public static final int bp_adapter_not_found=0x7f09008f;
+        public static final int bp_adapter_not_found=0x7f090090;
         /**  BIO ERROR/WARNING MESSAGES 
  BIOPLUX NOTIFICATION MESSAGES 
          */
-        public static final int bp_address_incorrect=0x7f09008e;
-        public static final int bp_contacting_device=0x7f090091;
-        public static final int bp_device_not_found=0x7f090090;
-        public static final int bp_error_saving_recording=0x7f090094;
-        public static final int bp_error_writing_a_frame=0x7f090093;
-        public static final int bp_port_could_not_be_opened=0x7f090092;
-        public static final int bp_positive_button=0x7f090095;
-        public static final int bs_header_active_channels=0x7f09009c;
-        public static final int bs_header_bits=0x7f090099;
-        public static final int bs_header_date=0x7f090097;
-        public static final int bs_header_duration=0x7f09009a;
-        public static final int bs_header_frequency=0x7f090098;
+        public static final int bp_address_incorrect=0x7f09008f;
+        public static final int bp_contacting_device=0x7f090092;
+        public static final int bp_device_not_found=0x7f090091;
+        public static final int bp_error_saving_recording=0x7f090095;
+        public static final int bp_error_writing_a_frame=0x7f090094;
+        public static final int bp_port_could_not_be_opened=0x7f090093;
+        public static final int bp_positive_button=0x7f090096;
+        public static final int bs_header_active_channels=0x7f09009d;
+        public static final int bs_header_bits=0x7f09009a;
+        public static final int bs_header_date=0x7f090098;
+        public static final int bs_header_duration=0x7f09009b;
+        public static final int bs_header_frequency=0x7f090099;
         /**  BIOPLUX SERVICE 
  BIOPLUX SERVICE 
          */
-        public static final int bs_header_name=0x7f090096;
-        public static final int bs_header_seconds=0x7f09009b;
-        public static final int bs_notification_message=0x7f09009e;
-        public static final int bs_notification_title=0x7f09009d;
+        public static final int bs_header_name=0x7f090097;
+        public static final int bs_header_seconds=0x7f09009c;
+        public static final int bs_notification_message=0x7f09009f;
+        public static final int bs_notification_title=0x7f09009e;
         public static final int ca_button=0x7f09002e;
         public static final int ca_configuration_removed=0x7f09003c;
         public static final int ca_confirm_dialog_message=0x7f090032;
@@ -271,11 +276,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int cl_active=0x7f09003f;
         public static final int cl_display=0x7f090040;
         public static final int configurations_label=0x7f09000c;
-        public static final int d_confirmationCheck=0x7f0900a0;
+        public static final int d_confirmationCheck=0x7f0900a1;
         /**  DIALOGS 
  DIALOG NAME 
          */
-        public static final int d_hint=0x7f09009f;
+        public static final int d_hint=0x7f0900a0;
         public static final int device_connection=0x7f090042;
         public static final int display_stored_graph_label=0x7f090010;
         public static final int divider_image_content=0x7f090008;
@@ -319,6 +324,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
  HOME ACTIVITY 
          */
         public static final int ha_title=0x7f090018;
+        /**  FileExplore Strings 
+         */
+        public static final int hello=0x7f09008e;
         /**  ACTIVITIES LABELS 
  ACTIVITIES LABELS 
          */
@@ -431,7 +439,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         /**  IDs 
  IDs 
          */
-        public static final int service_id=0x7f0900a1;
+        public static final int service_id=0x7f0900a2;
         /**   CONNECTION STATUS ACTIVITY 
          */
         public static final int status_label=0x7f090041;
