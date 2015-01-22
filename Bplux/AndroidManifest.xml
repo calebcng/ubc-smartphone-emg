@@ -78,7 +78,13 @@
             android:parentActivityName="ceu.marten.ui.HomeActivity">
         </activity>
         <activity 
-            android:name="com.mburman.fileexplore"
+            android:name="com.mburman.fileexplore.FileExplore"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/recordings_label"
+            android:parentActivityName="ceu.marten.ui.HomeActivity">
+        </activity>
+        <activity
+            android:name="ua.com.vassiliev.androidfilebrowser.FileBrowserActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/recordings_label"
             android:parentActivityName="ceu.marten.ui.HomeActivity">

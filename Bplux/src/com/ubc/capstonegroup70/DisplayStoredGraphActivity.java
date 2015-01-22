@@ -253,7 +253,7 @@ public class DisplayStoredGraphActivity extends Activity {
 			ZipInputStream zipInput = null;
 			try {
 				System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
-		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.ZIP_FILE_EXTENTION);
+		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName);
 		  		ZipFile zipFile = new ZipFile(file);
 		  		Enumeration<? extends ZipEntry> entries = zipFile.entries();
 		  				  		
