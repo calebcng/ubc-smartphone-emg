@@ -1,5 +1,6 @@
-package ceu.marten.ui;
+package com.ubc.capstonegroup70;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -250,17 +251,20 @@ public class DisplayStoredGraphActivity extends Activity {
 		protected Boolean doInBackground(Void... args) {		
 			Scanner strings = null;
 			InputStream stream = null;
+			BufferedInputStream bstream = null; 
 			ZipInputStream zipInput = null;
 			try {
 				System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
-		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName + Constants.ZIP_FILE_EXTENTION);
+		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName);
 		  		ZipFile zipFile = new ZipFile(file);
 		  		Enumeration<? extends ZipEntry> entries = zipFile.entries();
 		  				  		
 		  		while (entries.hasMoreElements()) {
 		  			ZipEntry zipEntry = entries.nextElement();
 		  			stream = zipFile.getInputStream(zipEntry);
-		  			strings = new Scanner(stream);
+//		  			strings = new Scanner(stream);
+		  			bstream = new BufferedInputStream(stream);
+		  			strings = new Scanner(bstream);
 		  			/*
 		  			  // Process non-compressed text files
 		  			  if (!zipEntry.isDirectory()) {
@@ -331,6 +335,7 @@ public class DisplayStoredGraphActivity extends Activity {
 			}
 			System.out.println("Closing strings.");
 			try {
+				bstream.close();
 				stream.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -369,6 +374,7 @@ public class DisplayStoredGraphActivity extends Activity {
 			// Prepare data set for graphing
 			exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
 	        });
+			System.out.println("DSGA-TAG: Number of samples read is " + dataSet.size());
 			for (int i=0; i<dataSet.size(); i++) {
 			  	double pointX = i;
 			  	double pointY = dataSet.get(i);

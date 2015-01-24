@@ -372,38 +372,46 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		// Initializes layout parameters
 		graphParams = new LayoutParams(LayoutParams.MATCH_PARENT, 900);//Integer.parseInt((getResources().getString(0x7f090001))));//0x7f090001//R.string.graph_height
 		detailParameters = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		
 
 		
-			for (int i = 0; i < recordingConfiguration.getDisplayChannelsNumber(); i++) {
-				graphs[i] = new Graph(this,getString(R.string.nc_dialog_channel) + " " + recordingConfiguration.getDisplayChannels().get(i).toString());
-				LinearLayout graph = (LinearLayout) inflater.inflate(R.layout.in_ly_graph, null);
+			for (int i = 0; i < recordingConfiguration
+					.getDisplayChannelsNumber(); i++) {
+				graphs[i] = new Graph(this,
+						getString(R.string.nc_dialog_channel)
+								+ " "
+								+ recordingConfiguration.getDisplayChannels()
+										.get(i).toString());
+				LinearLayout graph = (LinearLayout) inflater.inflate(
+						R.layout.in_ly_graph, null);
 				graphs[i].getGraphView().setOnTouchListener(graphTouchListener);
 				((ViewGroup) graph).addView(graphs[i].getGraphView());
 				((ViewGroup) graphsView).addView(graph, graphParams);
 			}
 		
 
-		// If just one channel is being displayed, show configuration details
-		/*if (recordingConfiguration.getDisplayChannelsNumber() == 1) {
-			View details = inflater.inflate(R.layout.in_ly_graph_details, null);
-			((ViewGroup) graphsView).addView(details, detailParameters);
-			
-			// get views
-			//uiConfigurationName = (TextView) findViewById(R.id.nr_txt_configName);
-			//uiNumberOfBits = (TextView) findViewById(R.id.nr_txt_config_nbits);
-			uiReceptionFrequency = (TextView) findViewById(R.id.nr_reception_freq);
-			//uiSamplingFrequency = (TextView) findViewById(R.id.nr_sampling_freq);
-			//uiActiveChannels = (TextView) findViewById(R.id.nr_txt_channels_active);
-			uiMacAddress = (TextView) findViewById(R.id.nr_txt_mac);
+			// If just one channel is being displayed, show configuration details
+			/*if (recordingConfiguration.getDisplayChannelsNumber() == 1) {
+				View details = inflater.inflate(R.layout.in_ly_graph_details, null);
+				((ViewGroup) graphsView).addView(details, detailParameters);
+				
+				// get views
+				//uiConfigurationName = (TextView) findViewById(R.id.nr_txt_configName);
+				//uiNumberOfBits = (TextView) findViewById(R.id.nr_txt_config_nbits);
+				uiReceptionFrequency = (TextView) findViewById(R.id.nr_reception_freq);
+				//uiSamplingFrequency = (TextView) findViewById(R.id.nr_sampling_freq);
+				//uiActiveChannels = (TextView) findViewById(R.id.nr_txt_channels_active);
+				uiMacAddress = (TextView) findViewById(R.id.nr_txt_mac);
 
-			// fill them
-			//uiConfigurationName.setText(recordingConfiguration.getName());
-			uiReceptionFrequency.setText(String.valueOf(recordingConfiguration.getVisualizationFrequency()) + " Hz");
-			//uiSamplingFrequency.setText(String.valueOf(recordingConfiguration.getSamplingFrequency()) + " Hz");
-			//uiNumberOfBits.setText(String.valueOf(recordingConfiguration.getNumberOfBits()) + " bits");
-			uiMacAddress.setText(recordingConfiguration.getMacAddress());
-			//uiActiveChannels.setText(recordingConfiguration.getActiveChannels().toString());
-		}*/
+				// fill them
+				//uiConfigurationName.setText(recordingConfiguration.getName());
+				uiReceptionFrequency.setText(String.valueOf(recordingConfiguration.getVisualizationFrequency()) + " Hz");
+				//uiSamplingFrequency.setText(String.valueOf(recordingConfiguration.getSamplingFrequency()) + " Hz");
+				//uiNumberOfBits.setText(String.valueOf(recordingConfiguration.getNumberOfBits()) + " bits");
+				uiMacAddress.setText(recordingConfiguration.getMacAddress());
+				//uiActiveChannels.setText(recordingConfiguration.getActiveChannels().toString());
+			}*/
+
 	}
 	
 	/**
