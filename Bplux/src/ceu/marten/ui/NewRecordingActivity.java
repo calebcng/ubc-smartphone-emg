@@ -292,10 +292,10 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 
 		// GETTING EXTRA INFO FROM INTENT
 		extras = getIntent().getExtras();
-		recordingConfiguration = (DeviceConfiguration) extras.getSerializable(ConfigurationsActivity.KEY_CONFIGURATION);
+		recordingConfiguration = (DeviceConfiguration) extras.getSerializable("configuration");
 		//recordingConfiguration = (DeviceConfiguration) ConfigurationsActivity.myconfig;
 		recording = new DeviceRecording();
-		recording.setName(extras.getString(ConfigurationsActivity.KEY_RECORDING_NAME).toString());
+		recording.setName(extras.getString("recordingName"));
 		//recording.setName("Data");
 
 		// INIT GLOBAL VARIABLES
@@ -370,22 +370,13 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		View graphsView = findViewById(R.id.nr_graphs);
 		
 		// Initializes layout parameters
-		graphParams = new LayoutParams(LayoutParams.MATCH_PARENT,
-				Integer.parseInt((getResources()
-						.getString(R.string.graph_height))));
-		detailParameters = new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+		graphParams = new LayoutParams(LayoutParams.MATCH_PARENT, 900);//Integer.parseInt((getResources().getString(0x7f090001))));//0x7f090001//R.string.graph_height
+		detailParameters = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
 		
-			for (int i = 0; i < recordingConfiguration
-					.getDisplayChannelsNumber(); i++) {
-				graphs[i] = new Graph(this,
-						getString(R.string.nc_dialog_channel)
-								+ " "
-								+ recordingConfiguration.getDisplayChannels()
-										.get(i).toString());
-				LinearLayout graph = (LinearLayout) inflater.inflate(
-						R.layout.in_ly_graph, null);
+			for (int i = 0; i < recordingConfiguration.getDisplayChannelsNumber(); i++) {
+				graphs[i] = new Graph(this,getString(R.string.nc_dialog_channel) + " " + recordingConfiguration.getDisplayChannels().get(i).toString());
+				LinearLayout graph = (LinearLayout) inflater.inflate(R.layout.in_ly_graph, null);
 				graphs[i].getGraphView().setOnTouchListener(graphTouchListener);
 				((ViewGroup) graph).addView(graphs[i].getGraphView());
 				((ViewGroup) graphsView).addView(graph, graphParams);
@@ -393,30 +384,26 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		
 
 		// If just one channel is being displayed, show configuration details
-		if (recordingConfiguration.getDisplayChannelsNumber() == 1) {
+		/*if (recordingConfiguration.getDisplayChannelsNumber() == 1) {
 			View details = inflater.inflate(R.layout.in_ly_graph_details, null);
 			((ViewGroup) graphsView).addView(details, detailParameters);
 			
 			// get views
-			uiConfigurationName = (TextView) findViewById(R.id.nr_txt_configName);
-			uiNumberOfBits = (TextView) findViewById(R.id.nr_txt_config_nbits);
+			//uiConfigurationName = (TextView) findViewById(R.id.nr_txt_configName);
+			//uiNumberOfBits = (TextView) findViewById(R.id.nr_txt_config_nbits);
 			uiReceptionFrequency = (TextView) findViewById(R.id.nr_reception_freq);
-			uiSamplingFrequency = (TextView) findViewById(R.id.nr_sampling_freq);
-			uiActiveChannels = (TextView) findViewById(R.id.nr_txt_channels_active);
+			//uiSamplingFrequency = (TextView) findViewById(R.id.nr_sampling_freq);
+			//uiActiveChannels = (TextView) findViewById(R.id.nr_txt_channels_active);
 			uiMacAddress = (TextView) findViewById(R.id.nr_txt_mac);
 
 			// fill them
-			uiConfigurationName.setText(recordingConfiguration.getName());
-			uiReceptionFrequency.setText(String.valueOf(recordingConfiguration
-					.getVisualizationFrequency()) + " Hz");
-			uiSamplingFrequency.setText(String.valueOf(recordingConfiguration
-					.getSamplingFrequency()) + " Hz");
-			uiNumberOfBits.setText(String.valueOf(recordingConfiguration
-					.getNumberOfBits()) + " bits");
+			//uiConfigurationName.setText(recordingConfiguration.getName());
+			uiReceptionFrequency.setText(String.valueOf(recordingConfiguration.getVisualizationFrequency()) + " Hz");
+			//uiSamplingFrequency.setText(String.valueOf(recordingConfiguration.getSamplingFrequency()) + " Hz");
+			//uiNumberOfBits.setText(String.valueOf(recordingConfiguration.getNumberOfBits()) + " bits");
 			uiMacAddress.setText(recordingConfiguration.getMacAddress());
-			uiActiveChannels.setText(recordingConfiguration.getActiveChannels()
-					.toString());
-		}
+			//uiActiveChannels.setText(recordingConfiguration.getActiveChannels().toString());
+		}*/
 	}
 	
 	/**
@@ -630,7 +617,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			}
 			
 		}
-		//Toast.makeText(getApplicationContext(), "Recording",Toast.LENGTH_LONG).show();
+		Toast.makeText(getApplicationContext(), "Recording",Toast.LENGTH_LONG).show();
 		
 		progress = ProgressDialog.show(this,getResources().getString(R.string.nr_progress_dialog_title),getResources().getString(R.string.nr_progress_dialog_message), true);
 		
@@ -688,7 +675,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		// Initializes custom title
 		TextView customTitleView = (TextView) inflater.inflate(R.layout.dialog_custom_title, null);
 		customTitleView.setBackgroundColor(getResources().getColor(R.color.error_dialog));
-		/*switch(errorCode){
+		switch(errorCode){
 		case 1:
 			connectionErrorDialog.setMessage(getResources().getString(R.string.bp_address_incorrect));
 			break;
@@ -718,7 +705,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			connectionErrorDialog.setMessage("FATAL ERROR");
 			break;
 		}
-		connectionErrorDialog.show();*/
+		connectionErrorDialog.show();
 	}
 
 	/**

@@ -43,6 +43,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	public static int sfValue = 100;
 	private DeviceConfiguration newConfiguration;
 	private String[]  activeChannels = {"EMG"};
+	public static int freq;
 	
 	/*@Override
 	public boolean onMenuItemClick(MenuItem item) {
@@ -161,7 +162,8 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		
 		newConfiguration = new DeviceConfiguration(this);
 		newConfiguration.setNumberOfBits(12);
-		newConfiguration.setVisualizationFrequency(100);
+		//newConfiguration.setVisualizationFrequency(1000);
+		//newConfiguration.setSamplingFrequency(1000);
 		newConfiguration.setActiveChannels(activeChannels);
 		newConfiguration.setDisplayChannels(activeChannels);
 		newConfiguration.setName("MYconfig");
@@ -233,8 +235,10 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				  Editable BTName = BTNamebox.getText();
 				  btName = BTName.toString();
 				  configset = true;
-				  newConfiguration.setSamplingFrequency(100);
+				  newConfiguration.setVisualizationFrequency(sfValue);
+				  newConfiguration.setSamplingFrequency(sfValue);
 				  newConfiguration.setMacAddress(btName);
+				  freq = sfValue;
 				  
 			}
 		});

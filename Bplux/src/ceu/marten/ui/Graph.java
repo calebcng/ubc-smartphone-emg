@@ -33,24 +33,26 @@ public class Graph implements Serializable {
 	@SuppressWarnings("deprecation")
 	public Graph(android.content.Context context, String title) {
 		// SET THE SERIE STYLE
-		style = new GraphViewSeriesStyle(getChannelColor(
-				Integer.parseInt(title.charAt(title.length() - 1) + ""),
-				context), 2); // 2 -> thickness
+		style = new GraphViewSeriesStyle(getChannelColor(Integer.parseInt(title.charAt(title.length() - 1) + ""), context), 2); // 2 -> thickness
 
 		// INIT SERIE DATA
-		basicSerie = new GraphViewSeries(title, style, new GraphViewData[] {
-				new GraphViewData(0.5, 125), new GraphViewData(1, 125) });
+		basicSerie = new GraphViewSeries(title, style, new GraphViewData[] {new GraphViewData(0.5, 125), new GraphViewData(1, 125) });
+		
 		// INIT GRAPHVIEW
 		graphView = new LineGraphView(context, ""); 
 
 		// ADD SERIES TO GRAPHVIEW and SET SCROLLABLE
 //		graphView.setManualYAxisBounds(600, 300);
-		graphView.setManualYAxisBounds(2.0, -2.0);
+		graphView.setManualYAxisBounds(2.0, -2.0);	
 		graphView.addSeries(basicSerie);
-		graphView.setViewPort(
-				2,
-				Double.parseDouble(context.getResources().getString(
-						R.string.graph_viewport_size)));
+		//graphView.setViewPort(2,Double.parseDouble(context.getResources().getString(R.string.graph_viewport_size)));
+		if (HomeActivity.freq == 100) {
+			graphView.setViewPort(0,20000);
+		}
+		else if (HomeActivity.freq == 1000){
+			graphView.setViewPort(0,2000);
+		}
+		
 		graphView.setScalable(true);
 		graphView.setCustomLabelFormatter(new CustomLabelFormatter() {
 			@SuppressLint("DefaultLocale")
@@ -70,28 +72,18 @@ public class Graph implements Serializable {
 
 		// SET THE GRAPH VIEW STYLE
 		GraphViewStyle graphStyle = new GraphViewStyle();
-		graphStyle.setNumHorizontalLabels(Integer.parseInt(context
-				.getResources().getString(
-						R.string.graph_numberof_horizontal_labels)));
+		graphStyle.setNumHorizontalLabels(Integer.parseInt(context.getResources().getString(R.string.graph_numberof_horizontal_labels)));
 		graphStyle.setVerticalLabelsAlign(Align.LEFT);
-		graphStyle.setGridColor(context.getResources().getColor(
-				R.color.light_grey));
-		graphStyle.setHorizontalLabelsColor(context.getResources().getColor(
-				R.color.grey));
-		graphStyle.setVerticalLabelsColor(context.getResources().getColor(
-				R.color.grey));
-		graphStyle.setTextSize(Float.parseFloat(context.getResources()
-				.getString(R.string.graph_labels_text_size)));
-		graphStyle
-				.setVerticalLabelsWidth(Integer.parseInt((context
-						.getResources()
-						.getString(R.string.graph_vertical_labels_width))));
+		graphStyle.setGridColor(context.getResources().getColor(R.color.light_grey));
+		graphStyle.setHorizontalLabelsColor(context.getResources().getColor(R.color.grey));
+		graphStyle.setVerticalLabelsColor(context.getResources().getColor(R.color.grey));
+		graphStyle.setTextSize(Float.parseFloat(context.getResources().getString(R.string.graph_labels_text_size)));
+		graphStyle.setVerticalLabelsWidth(Integer.parseInt((context.getResources().getString(R.string.graph_vertical_labels_width))));
 
 		graphView.setGraphViewStyle(graphStyle);
 
 		// SET THE LEGEND
-		graphView.setLegendWidth((Integer.parseInt((context.getResources()
-				.getString(R.string.graph_legend_width)))));
+		graphView.setLegendWidth((Integer.parseInt((context.getResources().getString(R.string.graph_legend_width)))));
 		graphView.setLegendAlign(LegendAlign.BOTTOM);
 		graphView.setShowLegend(true);
 	}

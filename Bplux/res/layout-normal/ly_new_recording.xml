@@ -10,8 +10,6 @@
         android:paddingBottom="5dp"
         android:paddingTop="5dp" >
 
-        
-
         <TextView
             android:id="@+id/nr_txt_recordingName"
             android:layout_width="fill_parent"

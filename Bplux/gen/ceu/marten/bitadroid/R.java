@@ -166,13 +166,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int nr_buttons=0x7f0c0011;
         public static final int nr_graph_details=0x7f0c0015;
         public static final int nr_graphs=0x7f0c003e;
-        public static final int nr_reception_freq=0x7f0c0018;
+        public static final int nr_reception_freq=0x7f0c0017;
         public static final int nr_restore_zoom=0x7f0c0046;
-        public static final int nr_sampling_freq=0x7f0c0019;
+        public static final int nr_sampling_freq=0x7f0c0018;
         public static final int nr_scroll_view=0x7f0c003d;
         public static final int nr_settings=0x7f0c0045;
         public static final int nr_txt_channels_active=0x7f0c001b;
-        public static final int nr_txt_configName=0x7f0c0017;
+        public static final int nr_txt_configName=0x7f0c0019;
         public static final int nr_txt_config_nbits=0x7f0c001a;
         public static final int nr_txt_mac=0x7f0c0016;
         public static final int nr_txt_recordingName=0x7f0c003c;
