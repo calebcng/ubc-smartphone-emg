@@ -6,6 +6,7 @@ package ceu.marten.ui;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
@@ -68,6 +69,10 @@ import com.jjoe64.graphview.GraphView.GraphViewData;
  */
 public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> implements android.widget.PopupMenu.OnMenuItemClickListener, OnSharedPreferenceChangeListener {
 
+	
+	public double cal_num=0;
+	public boolean first=true;
+	
 	private static final String TAG = NewRecordingActivity.class.getName();
 	
 	// Keys used for communication with activity
@@ -167,7 +172,12 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 				break;
 			}*/
 			case BiopluxService.MSG_DATA: {
-				appendDataToGraphs(
+				if (first == true){
+					calibrate(msg.getData().getDouble(BiopluxService.KEY_X_VALUE),msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
+					first = false;
+				}
+						
+				else appendDataToGraphs(
 						msg.getData().getDouble(BiopluxService.KEY_X_VALUE),
 						msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
 				break;
@@ -250,15 +260,27 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			}
 		}
 	}*/
+	
 	void appendDataToGraphs(double xValue, double[] data) {
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
-				graphs[i].getSerie().appendData(
-						new GraphViewData(xValue,
-								data[displayChannelPosition[i]]), goToEnd, maxDataCount);
-				System.out.println(xValue + " : " + data[displayChannelPosition[i]]);
+				if (recordingConfiguration.getMacAddress().equals("EMG_Sensor")) 
+					graphs[i].getSerie().appendData(new GraphViewData(xValue,((data[displayChannelPosition[i]])-cal_num)*5), goToEnd, maxDataCount);//*5
+				
+				else graphs[i].getSerie().appendData(new GraphViewData(xValue,data[displayChannelPosition[i]]-cal_num), goToEnd, maxDataCount);
+				//System.out.println(xValue + " : " + data[displayChannelPosition[i]]);
 			}
 		}
+	}
+	
+	void calibrate(double xValue, double[]data){
+		if(!serviceError){
+			for (int i = 0; i < graphs.length; i++) {
+				cal_num+=(data[i]);
+			}
+		}
+		cal_num=(cal_num/graphs.length);
+		//Toast.makeText(getApplicationContext(), " "+cal_num,Toast.LENGTH_SHORT).show();
 	}
 	
 
@@ -625,7 +647,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			}
 			
 		}
-		Toast.makeText(getApplicationContext(), "Recording",Toast.LENGTH_LONG).show();
+		//Toast.makeText(getApplicationContext(), "Recording",Toast.LENGTH_LONG).show();
 		
 		progress = ProgressDialog.show(this,getResources().getString(R.string.nr_progress_dialog_title),getResources().getString(R.string.nr_progress_dialog_message), true);
 		
@@ -655,6 +677,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 							uiMainbutton.setText(getString(R.string.nr_button_stop));
 							displayInfoToast(getString(R.string.nr_info_started));
 							drawState = false;
+							//Toast.makeText(getApplicationContext(), "Recording",Toast.LENGTH_LONG).show();
+							
 							if (btConnectError == true) Toast.makeText(classContext, "Bluetooth Connection Error", Toast.LENGTH_LONG).show();
 						}
 				    }

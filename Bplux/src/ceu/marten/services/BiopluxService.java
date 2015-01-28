@@ -60,7 +60,9 @@ public class BiopluxService extends Service {
 	// Get 80 frames every 50 miliseconds
 	private int numberOfFrames;
 
-	public static final int TIMER_TIME = 50;// cambiar
+	
+	// This is initially 50, and lowering this  gets rid of the 1000Hz lag...
+	public int TIMER_TIME = 50;
 
 	// Used to synchronize timer and main thread
 	private static final Object weAreWritingDataToFileLock = new Object();
@@ -130,6 +132,7 @@ public class BiopluxService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
 		sharedPref = getSharedPreferences(getPackageName() + "_preferences",
 				Context.MODE_MULTI_PROCESS);
 		drawInBackground = sharedPref.getBoolean(
@@ -150,6 +153,7 @@ public class BiopluxService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		Log.i(TAG, "onBind");
+		
 		return mMessenger.getBinder();
 
 	}
@@ -177,7 +181,12 @@ public class BiopluxService extends Service {
 		String recordingName = intent.getStringExtra(
 				NewRecordingActivity.KEY_RECORDING_NAME).toString();
 		configuration = (DeviceConfiguration) intent
-				.getSerializableExtra(NewRecordingActivity.KEY_CONFIGURATION);
+				.getSerializableExtra(NewRecordingActivity.KEY_CONFIGURATION);	
+		
+		//added to avoid the lagging - Brittaney
+		if (configuration.getVisualizationFrequency()==1000) TIMER_TIME = 5;
+		else if (configuration.getVisualizationFrequency()==100) TIMER_TIME = 50;
+		
 		samplingFrames = (double) configuration.getVisualizationFrequency()
 				/ configuration.getSamplingFrequency();
 
@@ -360,7 +369,7 @@ public class BiopluxService extends Service {
 
 		for(int ind=0; ind<activeChannelsArray.length;ind++){
 			frameShort[ind]=(short) (frame.getAnalog(activeChannelsArray[ind]));
-			frameDouble[ind]= SensorDataConverter.scaleEMG(activeChannelsArray[ind], frame.getAnalog(activeChannelsArray[ind]));
+			frameDouble[ind]= (SensorDataConverter.scaleEMG(activeChannelsArray[ind], frame.getAnalog(activeChannelsArray[ind])));
 		}
 		
 		b.putDoubleArray(KEY_FRAME_DATA, frameDouble);

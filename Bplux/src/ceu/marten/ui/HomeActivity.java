@@ -9,14 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.mburman.fileexplore.FileExplore;
-//import com.mburman.fileexplore.FileExplore.Item;
-import com.ubc.capstonegroup70.DisplayStoredGraphActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,27 +20,21 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.util.Log;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
-import android.widget.PopupMenu;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import ceu.marten.bitadroid.R;
-import ceu.marten.model.Constants;
 import ceu.marten.model.DeviceConfiguration;
-import ceu.marten.model.DeviceRecording;
-import ceu.marten.ui.dialogs.AboutDialog;
-import ceu.marten.ui.dialogs.HelpDialog;
+
+import com.ubc.capstonegroup70.DisplayStoredGraphActivity;
+//import com.mburman.fileexplore.FileExplore.Item;
 
 public class HomeActivity extends Activity {//implements android.widget.PopupMenu.OnMenuItemClickListener {
 
