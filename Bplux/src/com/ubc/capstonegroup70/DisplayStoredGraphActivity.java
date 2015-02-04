@@ -28,6 +28,7 @@ import com.bitalino.util.SensorDataConverter;
 //import com.example.bluetoothnew.R;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
+import ceu.marten.ui.HomeActivity;
 
 import com.jjoe64.graphview.CustomLabelFormatter;
 import com.jjoe64.graphview.GraphView;
@@ -51,7 +52,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.app.Activity;
 
 /** 
@@ -111,6 +114,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		new ReadFileService().execute();
 		
   }
+  
 
 	  /*
 	   * Calculates the range (min and max) of values of the dataSet vector
