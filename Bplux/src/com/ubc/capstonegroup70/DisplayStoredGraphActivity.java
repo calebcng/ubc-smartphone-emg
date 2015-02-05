@@ -39,6 +39,8 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 import com.jjoe64.graphview.GraphViewStyle;
 import com.jjoe64.graphview.LineGraphView;
 
+import org.jtransforms.fft.*;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -74,7 +76,8 @@ public class DisplayStoredGraphActivity extends Activity {
     public static final int progress_bar_type = 0;
     
 	private final Handler mHandler = new Handler();
-	public Vector<Double> dataSet = new Vector<Double>();
+	private Vector<Double> dataSetRAW = new Vector<Double>();
+	private Vector<Double> dataSetFFT = new Vector<Double>();
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
 	public String endOfHeader = "# EndOfHeader";
@@ -98,6 +101,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	private int endSecond = 00;
 	private String PeridOfDay = "AM";
 	private int sampleLength = 0;
+	private boolean fft_calculated = false;
 
   
   	@Override
@@ -118,33 +122,62 @@ public class DisplayStoredGraphActivity extends Activity {
 		
   }
   	
-  	@Override
-  	protected void onResume() {
-  		// Initialize radio group for determining type of data to graph
-  		RadioGroup graphRadioGroup = (RadioGroup) findViewById(R.id.graphRadioGroup);
+  	/*
+  	 * Responds to changes in the radio button selection
+  	 * Choice of radio button selection will determine which data set to plot:
+  	 * 		1) dataSetRAW - the raw, unprocessed EMG signal
+  	 * 		2) dataSetFFT - the EMG signal after FFT has been performed on it
+  	 */
+  	public void onRadioButtonClicked(View view) {
+  		// Is the button checked?
+  		boolean checked = ((RadioButton) view).isChecked();
   		final RadioButton rawData = (RadioButton) findViewById(R.id.rawGraphBtn);
   		final RadioButton fftData = (RadioButton) findViewById(R.id.fftGraphBtn);
-  		graphRadioGroup.addView(rawData);
-  		graphRadioGroup.addView(fftData);
-  		rawData.setChecked(true);
-  		// Determine current selection
-  		int currentSelection = graphRadioGroup.getCheckedRadioButtonId();
   		
-  		graphRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-			
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				// TODO Auto-generated method stub
-				if(checkedId == rawData.getId()) {
-					// Raw signal selected
-					System.out.println("DSGA: Raw signal selected.");
-				}
-				else if(checkedId == fftData.getId()) {
-					// FFT signal selected
-					System.out.println("DSGA: FFT signal selected.");
-				}
-			}
-		});
+  		// Check which button was clicked
+  		switch(view.getId()) {
+	  		case R.id.rawGraphBtn:
+	  			if (checked) {
+	  				System.out.println("###DSGA### - RAW signal selected.");
+	  				rawData.setClickable(false);
+	  				fftData.setClickable(true);
+	  			}
+	  			break;
+	  		case R.id.fftGraphBtn:
+	  			if (checked) { 
+	  				System.out.println("###DSGA### - FFT signal selected.");
+	  				rawData.setClickable(true);
+	  				fftData.setClickable(false);
+	  				
+	  				if(dataSetFFT.size() != dataSetRAW.size()) {
+	  					// Perform FFT to compute graph series
+	  					calculateFFT();
+	  				}
+	  				graphData(dataSetFFT);
+	  			}
+	  			break;
+  		}
+  	}
+  	
+  	/*
+  	 * Process raw dataSet using Fast Fourier Transform (FFT)
+  	 */
+  	private void calculateFFT() {
+  		System.out.println("###DSGA### - Calculating FFT");  		
+  		double[] datapoints = new double[dataSetRAW.size()];
+  		for(int i=0; i<dataSetRAW.size(); i++)
+  			datapoints[i] = dataSetRAW.get(i);
+  		DoubleFFT_1D fft = new DoubleFFT_1D(dataSetRAW.size());
+  		fft.realForwardFull(datapoints);
+  		
+  		for (int i=0; i<datapoints.length; i++) {
+		  	dataSetFFT.add(datapoints[i]);
+  			double pointX = i;
+		  	double pointY = dataSetFFT.get(i);
+		  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, datapoints.length);
+//		  	System.out.println("X = " + pointX + ", Y = " + pointY);
+		}
+  		System.out.println("###DSGA### - Finished calculating FFT");
   	}
   
 
@@ -153,7 +186,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	   * Parameters:	none
 	   * Outputs:	Double[2]; Double[0] = min, Double[1] = max
 	   */
-	private double[] calculateRange() {
+	private double[] calculateRange(Vector<Double> dataSet) {
 		double dataRange[] = {0, 0}; //{y-min, y-max}
 		Object dataMin = Collections.min(dataSet);
 		Object dataMax = Collections.max(dataSet);
@@ -162,7 +195,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		return dataRange;
 	}
 	
-	private void graphData() {	  
+	private void graphData(Vector<Double> dataSet) {	  
 	  System.out.println("Defining data set.");
 	  GraphView graphView = new LineGraphView(this, recordingName) {
 		  protected String formatLabel(double value, boolean isValueX) {
@@ -174,7 +207,8 @@ public class DisplayStoredGraphActivity extends Activity {
 					  return "00:00:00";
 				  }
 				  xValue = (long) value;
-				  return String.format("%02d:%02d:%02d",(int) (startHour + (xValue / (samplingFrequency*60*60)) % 24), (int) (startMinute + (xValue / (samplingFrequency*60)) % 60), (int) (startSecond + (xValue / samplingFrequency)) % 60);
+//				  return String.format("%02d:%02d:%02d",(int) (startHour + (xValue / (samplingFrequency*60*60)) % 24), (int) (startMinute + (xValue / (samplingFrequency*60)) % 60), (int) (startSecond + (xValue / samplingFrequency)) % 60);
+				  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) ((xValue / samplingFrequency)) % 60);
 			  } else {
 				return String.format("%.2f", (double) value);
 	//			return null;
@@ -182,14 +216,14 @@ public class DisplayStoredGraphActivity extends Activity {
 		  }
 	  };
 	  
-	  int yInterval = calculateYScale();
+	  int yInterval = calculateYScale(dataSet);
 	  int yLabel = max;
 	  while ((yLabel-min) % yInterval != 0) {
 	  	yLabel++;
 	  }
 	    
 	    // Calculate appropriate interval value in x-direction
-	  int xInterval = calculateXScale();	  
+	  int xInterval = calculateXScale(dataSet);	  
 	  int xLabel = dataSet.size();
 	  while (xLabel % xInterval != 0) {
 	  	xLabel++;
@@ -217,10 +251,10 @@ public class DisplayStoredGraphActivity extends Activity {
 	  layout.addView(graphView);
 	}
 	
-	private int calculateYScale() {
+	private int calculateYScale(Vector<Double> dataSet) {
 		// Calculate range of y values
 		double yBounds[] = {0,0};
-		yBounds = calculateRange();
+		yBounds = calculateRange(dataSet);
 		// Calculate the appropriate max value and min values in y-direction 
 		max = (int) yBounds[1] + 1;
 		if (yBounds[0] >= 0) {    
@@ -253,7 +287,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		return yInterval;
 	}
 	  
-	private int calculateXScale() {
+	private int calculateXScale(Vector<Double> dataSet) {
 		int xInterval;
 		int xMax = dataSet.size();
 		if (xMax <= 10) {
@@ -364,7 +398,7 @@ public class DisplayStoredGraphActivity extends Activity {
 			while (strings.hasNext())
 			{
 				double dataPoint = Double.parseDouble(strings.next());
-				dataSet.add(SensorDataConverter.scaleEMG(dataPoint));
+				dataSetRAW.add(SensorDataConverter.scaleEMG(dataPoint));
 				if (strings.hasNext())
 					strings.next();
 				else
@@ -406,21 +440,21 @@ public class DisplayStoredGraphActivity extends Activity {
 				System.out.println("@IOERROR: Unable to read from file. Creating random dataset");
 				for(int i=0; i<100; i++)
 			    {
-					dataSet.add(randomGenerator.nextDouble());
+					dataSetRAW.add(randomGenerator.nextDouble());
 			    }
 			}
 
 			// Prepare data set for graphing
 			exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
 	        });
-			System.out.println("DSGA-TAG: Number of samples read is " + dataSet.size());
-			for (int i=0; i<dataSet.size(); i++) {
+			System.out.println("DSGA-TAG: Number of samples read is " + dataSetRAW.size());
+			for (int i=0; i<dataSetRAW.size(); i++) {
 			  	double pointX = i;
-			  	double pointY = dataSet.get(i);
-			  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSet.size());
+			  	double pointY = dataSetRAW.get(i);
+			  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
 //			  	System.out.println("X = " + pointX + ", Y = " + pointY);
 			}
-			graphData();
+			graphData(dataSetRAW);
 //			dismissDialog(progress_bar_type);
 			prgDialog.dismiss();
 			prgDialog = null;
