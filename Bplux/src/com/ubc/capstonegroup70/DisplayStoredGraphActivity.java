@@ -164,11 +164,17 @@ public class DisplayStoredGraphActivity extends Activity {
   	 */
   	private void calculateFFT() {
   		System.out.println("###DSGA### - Calculating FFT");  		
-  		double[] datapoints = new double[dataSetRAW.size()];
-  		for(int i=0; i<dataSetRAW.size(); i++)
-  			datapoints[i] = dataSetRAW.get(i);
+  		double[] datapoints = new double[dataSetRAW.size()*2];
+  		double[] test = new double[] {1, 2, 3, 4, 5};
+  		for(int i=0; i<dataSetRAW.size(); i++) {
+  			datapoints[i] = (double) dataSetRAW.get(i);
+  			System.out.println("Datapoint(" + i + ") is " + datapoints[i]);
+  		}
+//  		System.arraycopy(dataSetRAW, 0, datapoints, 0, dataSetRAW.size());
+  		System.out.println("Datapoint size: " + datapoints.length + " vs. Raw data size: " + dataSetRAW.size());
   		DoubleFFT_1D fft = new DoubleFFT_1D(dataSetRAW.size());
-  		fft.realForwardFull(datapoints);
+  		fft.realForwardFull(datapoints,0);
+  		System.out.println(fft);
   		
   		for (int i=0; i<datapoints.length; i++) {
 		  	dataSetFFT.add(datapoints[i]);
