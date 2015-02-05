@@ -54,6 +54,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
 import android.app.Activity;
 
@@ -114,6 +117,35 @@ public class DisplayStoredGraphActivity extends Activity {
 		new ReadFileService().execute();
 		
   }
+  	
+  	@Override
+  	protected void onResume() {
+  		// Initialize radio group for determining type of data to graph
+  		RadioGroup graphRadioGroup = (RadioGroup) findViewById(R.id.graphRadioGroup);
+  		final RadioButton rawData = (RadioButton) findViewById(R.id.rawGraphBtn);
+  		final RadioButton fftData = (RadioButton) findViewById(R.id.fftGraphBtn);
+  		graphRadioGroup.addView(rawData);
+  		graphRadioGroup.addView(fftData);
+  		rawData.setChecked(true);
+  		// Determine current selection
+  		int currentSelection = graphRadioGroup.getCheckedRadioButtonId();
+  		
+  		graphRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				// TODO Auto-generated method stub
+				if(checkedId == rawData.getId()) {
+					// Raw signal selected
+					System.out.println("DSGA: Raw signal selected.");
+				}
+				else if(checkedId == fftData.getId()) {
+					// FFT signal selected
+					System.out.println("DSGA: FFT signal selected.");
+				}
+			}
+		});
+  	}
   
 
 	  /*
@@ -175,7 +207,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	graphView.setViewPort(0, 100);
 	  graphView.setManualYAxisBounds(yLabel, min);
 //	  graphView.getGraphViewStyle().setNumVerticalLabels(((yLabel-min)/yInterval) + 1);
-//  graphView.getGraphViewStyle().setNumHorizontalLabels(xLabel/xInterval + 1);
+//	  graphView.getGraphViewStyle().setNumHorizontalLabels(xLabel/xInterval + 1);
 	  graphView.getGraphViewStyle().setGridColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
@@ -256,11 +288,12 @@ public class DisplayStoredGraphActivity extends Activity {
 			Scanner strings = null;
 			InputStream stream = null;
 			BufferedInputStream bstream = null; 
-			ZipInputStream zipInput = null;
+//			ZipInputStream zipInput = null;
+			ZipFile zipFile = null;
 			try {
 				System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
 		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName);
-		  		ZipFile zipFile = new ZipFile(file);
+		  		zipFile = new ZipFile(file);
 		  		Enumeration<? extends ZipEntry> entries = zipFile.entries();
 		  				  		
 		  		while (entries.hasMoreElements()) {
@@ -341,6 +374,8 @@ public class DisplayStoredGraphActivity extends Activity {
 			try {
 				bstream.close();
 				stream.close();
+				zipFile.close();
+//				zipInput.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
