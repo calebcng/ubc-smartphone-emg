@@ -40,6 +40,7 @@ import com.jjoe64.graphview.GraphViewStyle;
 import com.jjoe64.graphview.LineGraphView;
 
 import org.jtransforms.fft.*;
+import pl.edu.icm.jlargearrays.DoubleLargeArray;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -78,10 +79,13 @@ public class DisplayStoredGraphActivity extends Activity {
 	private final Handler mHandler = new Handler();
 	private Vector<Double> dataSetRAW = new Vector<Double>();
 	private Vector<Double> dataSetFFT = new Vector<Double>();
+	private Vector<Double> dataSetFFTImag = new Vector<Double>();
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
 	public String endOfHeader = "# EndOfHeader";
-	private GraphViewSeries exampleSeries1;
+	private GraphViewSeries rawSeries;
+	private GraphViewSeries fftSeries;
+	private GraphViewSeries fftSeriesImag;
 	int setSize = 0;
 	int max=0;
 	int min=0;	
@@ -141,6 +145,8 @@ public class DisplayStoredGraphActivity extends Activity {
 	  				System.out.println("###DSGA### - RAW signal selected.");
 	  				rawData.setClickable(false);
 	  				fftData.setClickable(true);
+	  				
+	  				graphData(dataSetRAW);
 	  			}
 	  			break;
 	  		case R.id.fftGraphBtn:
@@ -149,8 +155,9 @@ public class DisplayStoredGraphActivity extends Activity {
 	  				rawData.setClickable(true);
 	  				fftData.setClickable(false);
 	  				
-	  				if(dataSetFFT.size() != dataSetRAW.size()) {
+	  				if(dataSetFFT.size() == 0) {
 	  					// Perform FFT to compute graph series
+	  					System.out.println("FFT size: " + dataSetFFT.size() + " vs. RAW size: " + dataSetRAW.size());
 	  					calculateFFT();
 	  				}
 	  				graphData(dataSetFFT);
@@ -165,22 +172,29 @@ public class DisplayStoredGraphActivity extends Activity {
   	private void calculateFFT() {
   		System.out.println("###DSGA### - Calculating FFT");  		
   		double[] datapoints = new double[dataSetRAW.size()*2];
-  		double[] test = new double[] {1, 2, 3, 4, 5};
+//  		double[] imagPoints = new double[dataSetRAW.size()*2];
   		for(int i=0; i<dataSetRAW.size(); i++) {
   			datapoints[i] = (double) dataSetRAW.get(i);
-  			System.out.println("Datapoint(" + i + ") is " + datapoints[i]);
+//  			System.out.println("Datapoint(" + i + ") is " + datapoints[i]);
   		}
+//  		imagPoints = datapoints;
 //  		System.arraycopy(dataSetRAW, 0, datapoints, 0, dataSetRAW.size());
   		System.out.println("Datapoint size: " + datapoints.length + " vs. Raw data size: " + dataSetRAW.size());
   		DoubleFFT_1D fft = new DoubleFFT_1D(dataSetRAW.size());
-  		fft.realForwardFull(datapoints,0);
+  		fft.realForwardFull(datapoints);
+//  		fft.complexForward(imagPoints);
   		System.out.println(fft);
   		
+  		fftSeries = new GraphViewSeries(new GraphViewData[] {});
+//  		fftSeriesImag = new GraphViewSeries(new GraphViewData[] {});
   		for (int i=0; i<datapoints.length; i++) {
 		  	dataSetFFT.add(datapoints[i]);
+//		  	dataSetFFTImag.add(imagPoints[i]);
   			double pointX = i;
-		  	double pointY = dataSetFFT.get(i);
-		  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, datapoints.length);
+		  	double pointY = datapoints[i];
+		  	fftSeries.appendData(new GraphViewData(pointX, pointY), true, datapoints.length);
+//		  	pointY = imagPoints[i];
+//		  	fftSeriesImag.appendData(new GraphViewData(pointX, pointY), true, imagPoints.length);
 //		  	System.out.println("X = " + pointX + ", Y = " + pointY);
 		}
   		System.out.println("###DSGA### - Finished calculating FFT");
@@ -201,23 +215,43 @@ public class DisplayStoredGraphActivity extends Activity {
 		return dataRange;
 	}
 	
-	private void graphData(Vector<Double> dataSet) {	  
+	private void graphData(final Vector<Double> dataSet) {	  
 	  System.out.println("Defining data set.");
+	  
+	  // Determine the appropriate graphSeries to add depending on dataSet that was passed
+	  GraphViewSeries graphSeries;
+	  if( dataSet == dataSetFFT ) {
+		  System.out.println("###DSGA### - Adding FFTSeries");
+		  graphSeries = fftSeries;
+	  }
+	  else {
+		  System.out.println("###DSGA### - Adding RAWSeries");
+		  graphSeries = rawSeries;
+	  }
+
+	  // Format graph labels to show the appropriate domain on x-axis
 	  GraphView graphView = new LineGraphView(this, recordingName) {
 		  protected String formatLabel(double value, boolean isValueX) {
 			  if (isValueX) {
-//				return String.format("%d", (int) value);
 				  long xValue;
 				  if (value < 0.000){
 					  xValue = 0;
 					  return "00:00:00";
 				  }
 				  xValue = (long) value;
-//				  return String.format("%02d:%02d:%02d",(int) (startHour + (xValue / (samplingFrequency*60*60)) % 24), (int) (startMinute + (xValue / (samplingFrequency*60)) % 60), (int) (startSecond + (xValue / samplingFrequency)) % 60);
-				  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) ((xValue / samplingFrequency)) % 60);
+				  if(dataSet == dataSetFFT) {
+					  // Set x-axis to use the frequency domain
+					  return String.format("%d",(int) (xValue/2 * samplingFrequency /dataSetRAW.size()));  
+				  }
+				  else {
+					  // Set the x-axis to use the time domain
+//					  return String.format("%02d:%02d:%02d",(int) (startHour + (xValue / (samplingFrequency*60*60)) % 24), (int) (startMinute + (xValue / (samplingFrequency*60)) % 60), (int) (startSecond + (xValue / samplingFrequency)) % 60);
+					  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) ((xValue / samplingFrequency)) % 60);
+				  }
+						  
+					  
 			  } else {
 				return String.format("%.2f", (double) value);
-	//			return null;
 			}
 		  }
 	  };
@@ -235,8 +269,10 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	xLabel++;
 	  }
 	  
-	
-	  graphView.addSeries(exampleSeries1); 
+	  graphView.addSeries(graphSeries);
+	  /*if(dataSet == dataSetFFT) {
+		  graphView.addSeries(fftSeriesImag); 		  
+	  }*/
 	  ((LineGraphView) graphView).setDrawBackground(false);
 	  
 	  graphView.setScalable(true);  
@@ -254,6 +290,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  graphView.getGraphViewStyle().setVerticalLabelsWidth(80);
 
 	  LinearLayout layout = (LinearLayout) findViewById(R.id.dataGraph);
+	  layout.removeAllViews();
 	  layout.addView(graphView);
 	}
 	
@@ -451,15 +488,17 @@ public class DisplayStoredGraphActivity extends Activity {
 			}
 
 			// Prepare data set for graphing
-			exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
+			rawSeries = new GraphViewSeries(new GraphViewData[] {
 	        });
 			System.out.println("DSGA-TAG: Number of samples read is " + dataSetRAW.size());
 			for (int i=0; i<dataSetRAW.size(); i++) {
 			  	double pointX = i;
 			  	double pointY = dataSetRAW.get(i);
-			  	exampleSeries1.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
+			  	rawSeries.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
 //			  	System.out.println("X = " + pointX + ", Y = " + pointY);
 			}
+//			calculateFFT();
+//			graphData(dataSetFFT);
 			graphData(dataSetRAW);
 //			dismissDialog(progress_bar_type);
 			prgDialog.dismiss();
