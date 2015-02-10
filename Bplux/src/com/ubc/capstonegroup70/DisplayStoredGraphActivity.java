@@ -78,13 +78,13 @@ public class DisplayStoredGraphActivity extends Activity {
     
 	private final Handler mHandler = new Handler();
 	private Vector<Double> dataSetRAW = new Vector<Double>();
-	private Vector<Double> dataSetFFT = new Vector<Double>();
-	private Vector<Double> dataSetFFTImag = new Vector<Double>();
+	private Vector<Double> dataSetFFT_real = new Vector<Double>();
+	private Vector<Double> dataSetFFT_imag = new Vector<Double>();
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
 	public String endOfHeader = "# EndOfHeader";
 	private GraphViewSeries rawSeries;
-	private GraphViewSeries fftSeries;
+	private GraphViewSeries fftSeriesReal;
 	private GraphViewSeries fftSeriesImag;
 	int setSize = 0;
 	int max=0;
@@ -130,13 +130,14 @@ public class DisplayStoredGraphActivity extends Activity {
   	 * Responds to changes in the radio button selection
   	 * Choice of radio button selection will determine which data set to plot:
   	 * 		1) dataSetRAW - the raw, unprocessed EMG signal
-  	 * 		2) dataSetFFT - the EMG signal after FFT has been performed on it
+  	 * 		2) dataSetFFT_real - the EMG signal after FFT has been performed on it
   	 */
   	public void onRadioButtonClicked(View view) {
   		// Is the button checked?
   		boolean checked = ((RadioButton) view).isChecked();
   		final RadioButton rawData = (RadioButton) findViewById(R.id.rawGraphBtn);
-  		final RadioButton fftData = (RadioButton) findViewById(R.id.fftGraphBtn);
+  		final RadioButton fftReal = (RadioButton) findViewById(R.id.fftRealGraphBtn);
+  		final RadioButton fftImag = (RadioButton) findViewById(R.id.fftImagGraphBtn);
   		
   		// Check which button was clicked
   		switch(view.getId()) {
@@ -144,25 +145,41 @@ public class DisplayStoredGraphActivity extends Activity {
 	  			if (checked) {
 	  				System.out.println("###DSGA### - RAW signal selected.");
 	  				rawData.setClickable(false);
-	  				fftData.setClickable(true);
+	  				fftReal.setClickable(true);
+	  				fftImag.setClickable(true);
 	  				
 	  				graphData(dataSetRAW);
 	  			}
 	  			break;
-	  		case R.id.fftGraphBtn:
+	  		case R.id.fftRealGraphBtn:
 	  			if (checked) { 
-	  				System.out.println("###DSGA### - FFT signal selected.");
+	  				System.out.println("###DSGA### - Real FFT selected.");
 	  				rawData.setClickable(true);
-	  				fftData.setClickable(false);
+	  				fftReal.setClickable(false);
+	  				fftImag.setClickable(true);
 	  				
-	  				if(dataSetFFT.size() == 0) {
+	  				if(dataSetFFT_real.size() == 0 || dataSetFFT_imag.size() == 0) {
 	  					// Perform FFT to compute graph series
-	  					System.out.println("FFT size: " + dataSetFFT.size() + " vs. RAW size: " + dataSetRAW.size());
+	  					System.out.println("FFT size: " + dataSetFFT_real.size() + " vs. RAW size: " + dataSetRAW.size());
 	  					calculateFFT();
 	  				}
-	  				graphData(dataSetFFT);
+	  				graphData(dataSetFFT_real);
 	  			}
 	  			break;
+	  		case R.id.fftImagGraphBtn:
+	  			if (checked) {
+	  				System.out.println("###DSGA### - Imaginary FFT selected.");
+	  				rawData.setClickable(true);
+	  				fftReal.setClickable(true);
+	  				fftImag.setClickable(false);
+	  				
+	  				if(dataSetFFT_real.size() == 0 || dataSetFFT_imag.size() == 0) {
+	  					// Perform FFT to compute graph series
+	  					System.out.println("FFT size: " + dataSetFFT_real.size() + " vs. RAW size: " + dataSetRAW.size());
+	  					calculateFFT();
+	  				}
+	  				graphData(dataSetFFT_imag);
+	  			}
   		}
   	}
   	
@@ -170,32 +187,34 @@ public class DisplayStoredGraphActivity extends Activity {
   	 * Process raw dataSet using Fast Fourier Transform (FFT)
   	 */
   	private void calculateFFT() {
-  		System.out.println("###DSGA### - Calculating FFT");  		
-  		double[] datapoints = new double[dataSetRAW.size()*2];
-//  		double[] imagPoints = new double[dataSetRAW.size()*2];
-  		for(int i=0; i<dataSetRAW.size(); i++) {
+  		System.out.println("###DSGA### - Calculating FFT"); 
+  		int numSamples = dataSetRAW.size();
+  		double[] datapoints = new double[numSamples*2];
+  		int[] xIndex = new int[numSamples];
+  		for(int i=0; i<numSamples; i++) {
   			datapoints[i] = (double) dataSetRAW.get(i);
-//  			System.out.println("Datapoint(" + i + ") is " + datapoints[i]);
+  			xIndex[i] = i;
   		}
-//  		imagPoints = datapoints;
-//  		System.arraycopy(dataSetRAW, 0, datapoints, 0, dataSetRAW.size());
-  		System.out.println("Datapoint size: " + datapoints.length + " vs. Raw data size: " + dataSetRAW.size());
-  		DoubleFFT_1D fft = new DoubleFFT_1D(dataSetRAW.size());
+  		System.out.println("Datapoint size: " + datapoints.length + " vs. Raw data size: " + numSamples);
+  		DoubleFFT_1D fft = new DoubleFFT_1D(numSamples);
   		fft.realForwardFull(datapoints);
-//  		fft.complexForward(imagPoints);
   		System.out.println(fft);
   		
-  		fftSeries = new GraphViewSeries(new GraphViewData[] {});
-//  		fftSeriesImag = new GraphViewSeries(new GraphViewData[] {});
+  		fftSeriesReal = new GraphViewSeries(new GraphViewData[] {});
+  		fftSeriesImag = new GraphViewSeries(new GraphViewData[] {});
   		for (int i=0; i<datapoints.length; i++) {
-		  	dataSetFFT.add(datapoints[i]);
-//		  	dataSetFFTImag.add(imagPoints[i]);
-  			double pointX = i;
-		  	double pointY = datapoints[i];
-		  	fftSeries.appendData(new GraphViewData(pointX, pointY), true, datapoints.length);
-//		  	pointY = imagPoints[i];
-//		  	fftSeriesImag.appendData(new GraphViewData(pointX, pointY), true, imagPoints.length);
-//		  	System.out.println("X = " + pointX + ", Y = " + pointY);
+		  	if( i%2 == 0 ) {
+//		  		dataSetFFT_real.add(Math.pow(Math.abs(datapoints[i]), 2));
+//			  	double pointY = Math.pow(Math.abs(datapoints[i]), 2);
+		  		dataSetFFT_real.add(datapoints[i]);
+		  		double pointY = datapoints[i];
+			  	fftSeriesReal.appendData(new GraphViewData(xIndex[i/2], pointY), true, datapoints.length/2); 
+		  	}
+		  	else {
+		  		dataSetFFT_imag.add(datapoints[i]); 
+			  	double pointY = datapoints[i]; 			
+			  	fftSeriesImag.appendData(new GraphViewData(xIndex[(i-1)/2], pointY), true, datapoints.length/2);
+		  	}		  	
 		}
   		System.out.println("###DSGA### - Finished calculating FFT");
   	}
@@ -220,9 +239,13 @@ public class DisplayStoredGraphActivity extends Activity {
 	  
 	  // Determine the appropriate graphSeries to add depending on dataSet that was passed
 	  GraphViewSeries graphSeries;
-	  if( dataSet == dataSetFFT ) {
-		  System.out.println("###DSGA### - Adding FFTSeries");
-		  graphSeries = fftSeries;
+	  if( dataSet == dataSetFFT_real ) {
+		  System.out.println("###DSGA### - Adding fftSeriesReal");
+		  graphSeries = fftSeriesReal;
+	  }
+	  else if (dataSet == dataSetFFT_imag) {
+		  System.out.println("###DSGA### - Adding FFTSeriesImag");
+		  graphSeries = fftSeriesImag;
 	  }
 	  else {
 		  System.out.println("###DSGA### - Adding RAWSeries");
@@ -239,13 +262,12 @@ public class DisplayStoredGraphActivity extends Activity {
 					  return "00:00:00";
 				  }
 				  xValue = (long) value;
-				  if(dataSet == dataSetFFT) {
+				  if(dataSet == dataSetFFT_real || dataSet == dataSetFFT_imag) {
 					  // Set x-axis to use the frequency domain
-					  return String.format("%d",(int) (xValue/2 * samplingFrequency /dataSetRAW.size()));  
+					  return String.format("%d",(int) (xValue * samplingFrequency /dataSetRAW.size()));  
 				  }
 				  else {
 					  // Set the x-axis to use the time domain
-//					  return String.format("%02d:%02d:%02d",(int) (startHour + (xValue / (samplingFrequency*60*60)) % 24), (int) (startMinute + (xValue / (samplingFrequency*60)) % 60), (int) (startSecond + (xValue / samplingFrequency)) % 60);
 					  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) ((xValue / samplingFrequency)) % 60);
 				  }
 						  
@@ -270,7 +292,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  }
 	  
 	  graphView.addSeries(graphSeries);
-	  /*if(dataSet == dataSetFFT) {
+	  /*if(dataSet == dataSetFFT_real) {
 		  graphView.addSeries(fftSeriesImag); 		  
 	  }*/
 	  ((LineGraphView) graphView).setDrawBackground(false);
@@ -495,12 +517,8 @@ public class DisplayStoredGraphActivity extends Activity {
 			  	double pointX = i;
 			  	double pointY = dataSetRAW.get(i);
 			  	rawSeries.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
-//			  	System.out.println("X = " + pointX + ", Y = " + pointY);
 			}
-//			calculateFFT();
-//			graphData(dataSetFFT);
 			graphData(dataSetRAW);
-//			dismissDialog(progress_bar_type);
 			prgDialog.dismiss();
 			prgDialog = null;
 		}

@@ -191,9 +191,10 @@
     <string name="bs_notification_title">Device connected</string>
     <string name="bs_notification_message">Service running, receiving frames..</string>
     
-    <!-- Display Stored Graph Activity -->
-    <string name="raw_data_btn">RAW Signal</string>
-    <string name="fft_data_btn">FFT Signal</string>
+    <!-- DISPLAY STORED GRAPH ACTIVITY-->
+    <string name="raw_data_btn">Original Signal</string>
+    <string name="fft_data_btn">Real FFT</string>
+    <string name="fft_img_btn">Imaginary FFT</string>
     
     <!-- DIALOGS -->
     <string name="d_hint">Recording 1</string>
