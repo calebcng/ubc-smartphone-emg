@@ -4,6 +4,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
+    <RadioGroup 
+        android:id="@+id/graphRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rawGraphBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/raw_data_btn"
+            android:checked="true"
+            android:clickable="false"
+            android:onClick="onRadioButtonClicked" />
+
+        <RadioButton
+            android:id="@+id/fftGraphBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="@string/fft_data_btn"
+            android:checked="false"
+            android:onClick="onRadioButtonClicked" />
+
+
+    </RadioGroup>
+    
     <LinearLayout
         android:id="@+id/dataGraph"
         android:layout_width="match_parent"

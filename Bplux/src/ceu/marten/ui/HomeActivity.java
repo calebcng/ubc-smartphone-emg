@@ -224,7 +224,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		BTNamebox.setText(btName);
 		layout.addView(BTNamebox);
 		
-		final TextView Title2 = new TextView(context);
+		/*final TextView Title2 = new TextView(context);
 		Title2.setText("Sampling Frequency");
 		layout.addView(Title2);
 		
@@ -264,7 +264,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				// TODO Auto-generated method stub
 				
 			}
-	    });
+	    });*/
 
 		alertDialogBuilder.setView(layout);
 		
@@ -273,8 +273,8 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				  Editable BTName = BTNamebox.getText();
 				  btName = BTName.toString();
 				  configset = true;
-				  newConfiguration.setVisualizationFrequency(sfValue);
-				  newConfiguration.setSamplingFrequency(sfValue);
+				  newConfiguration.setVisualizationFrequency(1000);
+				  newConfiguration.setSamplingFrequency(100);
 				  newConfiguration.setMacAddress(btName);
 				  freq = sfValue;
 				  newConfiguration.setMacAddress(btName);
@@ -290,6 +290,17 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		
 	}
 	
+	/*
+	 * Android File Explore
+	 * 
+	 * Copyright 2011 Manish Burman
+	 * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in 
+	 * compliance with the License. You may obtain a copy of the License at
+	 * 		http://www.apache.org/licenses/LICENSE-2.0
+	 * Unless required by applicable law or agreed to in writing, software distributed under the License is 
+	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+	 * See the License for the specific language governing permissions and limitations under the License.
+	 */
 	// Open FileExplore
 	private void loadFileList() {
 	    try {
@@ -464,4 +475,5 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	    });*/
 	    return dialog;
 	  }
+	// End of FileExplore
 }

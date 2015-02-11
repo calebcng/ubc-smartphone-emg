@@ -168,9 +168,6 @@
     <string name="nr_saving_dialog_adding_header_message">Adding header to recording text file</string>
     <string name="nr_saving_dialog_compressing_message">Compressing recording. This might take a minute</string>
     
-    <!-- FileExplore Strings -->
-    <string name="hello">Hello World, FileExplore!</string>
-    
     <!-- BIO ERROR/WARNING MESSAGES -->
     <string name="bp_address_incorrect">The specified MAC address is not correct</string>
     <string name="bp_adapter_not_found">No bluetooth adapter was found. Verify if an adapter is connected and turned on</string>
@@ -193,6 +190,11 @@
     
     <string name="bs_notification_title">Device connected</string>
     <string name="bs_notification_message">Service running, receiving frames..</string>
+    
+    <!-- DISPLAY STORED GRAPH ACTIVITY-->
+    <string name="raw_data_btn">Original Signal</string>
+    <string name="fft_data_btn">FFT Signal</string>
+    <string name="fft_img_btn">Imaginary FFT</string>
     
     <!-- DIALOGS -->
     <string name="d_hint">Recording 1</string>
