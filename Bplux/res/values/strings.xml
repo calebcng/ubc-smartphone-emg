@@ -193,7 +193,7 @@
     
     <!-- DISPLAY STORED GRAPH ACTIVITY-->
     <string name="raw_data_btn">Original Signal</string>
-    <string name="fft_data_btn">Real FFT</string>
+    <string name="fft_data_btn">FFT Signal</string>
     <string name="fft_img_btn">Imaginary FFT</string>
     
     <!-- DIALOGS -->

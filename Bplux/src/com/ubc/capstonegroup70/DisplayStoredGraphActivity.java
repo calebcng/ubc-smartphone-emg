@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -39,6 +40,7 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 import com.jjoe64.graphview.GraphViewStyle;
 import com.jjoe64.graphview.LineGraphView;
 
+import org.apache.commons.math3.complex.Complex;
 import org.jtransforms.fft.*;
 import pl.edu.icm.jlargearrays.DoubleLargeArray;
 
@@ -78,12 +80,14 @@ public class DisplayStoredGraphActivity extends Activity {
     
 	private final Handler mHandler = new Handler();
 	private Vector<Double> dataSetRAW = new Vector<Double>();
+	private Vector<Double> dataSetFFT = new Vector<Double>();
 	private Vector<Double> dataSetFFT_real = new Vector<Double>();
 	private Vector<Double> dataSetFFT_imag = new Vector<Double>();
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
 	public String endOfHeader = "# EndOfHeader";
 	private GraphViewSeries rawSeries;
+	private GraphViewSeries fftSeries;
 	private GraphViewSeries fftSeriesReal;
 	private GraphViewSeries fftSeriesImag;
 	int setSize = 0;
@@ -136,8 +140,8 @@ public class DisplayStoredGraphActivity extends Activity {
   		// Is the button checked?
   		boolean checked = ((RadioButton) view).isChecked();
   		final RadioButton rawData = (RadioButton) findViewById(R.id.rawGraphBtn);
-  		final RadioButton fftReal = (RadioButton) findViewById(R.id.fftRealGraphBtn);
-  		final RadioButton fftImag = (RadioButton) findViewById(R.id.fftImagGraphBtn);
+  		final RadioButton fftData = (RadioButton) findViewById(R.id.fftGraphBtn);
+//  		final RadioButton fftImag = (RadioButton) findViewById(R.id.fftImagGraphBtn);
   		
   		// Check which button was clicked
   		switch(view.getId()) {
@@ -145,28 +149,28 @@ public class DisplayStoredGraphActivity extends Activity {
 	  			if (checked) {
 	  				System.out.println("###DSGA### - RAW signal selected.");
 	  				rawData.setClickable(false);
-	  				fftReal.setClickable(true);
-	  				fftImag.setClickable(true);
+	  				fftData.setClickable(true);
+//	  				fftImag.setClickable(true);
 	  				
 	  				graphData(dataSetRAW);
 	  			}
 	  			break;
-	  		case R.id.fftRealGraphBtn:
+	  		case R.id.fftGraphBtn:
 	  			if (checked) { 
 	  				System.out.println("###DSGA### - Real FFT selected.");
 	  				rawData.setClickable(true);
-	  				fftReal.setClickable(false);
-	  				fftImag.setClickable(true);
+	  				fftData.setClickable(false);
+//	  				fftImag.setClickable(true);
 	  				
-	  				if(dataSetFFT_real.size() == 0 || dataSetFFT_imag.size() == 0) {
+	  				if(dataSetFFT_real.size() == 0 || dataSetFFT_imag.size() == 0 || dataSetFFT.size() == 0) {
 	  					// Perform FFT to compute graph series
-	  					System.out.println("FFT size: " + dataSetFFT_real.size() + " vs. RAW size: " + dataSetRAW.size());
+//	  					System.out.println("FFT size: " + dataSetFFT_real.size() + " vs. RAW size: " + dataSetRAW.size());
 	  					calculateFFT();
 	  				}
-	  				graphData(dataSetFFT_real);
+	  				graphData(dataSetFFT);
 	  			}
 	  			break;
-	  		case R.id.fftImagGraphBtn:
+	  		/*case R.id.fftImagGraphBtn:
 	  			if (checked) {
 	  				System.out.println("###DSGA### - Imaginary FFT selected.");
 	  				rawData.setClickable(true);
@@ -179,7 +183,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  					calculateFFT();
 	  				}
 	  				graphData(dataSetFFT_imag);
-	  			}
+	  			}*/
   		}
   	}
   	
@@ -198,11 +202,18 @@ public class DisplayStoredGraphActivity extends Activity {
   		System.out.println("Datapoint size: " + datapoints.length + " vs. Raw data size: " + numSamples);
   		DoubleFFT_1D fft = new DoubleFFT_1D(numSamples);
   		fft.realForwardFull(datapoints);
-  		System.out.println(fft);
+
+  		fftSeries = new GraphViewSeries(new GraphViewData[] {});
+  		for(int i=0; i<datapoints.length/2; i++) {
+  			Complex c = new Complex(datapoints[2*i], datapoints[(2*i)+1]);
+  			double pointY = (double) c.abs();
+  			dataSetFFT.add(pointY);
+  			fftSeries.appendData(new GraphViewData(i,pointY), true, datapoints.length/2);
+  		}
   		
-  		fftSeriesReal = new GraphViewSeries(new GraphViewData[] {});
-  		fftSeriesImag = new GraphViewSeries(new GraphViewData[] {});
-  		for (int i=0; i<datapoints.length; i++) {
+//  		fftSeriesReal = new GraphViewSeries(new GraphViewData[] {});
+//  		fftSeriesImag = new GraphViewSeries(new GraphViewData[] {});
+  		/*for (int i=0; i<datapoints.length; i++) {
 		  	if( i%2 == 0 ) {
 //		  		dataSetFFT_real.add(Math.pow(Math.abs(datapoints[i]), 2));
 //			  	double pointY = Math.pow(Math.abs(datapoints[i]), 2);
@@ -211,11 +222,13 @@ public class DisplayStoredGraphActivity extends Activity {
 			  	fftSeriesReal.appendData(new GraphViewData(xIndex[i/2], pointY), true, datapoints.length/2); 
 		  	}
 		  	else {
-		  		dataSetFFT_imag.add(datapoints[i]); 
-			  	double pointY = datapoints[i]; 			
+//		  		dataSetFFT_imag.add(datapoints[i]); 
+//			  	double pointY = datapoints[i]; 	
+		  		dataSetFFT_imag.add(Math.abs(datapoints[i])); 
+			  	double pointY = Math.abs(datapoints[i]); 	
 			  	fftSeriesImag.appendData(new GraphViewData(xIndex[(i-1)/2], pointY), true, datapoints.length/2);
 		  	}		  	
-		}
+		}*/
   		System.out.println("###DSGA### - Finished calculating FFT");
   	}
   
@@ -239,7 +252,11 @@ public class DisplayStoredGraphActivity extends Activity {
 	  
 	  // Determine the appropriate graphSeries to add depending on dataSet that was passed
 	  GraphViewSeries graphSeries;
-	  if( dataSet == dataSetFFT_real ) {
+	  if( dataSet == dataSetFFT ) {
+		  System.out.println("###DSGA### - Adding fftSeries");
+		  graphSeries = fftSeries;
+	  }
+	  else if( dataSet == dataSetFFT_real ) {
 		  System.out.println("###DSGA### - Adding fftSeriesReal");
 		  graphSeries = fftSeriesReal;
 	  }
@@ -262,15 +279,14 @@ public class DisplayStoredGraphActivity extends Activity {
 					  return "00:00:00";
 				  }
 				  xValue = (long) value;
-				  if(dataSet == dataSetFFT_real || dataSet == dataSetFFT_imag) {
+				  if(dataSet == dataSetFFT_real || dataSet == dataSetFFT_imag || dataSet == dataSetFFT) {
 					  // Set x-axis to use the frequency domain
 					  return String.format("%d",(int) (xValue * samplingFrequency /dataSetRAW.size()));  
 				  }
 				  else {
 					  // Set the x-axis to use the time domain
 					  return String.format("%02d:%02d:%02d",(int) ((xValue / (samplingFrequency*60*60)) % 24), (int) ((xValue / (samplingFrequency*60)) % 60), (int) ((xValue / samplingFrequency)) % 60);
-				  }
-						  
+				  }						  
 					  
 			  } else {
 				return String.format("%.2f", (double) value);
@@ -370,6 +386,25 @@ public class DisplayStoredGraphActivity extends Activity {
 		return xInterval;
 	}
 	
+	/*
+	 * Calculates the mean value (average) of a given dataSet vector and subtracts the mean from the original dataset
+	 * Parameters:		Vector<Double> - Vector of type double containing the values from which the mean will be calculated
+	 * Outputs:			Vector<Double> - Value of the original vector with the mean value subtracted
+	 */
+	private Vector<Double> removeMean(Vector<Double> dataSet) {
+		double mean = 0;
+		for(int i=0; i<dataSet.size(); i++) {
+			mean += dataSet.elementAt(i);
+		}
+		mean = mean/dataSet.size();
+		
+		for(int i=0; i<dataSet.size(); i++) {
+			dataSet.set(i, dataSet.elementAt(i)-mean);
+		}
+		return dataSet;
+	}
+	
+	
 	/**
 	 * Destroys activity
 	 */
@@ -380,148 +415,150 @@ public class DisplayStoredGraphActivity extends Activity {
 	}
   	
 	//<Params, Progress, Result>
-	class ReadFileService extends AsyncTask<Void, String, Boolean> {
-		
-		@Override
-		protected Boolean doInBackground(Void... args) {		
-			Scanner strings = null;
-			InputStream stream = null;
-			BufferedInputStream bstream = null; 
-//			ZipInputStream zipInput = null;
-			ZipFile zipFile = null;
-			try {
-				System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
-		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName);
-		  		zipFile = new ZipFile(file);
-		  		Enumeration<? extends ZipEntry> entries = zipFile.entries();
-		  				  		
-		  		while (entries.hasMoreElements()) {
-		  			ZipEntry zipEntry = entries.nextElement();
-		  			stream = zipFile.getInputStream(zipEntry);
-//		  			strings = new Scanner(stream);
-		  			bstream = new BufferedInputStream(stream);
-		  			strings = new Scanner(bstream);
-		  			/*
-		  			  // Process non-compressed text files
-		  			  if (!zipEntry.isDirectory()) {
-		  				String fileName = zipEntry.getName();
-		  				if (fileName.endsWith(".txt")) {
-		  					zipInput = new ZipInputStream(new FileInputStream(fileName));
-		  				}
-		  			}*/
-		  			
-		  			// Extract a substring of the file header text
-//		  			System.out.println("Extracting header substring.");
-		  			String regexPattern = endOfHeader; //"\"ColumnLabels\"";
-		  			strings.useDelimiter(regexPattern);
-		  			String extracted = strings.next();
-		  			System.out.println("Extracted: " + extracted);
-		  			
-		  			// Determine the sampling frequency from the header text
-		  			System.out.println("Extracting sampling frequency.");
-		  			Pattern pattern = Pattern.compile("\"SamplingFrequency\": \"(\\d+)\"");
-		  			Matcher matcher = pattern.matcher(extracted);
-		  			if (matcher.find()) {
-		  				samplingFrequency = Integer.parseInt(matcher.group(1));
-		  				System.out.println(samplingFrequency);
-		  			}
-		  			
-		  			// Determine the start date and time from the header text
-		  			System.out.println("Extracting start date and time.");
-		  			pattern = Pattern.compile("StartDateTime\": \"(\\w+\\s\\d+,\\s\\d+) (\\d+):(\\d+):(\\d+) (\\w+)\"");
-		  			matcher = pattern.matcher(extracted);
-		  			if (matcher.find()) {
-		  				if (matcher.groupCount() == 5) {
-			  				startDate = matcher.group(1);
-			  				startHour = Integer.parseInt(matcher.group(2));
-			  				startMinute = Integer.parseInt(matcher.group(3));
-			  				startSecond = Integer.parseInt(matcher.group(4));
-			  				PeridOfDay = matcher.group(5);
-			  				if (PeridOfDay == "PM")
-			  					endHour += 12;
-			  				System.out.println("Extracted end time to be: " + startHour + ":" + startMinute + ":" + startSecond + " on " + startDate);
-		  				}
-		  				else
-		  					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
-		  			}
-		  			
-		  			// Use tabs as a delimiter for file data
-		  			strings.findWithinHorizon(endOfHeader,0);    		
-		      		strings.useDelimiter("\t *");
-		      		strings.next();
-		  		}
+		class ReadFileService extends AsyncTask<Void, String, Boolean> {
+			
+			@Override
+			protected Boolean doInBackground(Void... args) {		
+				Scanner strings = null;
+				InputStream stream = null;
+				BufferedInputStream bstream = null; 
+//				ZipInputStream zipInput = null;
+				ZipFile zipFile = null;
+				try {
+					System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
+			  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName);
+			  		zipFile = new ZipFile(file);
+			  		Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			  				  		
+			  		while (entries.hasMoreElements()) {
+			  			ZipEntry zipEntry = entries.nextElement();
+			  			stream = zipFile.getInputStream(zipEntry);
+			  			strings = new Scanner(stream);
+//			  			bstream = new BufferedInputStream(stream);
+//			  			strings = new Scanner(bstream);
+			  			/*
+			  			  // Process non-compressed text files
+			  			  if (!zipEntry.isDirectory()) {
+			  				String fileName = zipEntry.getName();
+			  				if (fileName.endsWith(".txt")) {
+			  					zipInput = new ZipInputStream(new FileInputStream(fileName));
+			  				}
+			  			}*/
+			  			
+			  			// Extract a substring of the file header text
+//			  			System.out.println("Extracting header substring.");
+			  			String regexPattern = endOfHeader; //"\"ColumnLabels\"";
+			  			strings.useDelimiter(regexPattern);
+			  			String extracted = strings.next();
+			  			System.out.println("Extracted: " + extracted);
+			  			
+			  			// Determine the sampling frequency from the header text
+			  			System.out.println("Extracting sampling frequency.");
+			  			Pattern pattern = Pattern.compile("\"SamplingFrequency\": \"(\\d+)\"");
+			  			Matcher matcher = pattern.matcher(extracted);
+			  			if (matcher.find()) {
+			  				samplingFrequency = Integer.parseInt(matcher.group(1));
+			  				System.out.println(samplingFrequency);
+			  			}
+			  			
+			  			// Determine the start date and time from the header text
+			  			System.out.println("Extracting start date and time.");
+			  			pattern = Pattern.compile("StartDateTime\": \"(\\w+\\s\\d+,\\s\\d+) (\\d+):(\\d+):(\\d+) (\\w+)\"");
+			  			matcher = pattern.matcher(extracted);
+			  			if (matcher.find()) {
+			  				if (matcher.groupCount() == 5) {
+				  				startDate = matcher.group(1);
+				  				startHour = Integer.parseInt(matcher.group(2));
+				  				startMinute = Integer.parseInt(matcher.group(3));
+				  				startSecond = Integer.parseInt(matcher.group(4));
+				  				PeridOfDay = matcher.group(5);
+				  				if (PeridOfDay == "PM")
+				  					endHour += 12;
+				  				System.out.println("Extracted end time to be: " + startHour + ":" + startMinute + ":" + startSecond + " on " + startDate);
+			  				}
+			  				else
+			  					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+			  			}
+			  			
+			  			// Use tabs as a delimiter for file data
+			  			strings.findWithinHorizon(endOfHeader,0);    		
+			      		strings.useDelimiter("\t *");
+			      		strings.next();
+			  		}
+				}
+				catch (FileNotFoundException error) {
+					System.out.println("@IOERROR: " + error);
+					return false;
+				}
+				catch (IOException error) {
+					System.out.println("@IOERROR: " + error);
+					return false;
+				}
+				// Loops for as long as there are more data points to be read from the text file
+				while (strings.hasNext())
+				{
+					double dataPoint = Double.parseDouble(strings.next());
+					dataSetRAW.add(SensorDataConverter.scaleEMG(dataPoint));
+					if (strings.hasNext())
+						strings.next();
+					else
+						break;
+				}
+				System.out.println("Closing strings.");
+				try {
+//					bstream.close();
+					stream.close();
+					zipFile.close();
+//					zipInput.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			  	strings.close();			
+				return true;
 			}
-			catch (FileNotFoundException error) {
-				System.out.println("@IOERROR: " + error);
-				return false;
-			}
-			catch (IOException error) {
-				System.out.println("@IOERROR: " + error);
-				return false;
-			}
-			// Loops for as long as there are more data points to be read from the text file
-			while (strings.hasNext())
-			{
-				double dataPoint = Double.parseDouble(strings.next());
-				dataSetRAW.add(SensorDataConverter.scaleEMG(dataPoint));
-				if (strings.hasNext())
-					strings.next();
-				else
-					break;
-			}
-			System.out.println("Closing strings.");
-			try {
-				bstream.close();
-				stream.close();
-				zipFile.close();
-//				zipInput.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		  	strings.close();			
-			return true;
-		}
-		
-		protected void onProgressUpdate(String...progress) {
-			//called when the background task makes any progress
-		}
-
-		protected void onPreExecute() {
-			//called before doInBackground() is started
-			super.onPreExecute();
-			// Show Progress Bar Dialog before calling doInBackground method
-//			showDialog(progress_bar_type);
-			prgDialog.setTitle("Opening File");
-			prgDialog.setMessage("Opening " + recordingName + "\nPlease wait...");
-			prgDialog.show();
-		}
-		
-		protected void onPostExecute(Boolean readFileSuccess) {
-			//called after doInBackground() has finished 
-			// Check if the file was read successfully. If not, output error message and generate sample set of data
-			if(!readFileSuccess) {
-				Random randomGenerator = new Random();			
-				System.out.println("@IOERROR: Unable to read from file. Creating random dataset");
-				for(int i=0; i<100; i++)
-			    {
-					dataSetRAW.add(randomGenerator.nextDouble());
-			    }
+			
+			protected void onProgressUpdate(String...progress) {
+				//called when the background task makes any progress
 			}
 
-			// Prepare data set for graphing
-			rawSeries = new GraphViewSeries(new GraphViewData[] {
-	        });
-			System.out.println("DSGA-TAG: Number of samples read is " + dataSetRAW.size());
-			for (int i=0; i<dataSetRAW.size(); i++) {
-			  	double pointX = i;
-			  	double pointY = dataSetRAW.get(i);
-			  	rawSeries.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
+			protected void onPreExecute() {
+				//called before doInBackground() is started
+				super.onPreExecute();
+				// Show Progress Bar Dialog before calling doInBackground method
+//				showDialog(progress_bar_type);
+				prgDialog.setTitle("Opening File");
+				prgDialog.setMessage("Opening " + recordingName + "\nPlease wait...");
+				prgDialog.show();
 			}
-			graphData(dataSetRAW);
-			prgDialog.dismiss();
-			prgDialog = null;
+			
+			protected void onPostExecute(Boolean readFileSuccess) {
+				//called after doInBackground() has finished 
+				// Check if the file was read successfully. If not, output error message and generate sample set of data
+				if(!readFileSuccess) {
+					
+					Random randomGenerator = new Random();			
+					System.out.println("@IOERROR: Unable to read from file. Creating random dataset");
+					for(int i=0; i<100; i++)
+				    {
+						dataSetRAW.add(randomGenerator.nextDouble());
+				    }
+				}
+
+				// Prepare data set for graphing
+				dataSetRAW = removeMean(dataSetRAW);
+				rawSeries = new GraphViewSeries(new GraphViewData[] {
+		        });
+				System.out.println("DSGA-TAG: Number of samples read is " + dataSetRAW.size());
+				for (int i=0; i<dataSetRAW.size(); i++) {
+				  	double pointX = i;
+				  	double pointY = dataSetRAW.get(i);
+				  	rawSeries.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
+				}
+				graphData(dataSetRAW);
+				prgDialog.dismiss();
+				prgDialog = null;
+			}
 		}
 	}
-}
 
