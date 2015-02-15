@@ -42,7 +42,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	public static boolean nameset = false;
 	public static String recname = "DEFAULT";
 	public int i=1;
-	public static String btName = "EMG_Sensor";
+	public static String btName = "bitalino";//"EMG_Sensor";
 	public static String recname1;
 	public static int sfValue = 100;
 	private DeviceConfiguration newConfiguration;
@@ -276,8 +276,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				  newConfiguration.setVisualizationFrequency(1000);
 				  newConfiguration.setSamplingFrequency(100);
 				  newConfiguration.setMacAddress(btName);
-				  freq = sfValue;
-				  newConfiguration.setMacAddress(btName);
+				  //freq = sfValue;
 				  
 			}
 		});

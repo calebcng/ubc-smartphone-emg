@@ -249,6 +249,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	
 	private void graphData(final Vector<Double> dataSet) {	  
 	  System.out.println("Defining data set.");
+	  samplingFrequency = 1000;
 	  
 	  // Determine the appropriate graphSeries to add depending on dataSet that was passed
 	  GraphViewSeries graphSeries;

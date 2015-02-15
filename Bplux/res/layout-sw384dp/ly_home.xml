@@ -116,7 +116,7 @@
                 android:layout_marginRight="30dip"
                 android:layout_marginTop="10dp"
                 android:background="@xml/button_selector"
-                android:drawableEnd="@drawable/right_arrow"
+                android:drawableEnd="@drawable/info"
                 android:gravity="center"
                 android:onClick="onClickedSetPatientName"
                 android:paddingLeft="30dip"
@@ -124,6 +124,7 @@
                 android:text="@string/ha_button4"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
+                                
         </LinearLayout>
 
     </RelativeLayout>
