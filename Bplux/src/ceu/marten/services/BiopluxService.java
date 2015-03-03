@@ -184,8 +184,8 @@ public class BiopluxService extends Service {
 				.getSerializableExtra(NewRecordingActivity.KEY_CONFIGURATION);	
 		
 		//added to avoid the lagging - Brittaney
-		if (configuration.getVisualizationFrequency()==1000) TIMER_TIME = 5;
-		else if (configuration.getVisualizationFrequency()==100) TIMER_TIME = 50;
+		//if (configuration.getVisualizationFrequency()==1000) TIMER_TIME = 5;
+		//else if (configuration.getVisualizationFrequency()==100) TIMER_TIME = 50;
 		
 		samplingFrames = (double) configuration.getVisualizationFrequency()
 				/ configuration.getSamplingFrequency();

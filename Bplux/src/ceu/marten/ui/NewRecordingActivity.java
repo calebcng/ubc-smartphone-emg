@@ -172,12 +172,13 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 				break;
 			}*/
 			case BiopluxService.MSG_DATA: {
-				if (first == true){
-					calibrate(msg.getData().getDouble(BiopluxService.KEY_X_VALUE),msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
-					first = false;
-				}
+				//if (first == true){
+				//	calibrate(msg.getData().getDouble(BiopluxService.KEY_X_VALUE),msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
+				//	first = false;
+				//}
 						
-				else appendDataToGraphs(
+				//else 
+				appendDataToGraphs(
 						msg.getData().getDouble(BiopluxService.KEY_X_VALUE),
 						msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
 				break;
@@ -264,16 +265,17 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	void appendDataToGraphs(double xValue, double[] data) {
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
-				if (recordingConfiguration.getMacAddress().equals("EMG_Sensor")) 
-					graphs[i].getSerie().appendData(new GraphViewData(xValue,((data[displayChannelPosition[i]])-cal_num)*5), goToEnd, maxDataCount);//*5
+				//if (recordingConfiguration.getMacAddress().equals("EMG_Sensor")) 
+				//	graphs[i].getSerie().appendData(new GraphViewData(xValue,((data[displayChannelPosition[i]])-cal_num)*5), goToEnd, maxDataCount);//*5
 				
-				else graphs[i].getSerie().appendData(new GraphViewData(xValue,data[displayChannelPosition[i]]-cal_num), goToEnd, maxDataCount);
+				//else 
+				graphs[i].getSerie().appendData(new GraphViewData(xValue,data[displayChannelPosition[i]]), goToEnd, maxDataCount);
 				//System.out.println(xValue + " : " + data[displayChannelPosition[i]]);
 			}
 		}
 	}
 	
-	void calibrate(double xValue, double[]data){
+	/*void calibrate(double xValue, double[]data){
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
 				cal_num+=(data[i]);
@@ -281,7 +283,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		}
 		cal_num=(cal_num/graphs.length);
 		//Toast.makeText(getApplicationContext(), " "+cal_num,Toast.LENGTH_SHORT).show();
-	}
+	}*/
 	
 
 	/**
@@ -634,6 +636,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private boolean startRecording() {
 		
+		Toast.makeText(getApplicationContext(), "sampling: "+recordingConfiguration.getSamplingFrequency() +"visualization: "+recordingConfiguration.getVisualizationFrequency() ,Toast.LENGTH_SHORT).show();
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		final ProgressDialog progress;
 		if(recordingConfiguration.getMacAddress().compareTo("test")!= 0){ // 'test' is used to launch device emulator

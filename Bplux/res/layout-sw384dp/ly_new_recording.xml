@@ -10,8 +10,6 @@
         android:paddingBottom="5dp"
         android:paddingTop="5dp" >
 
-        
-
         <TextView
             android:id="@+id/nr_txt_recordingName"
             android:layout_width="fill_parent"
@@ -81,26 +79,6 @@
                 android:text="@string/nr_button_start"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
-
-            <ImageButton
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="5dp"
-                android:background="@xml/button_zoom_out"
-                android:contentDescription="@string/divider_image_content"
-                android:onClick="zoomOut"
-                android:src="@drawable/zoom_out" />
-
-            <ImageButton
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="1dp"
-                android:background="@xml/button_zoom_in"
-                android:contentDescription="@string/divider_image_content"
-                android:onClick="zoomIn"
-                android:src="@drawable/zoom_in" />
         </LinearLayout>
     </LinearLayout>
 

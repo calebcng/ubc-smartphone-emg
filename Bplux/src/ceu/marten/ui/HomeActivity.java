@@ -42,7 +42,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	public static boolean nameset = false;
 	public static String recname = "DEFAULT";
 	public int i=1;
-	public static String btName = "EMG_Sensor";
+	public static String btName = "bitalino";//"EMG_Sensor";
 	public static String recname1;
 	public static int sfValue = 100;
 	private DeviceConfiguration newConfiguration;
@@ -224,7 +224,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		BTNamebox.setText(btName);
 		layout.addView(BTNamebox);
 		
-		final TextView Title2 = new TextView(context);
+		/*final TextView Title2 = new TextView(context);
 		Title2.setText("Sampling Frequency");
 		layout.addView(Title2);
 		
@@ -264,7 +264,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				// TODO Auto-generated method stub
 				
 			}
-	    });
+	    });*/
 
 		alertDialogBuilder.setView(layout);
 		
@@ -273,11 +273,10 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				  Editable BTName = BTNamebox.getText();
 				  btName = BTName.toString();
 				  configset = true;
-				  newConfiguration.setVisualizationFrequency(sfValue);
-				  newConfiguration.setSamplingFrequency(sfValue);
+				  newConfiguration.setVisualizationFrequency(1000);
+				  newConfiguration.setSamplingFrequency(100);
 				  newConfiguration.setMacAddress(btName);
-				  freq = sfValue;
-				  newConfiguration.setMacAddress(btName);
+				  //freq = sfValue;
 				  
 			}
 		});
