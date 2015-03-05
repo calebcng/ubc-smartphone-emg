@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -293,6 +294,8 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	 * Android File Explore
 	 * 
 	 * Copyright 2011 Manish Burman
+	 * Modified by Caleb Ng 2015
+	 * 
 	 * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in 
 	 * compliance with the License. You may obtain a copy of the License at
 	 * 		http://www.apache.org/licenses/LICENSE-2.0
@@ -322,6 +325,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	      };
 
 	      String[] fList = path.list(filter);
+          System.out.println("####FILEOPEN#### - fList length is " + fList.length);
 	      fileList = new Item[fList.length];
 	      for (int i = 0; i < fList.length; i++) {
 	        fileList[i] = new Item(fList[i], R.drawable.file_icon);
@@ -392,15 +396,18 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	
 	@Override
 	  protected Dialog onCreateDialog(int id) {
-	    Dialog dialog = null;
+        System.out.println("####FILEOPEN#### - OnCreateDialog STARTED");
+		Dialog dialog = null;
 	    AlertDialog.Builder builder = new Builder(this);
+	    
+	    onPrepareDialog(id, dialog);
 
-	    if (fileList == null) {
+	    /*if (fileList == null) {
 	      Log.e(TAG, "No files loaded");
 	      dialog = builder.create();
 	      return dialog;
 	    }
-	    
+        System.out.println("####FILEOPEN#### - FileList " + fileList.length);
 	    switch (id) {
 	    case DIALOG_LOAD_FILE:
 	      builder.setTitle("Choose your file");
@@ -461,11 +468,14 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	      });
 	      break;
 	    }
+	    dialog = builder.show();*/
+	    
 	    /*public boolean onLongClick(DialogInterface dialog, int which) {
 	    	
 	    }*/
-	    dialog = builder.show();
-	    /*dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//	    System.out.println("####FILEOPEN#### - Builder.show()");
+//	    dialog = builder.show();
+	  /*  dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
 	        @Override
 	        public void onDismiss(final DialogInterface arg0) {
 	            // do something
@@ -474,5 +484,88 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	    });*/
 	    return dialog;
 	  }
+	
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		AlertDialog.Builder builder = new Builder(this);
+		LayoutInflater inflater = this.getLayoutInflater();
+		
+		if (fileList == null) {
+	      Log.e(TAG, "No files loaded");
+	      dialog = builder.create();
+	    }
+		builder.setView(inflater.inflate(R.layout.dialog_stored_recordings, null));
+		
+        System.out.println("####FILEOPEN#### - PREPAREDIAG - FileList " + fileList.length);
+	    switch (id) {
+	    case DIALOG_LOAD_FILE:
+	      builder.setTitle("Choose your file");
+	      builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+	        @Override
+	        public void onClick(DialogInterface dialog, int which) {
+	          chosenFile = fileList[which].file;
+	          File sel = new File(path + "/" + chosenFile);
+	          if (sel.isDirectory()) {
+	            firstLvl = false;
+
+	            // Adds chosen directory to list
+	            str.add(chosenFile);
+	            fileList = null;
+	            path = new File(sel + "");
+
+	            loadFileList();
+
+	            removeDialog(DIALOG_LOAD_FILE);
+	            showDialog(DIALOG_LOAD_FILE);
+	            Log.d(TAG, path.getAbsolutePath());
+
+	          }
+
+	          // Checks if 'up' was clicked
+	          else if (chosenFile.equalsIgnoreCase("up") && !sel.exists()) {
+
+	            // present directory removed from list
+	            String s = str.remove(str.size() - 1);
+
+	            // path modified to exclude present directory
+	            path = new File(path.toString().substring(0,
+	                path.toString().lastIndexOf(s)));
+	            fileList = null;
+
+	            // if there are no more directories in the list, then
+	            // its the first level
+	            if (str.isEmpty()) {
+	              firstLvl = true;
+	            }
+	            loadFileList();
+
+	            removeDialog(DIALOG_LOAD_FILE);
+	            showDialog(DIALOG_LOAD_FILE);
+	            Log.d(TAG, path.getAbsolutePath());
+
+	          }
+	          // File picked
+	          else {
+	            // Perform action with file picked
+	            System.out.println("FILE EXPLORE: Chosen file is: " + chosenFile);
+	            Intent intent = new Intent(HomeActivity.this, DisplayStoredGraphActivity.class);
+	            intent.putExtra("FILE_NAME", chosenFile);
+	            startActivity(intent);
+	          }
+
+	        }
+	      });
+	      break;
+	    }
+	    
+	    
+	    /*public boolean onLongClick(DialogInterface dialog, int which) {
+	    	
+	    }*/
+	    dialog = builder.show();
+//	    removeDialog(DIALOG_LOAD_FILE);
+//        showDialog(DIALOG_LOAD_FILE);
+	}
+	
 	// End of FileExplore
 }
