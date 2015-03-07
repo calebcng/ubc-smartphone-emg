@@ -195,10 +195,17 @@
     <string name="raw_data_btn">Original Signal</string>
     <string name="fft_data_btn">FFT Signal</string>
     <string name="fft_img_btn">Imaginary FFT</string>
+    <string name="export_btn">Export</string>
+    <string name="delete_btn">Delete</string>
+    <string name="confirm_btn">Confirm</string>
+    <string name="cancel_btn">Cancel</string>
     
     <!-- DIALOGS -->
     <string name="d_hint">Recording 1</string>
     <string name="d_confirmationCheck">Never ask for confirmation again </string>
+    <string name="d_fileSizeErrorMsg">File size exceeds 20 Mb</string>
+    <string name="d_fileSizeErrorTitle">ERROR</string>
+    
     
     
     <!-- ATTRIBUTES -->

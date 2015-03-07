@@ -16,6 +16,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -32,6 +33,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import ceu.marten.bitadroid.R;
+import ceu.marten.model.Constants;
 import ceu.marten.model.DeviceConfiguration;
 
 import com.ubc.capstonegroup70.DisplayStoredGraphActivity;
@@ -63,9 +65,12 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	private static final String TAG = "F_PATH";
 	
 	private Item[] fileList;
+	private final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	private File path = new File(Environment.getExternalStorageDirectory() + "/Bioplux");
 	private String chosenFile;
 	private static final int DIALOG_LOAD_FILE = 1000;
+	private static final int DIALOG_EXPORT = 1001;
+	private static final int DIALOG_DELETE = 1002;
 	
 	ListAdapter adapter;
 	
@@ -166,19 +171,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	}
 
 	public void onClickedSavedData(View view) {
-//		startActivity(new Intent(this, RecordingsActivity.class));
-		
-		/*// Start FileBrowserActivity
-		Intent fileExploreIntent = new Intent(ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.INTENT_ACTION_SELECT_DIR, null, 
-				this, ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.class);
-		fileExploreIntent.putExtra(ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.startDirectoryParameter, "/sdcard/Bioplux");
-		startActivityForResult(
-				fileExploreIntent,
-				REQUEST_CODE_PICK_FILE
-		);*/
-		
 		// Start FileExplorer
-//		startActivity(new Intent(this, FileExplore.class));
 		loadFileList();
 	    showDialog(DIALOG_LOAD_FILE);
 
@@ -325,7 +318,6 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	      };
 
 	      String[] fList = path.list(filter);
-          System.out.println("####FILEOPEN#### - fList length is " + fList.length);
 	      fileList = new Item[fList.length];
 	      for (int i = 0; i < fList.length; i++) {
 	        fileList[i] = new Item(fList[i], R.drawable.file_icon);
@@ -393,113 +385,46 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	      return file;
 	    }
 	  }
+	  
+	  /*
+	   * Convert an Item array into a CharSequence array
+	   */
+	  private CharSequence[] itemToSequence(Item[] list) {
+		  CharSequence[] chars = new CharSequence[list.length];
+		  for(int i=0; i<list.length; i++) {
+			  chars[i] = list[i].toString();
+		  }
+		  
+		  return chars;
+	  }
+
 	
 	@Override
 	  protected Dialog onCreateDialog(int id) {
-        System.out.println("####FILEOPEN#### - OnCreateDialog STARTED");
 		Dialog dialog = null;
 	    AlertDialog.Builder builder = new Builder(this);
 	    
 	    onPrepareDialog(id, dialog);
 
-	    /*if (fileList == null) {
-	      Log.e(TAG, "No files loaded");
-	      dialog = builder.create();
-	      return dialog;
-	    }
-        System.out.println("####FILEOPEN#### - FileList " + fileList.length);
-	    switch (id) {
-	    case DIALOG_LOAD_FILE:
-	      builder.setTitle("Choose your file");
-	      builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-	        @Override
-	        public void onClick(DialogInterface dialog, int which) {
-	          chosenFile = fileList[which].file;
-	          File sel = new File(path + "/" + chosenFile);
-	          if (sel.isDirectory()) {
-	            firstLvl = false;
-
-	            // Adds chosen directory to list
-	            str.add(chosenFile);
-	            fileList = null;
-	            path = new File(sel + "");
-
-	            loadFileList();
-
-	            removeDialog(DIALOG_LOAD_FILE);
-	            showDialog(DIALOG_LOAD_FILE);
-	            Log.d(TAG, path.getAbsolutePath());
-
-	          }
-
-	          // Checks if 'up' was clicked
-	          else if (chosenFile.equalsIgnoreCase("up") && !sel.exists()) {
-
-	            // present directory removed from list
-	            String s = str.remove(str.size() - 1);
-
-	            // path modified to exclude present directory
-	            path = new File(path.toString().substring(0,
-	                path.toString().lastIndexOf(s)));
-	            fileList = null;
-
-	            // if there are no more directories in the list, then
-	            // its the first level
-	            if (str.isEmpty()) {
-	              firstLvl = true;
-	            }
-	            loadFileList();
-
-	            removeDialog(DIALOG_LOAD_FILE);
-	            showDialog(DIALOG_LOAD_FILE);
-	            Log.d(TAG, path.getAbsolutePath());
-
-	          }
-	          // File picked
-	          else {
-	            // Perform action with file picked
-	            System.out.println("FILE EXPLORE: Chosen file is: " + chosenFile);
-	            Intent intent = new Intent(HomeActivity.this, DisplayStoredGraphActivity.class);
-	            intent.putExtra("FILE_NAME", chosenFile);
-	            startActivity(intent);
-	          }
-
-	        }
-	      });
-	      break;
-	    }
-	    dialog = builder.show();*/
-	    
-	    /*public boolean onLongClick(DialogInterface dialog, int which) {
-	    	
-	    }*/
-//	    System.out.println("####FILEOPEN#### - Builder.show()");
-//	    dialog = builder.show();
-	  /*  dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-	        @Override
-	        public void onDismiss(final DialogInterface arg0) {
-	            // do something
-	        	finish();
-	        }
-	    });*/
 	    return dialog;
 	  }
 	
 	@Override
 	protected void onPrepareDialog(int id, Dialog dialog) {
-		AlertDialog.Builder builder = new Builder(this);
+		final File externalStorageDirectory = Environment.getExternalStorageDirectory();
+		final ArrayList<Integer> mSelectedItems = new ArrayList<Integer>();
+		final AlertDialog.Builder builder = new Builder(this);
 		LayoutInflater inflater = this.getLayoutInflater();
 		
 		if (fileList == null) {
 	      Log.e(TAG, "No files loaded");
 	      dialog = builder.create();
 	    }
-		builder.setView(inflater.inflate(R.layout.dialog_stored_recordings, null));
-		
-        System.out.println("####FILEOPEN#### - PREPAREDIAG - FileList " + fileList.length);
+//		builder.setView(inflater.inflate(R.layout.dialog_stored_recordings, null));
+				
 	    switch (id) {
 	    case DIALOG_LOAD_FILE:
-	      builder.setTitle("Choose your file");
+	      builder.setTitle("Choose the recording you wish to open:");
 	      builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
 	        @Override
 	        public void onClick(DialogInterface dialog, int which) {
@@ -555,17 +480,185 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 
 	        }
 	      });
+	      
+	      /**
+	       * Added buttons for implementing exporting and deleting functionality
+	       */
+	      builder.setPositiveButton(R.string.export_btn, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// If user clicks on the Export button, allow users to select files that they wish to export
+					removeDialog(DIALOG_LOAD_FILE);
+		            showDialog(DIALOG_EXPORT);
+					
+				}
+			});
+			builder.setNegativeButton(R.string.delete_btn, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// If user clicks on the Delete button, allow users to select files that they wish to delete
+					removeDialog(DIALOG_LOAD_FILE);
+		            showDialog(DIALOG_DELETE);					
+				}
+			});
 	      break;
+	      /**
+	       * Added functionality for Exporting recordings
+	       * @author Caleb Ng
+	       */
+	    case DIALOG_EXPORT:
+	    	builder.setTitle("Choose the recording(s) you wish to export:");
+	    	builder.setMultiChoiceItems(itemToSequence(fileList), null, 
+					new DialogInterface.OnMultiChoiceClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+							loadFileList();
+							if(isChecked) {
+								// If user checked this item, add this to list of files to export
+								mSelectedItems.add(which);
+							} else if(mSelectedItems.contains(which)) {
+								// If the user selects to remove a checked item, then remove from list of files to export
+								mSelectedItems.remove(Integer.valueOf(which));
+							}
+						}
+					});
+			// Set text of positive button to "Confirm"
+			builder.setPositiveButton(R.string.confirm_btn, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// On click of positive button, allow user to export selected files
+					/*if(mSelectedItems.size() <= 0) {
+						removeDialog(DIALOG_EXPORT);
+			            showDialog(DIALOG_LOAD_FILE);
+					}
+					else if(mSelectedItems.size() == 1) {
+						File recordingZipFile = new File(externalStorageDirectory + Constants.APP_DIRECTORY + fileList[mSelectedItems.get(0)]);
+						sendSingleRecording(recordingZipFile);
+					}
+					else {
+						sendMultipleRecordings(mSelectedItems);
+					}*/
+					sendRecordings(mSelectedItems);
+					
+					/*loadFileList();
+					if(isChecked) {
+						// If user checked this item, add this to list of files to export
+						mSelectedItems.add(which);
+					} else if(mSelectedItems.contains(which)) {
+						// If the user selects to remove a checked item, then remove from list of files to export
+						mSelectedItems.remove(Integer.valueOf(which));
+					}*/
+				}
+			});			
+			// Set text of negative button to "Cancel"
+			builder.setNegativeButton(R.string.cancel_btn, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// On click of negative button, change dialog back to a single-choice list.
+					removeDialog(DIALOG_EXPORT);
+		            showDialog(DIALOG_LOAD_FILE);						
+				}
+			});			
+			break;
+			/**
+			 * Added functionality for deleting recordings
+			 * @author Caleb Ng
+			 */
+	    case DIALOG_DELETE:
+	    	builder.setTitle("Choose the recording(s) you wish to delete:");
+	    	builder.setMultiChoiceItems(itemToSequence(fileList), null, 
+					new DialogInterface.OnMultiChoiceClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+							
+						}
+			});
+			// Set text of positive button to "Confirm"
+			builder.setPositiveButton(R.string.confirm_btn, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// If only 1 item selected, no further work is required to prep files for sending
+					
+					
+				}
+			});			
+			// Set text of negative button to "Cancel"
+			builder.setNegativeButton(R.string.cancel_btn, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// On click of negative button, change dialog back to a single-choice list.
+					removeDialog(DIALOG_DELETE);
+		            showDialog(DIALOG_LOAD_FILE);						
+				}
+			});			
+			break;
+	    	
 	    }
 	    
 	    
-	    /*public boolean onLongClick(DialogInterface dialog, int which) {
-	    	
-	    }*/
 	    dialog = builder.show();
-//	    removeDialog(DIALOG_LOAD_FILE);
-//        showDialog(DIALOG_LOAD_FILE);
+	}
+	// End of FileExplore
+	
+	// File Export functions adapted from ceu.marten.services.RecordingActivity
+	// @author Caleb Ng
+	/**
+	 * True if the selection of files is larger than 20 MB. False otherwise.
+	 * @author Caleb Ng
+	 */
+	private boolean selectionSizeBiggerThan20Mb(ArrayList<Integer> mSelectedItems) {
+		double summedSize = 0;
+		for(int i=0; i<mSelectedItems.size(); i++) {
+			File recordingZipFile = new File(externalStorageDirectory + Constants.APP_DIRECTORY + fileList[mSelectedItems.get(i)]);
+			summedSize += (recordingZipFile.length() / 1024d) / 1024d;
+		}
+		if(summedSize > 20.0d)
+			return true;
+		else
+			return false;
+	}
+	/**
+	 * Export selected files
+	 * @author Caleb Ng
+	 */
+	private void sendRecordings(ArrayList<Integer> mSelectedItems) {
+		
+		if(mSelectedItems.size() <= 0) {
+			// No items selected, display a toast notification to notify user
+			removeDialog(DIALOG_EXPORT);
+            showDialog(DIALOG_EXPORT);
+			Toast toast = Toast.makeText(getApplicationContext(), "No items selected", Toast.LENGTH_SHORT);
+			toast.show();			
+		}
+		else {
+			// Check if size of selected items exceed 20MB
+			if(selectionSizeBiggerThan20Mb(mSelectedItems)) {
+				// Selection size is too large, display a toast notification to notify user
+				Toast toast = Toast.makeText(getApplicationContext(), "Selection size exceeds 20MB limit", Toast.LENGTH_SHORT);
+				toast.show();
+			}
+			else {
+				Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+				sendIntent.setType("application/zip");
+				ArrayList<Uri> uris = new ArrayList<Uri>();
+				for(int i=0; i<mSelectedItems.size(); i++) {
+					File recordingZipFile = new File(externalStorageDirectory + Constants.APP_DIRECTORY + fileList[mSelectedItems.get(i)]);
+					// gets recording file Uri
+					Uri fileUri = Uri.fromFile(recordingZipFile);
+					uris.add(fileUri);
+				}
+				sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+				startActivity(Intent.createChooser(sendIntent, getString(R.string.ra_send_dialog_title)));
+			}
+		}		
 	}
 	
-	// End of FileExplore
 }
