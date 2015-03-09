@@ -4,9 +4,11 @@ package ceu.marten.ui;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import android.app.Activity;
@@ -311,13 +313,21 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	        public boolean accept(File dir, String filename) {
 	          File sel = new File(dir, filename);
 	          // Filters based on whether the file is hidden or not
+//	          System.out.println(filename + "matches with \"benchmark\": " + filename.matches("benchmark-\\d+.zip"));
 	          return (sel.isFile() || sel.isDirectory())
-	              && !sel.isHidden();
+	              && !sel.isHidden() && filename.matches("benchmark-\\d+.zip");
 
 	        }
 	      };
 
 	      String[] fList = path.list(filter);
+	      for(int i=0; i<fList.length; i++) {
+	    	  fList[i] = fList[i].toLowerCase();
+//	    	  System.out.println("###LOAD_FILE_LIST### - OLD:" + fList[i]);
+	      }
+	      Arrays.sort(fList);
+//	      for(int i=0; i<fList.length; i++)
+//	    	  System.out.println("###LOAD_FILE_LIST### - NEW:" + fList[i]);
 	      fileList = new Item[fList.length];
 	      for (int i = 0; i < fList.length; i++) {
 	        fileList[i] = new Item(fList[i], R.drawable.file_icon);
@@ -576,15 +586,30 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-							
+							loadFileList();
+							if(isChecked) {
+								// If user checked this item, add this to list of files to export
+								mSelectedItems.add(which);
+							} else if(mSelectedItems.contains(which)) {
+								// If the user selects to remove a checked item, then remove from list of files to export
+								mSelectedItems.remove(Integer.valueOf(which));
+							}
 						}
 			});
+	    	
 			// Set text of positive button to "Confirm"
 			builder.setPositiveButton(R.string.confirm_btn, new DialogInterface.OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					// If only 1 item selected, no further work is required to prep files for sending
+					// Call function to delete the selected items
+					try{
+						deleteRecordings(mSelectedItems);
+					} catch(IOException e) {
+						Log.e(TAG, "Exception removing recording from database ", e);
+						Toast toast = Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
+						toast.show();	
+					}
 					
 					
 				}
@@ -659,6 +684,30 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				startActivity(Intent.createChooser(sendIntent, getString(R.string.ra_send_dialog_title)));
 			}
 		}		
+	}
+	/**
+	 * Delete selected files
+	 * @author Caleb Ng
+	 * @throws IOException 
+	 */
+	private void deleteRecordings(ArrayList<Integer> mSelectedItems) throws IOException {
+		if(mSelectedItems.size() <= 0) {
+			// No items selected, display a toast notification to notify user			
+			removeDialog(DIALOG_DELETE);
+            showDialog(DIALOG_DELETE);
+			Toast toast = Toast.makeText(getApplicationContext(), "No items selected", Toast.LENGTH_SHORT);
+			toast.show();	
+		}
+		else {
+			for(int i=0; i<mSelectedItems.size(); i++) {
+				File recordingZipFile = new File(externalStorageDirectory + Constants.APP_DIRECTORY + fileList[mSelectedItems.get(i)]);
+				// Delete file; throw an IOException if delete is unsuccessful
+				if(!recordingZipFile.delete())
+					throw new IOException("Failed to delete " + recordingZipFile.getName());
+			}
+			Toast toast = Toast.makeText(getApplicationContext(), "Successfully deleted " + mSelectedItems.size() + " items", Toast.LENGTH_SHORT);
+			toast.show();			
+		}
 	}
 	
 }
