@@ -91,39 +91,44 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int new_configuration_text_size=0x7f080001;
     }
     public static final class drawable {
-        public static final int biosignalsplux_logo=0x7f020000;
-        public static final int browse=0x7f020001;
-        public static final int chronometer=0x7f020002;
-        public static final int dir_up=0x7f020003;
-        public static final int directory_icon=0x7f020004;
-        public static final int directory_up=0x7f020005;
-        public static final int error=0x7f020006;
-        public static final int file_icon=0x7f020007;
-        public static final int folder_icon=0x7f020008;
-        public static final int folder_icon_light=0x7f020009;
-        public static final int ic_launcher=0x7f02000a;
-        public static final int ic_launcher_new=0x7f02000b;
-        public static final int icon=0x7f02000c;
-        public static final int info=0x7f02000d;
-        public static final int menu_button=0x7f02000e;
-        public static final int new_configuration=0x7f02000f;
-        public static final int notification=0x7f020010;
-        public static final int pluxlogo=0x7f020011;
-        public static final int right_arrow=0x7f020012;
-        public static final int select=0x7f020013;
-        public static final int share=0x7f020014;
-        public static final int start=0x7f020015;
-        public static final int title_bar_shadow=0x7f020016;
-        public static final int zoom_in=0x7f020017;
-        public static final int zoom_out=0x7f020018;
+        public static final int bcchildrens=0x7f020000;
+        public static final int biosignalsplux_logo=0x7f020001;
+        public static final int browse=0x7f020002;
+        public static final int chronometer=0x7f020003;
+        public static final int dir_up=0x7f020004;
+        public static final int directory_icon=0x7f020005;
+        public static final int directory_up=0x7f020006;
+        public static final int error=0x7f020007;
+        public static final int file_icon=0x7f020008;
+        public static final int folder_icon=0x7f020009;
+        public static final int folder_icon_light=0x7f02000a;
+        public static final int ic_launcher=0x7f02000b;
+        public static final int ic_launcher_new=0x7f02000c;
+        public static final int icon=0x7f02000d;
+        public static final int info=0x7f02000e;
+        public static final int menu_button=0x7f02000f;
+        public static final int new_configuration=0x7f020010;
+        public static final int notification=0x7f020011;
+        public static final int pluxlogo=0x7f020012;
+        public static final int right_arrow=0x7f020013;
+        public static final int select=0x7f020014;
+        public static final int share=0x7f020015;
+        public static final int start=0x7f020016;
+        public static final int title_bar_shadow=0x7f020017;
+        public static final int zoom_in=0x7f020018;
+        public static final int zoom_out=0x7f020019;
     }
     public static final class id {
+        public static final int Button01=0x7f0c0040;
+        public static final int Button02=0x7f0c0041;
         public static final int TAG_POSITION=0x7f0c0000;
         public static final int TAG_SPINNER=0x7f0c0001;
-        public static final int btnRegister=0x7f0c003b;
+        public static final int btnRegister=0x7f0c003c;
         public static final int bttnAddConfig=0x7f0c002e;
         public static final int bttn_negative=0x7f0c000d;
         public static final int bttn_positive=0x7f0c000c;
+        public static final int button1=0x7f0c002f;
+        public static final int button2=0x7f0c0031;
         public static final int buttons=0x7f0c0015;
         public static final int checkbox_confirm=0x7f0c0009;
         public static final int configuration_battery_level=0x7f0c0004;
@@ -131,9 +136,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int connection_status=0x7f0c0003;
         public static final int connection_status_label=0x7f0c0002;
         public static final int dataGraph=0x7f0c0011;
-        public static final int dev_name=0x7f0c0033;
+        public static final int dev_name=0x7f0c0034;
         public static final int dialog_txt_new_recording_name=0x7f0c000b;
-        public static final int display_text=0x7f0c0041;
+        public static final int display_text=0x7f0c0044;
         public static final int dli_active_channels=0x7f0c0027;
         public static final int dli_channels_to_display=0x7f0c0028;
         public static final int dli_date=0x7f0c0029;
@@ -144,14 +149,15 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int dli_reception_freq=0x7f0c0023;
         public static final int dli_sampling_freq=0x7f0c0025;
         public static final int empty_list_configurations=0x7f0c002c;
-        public static final int empty_list_recordings=0x7f0c003f;
+        public static final int empty_list_recordings=0x7f0c0042;
         public static final int fftGraphBtn=0x7f0c0010;
-        public static final int gm_about=0x7f0c0044;
-        public static final int gm_help=0x7f0c0043;
-        public static final int gm_settings=0x7f0c0042;
+        public static final int gm_about=0x7f0c0047;
+        public static final int gm_help=0x7f0c0046;
+        public static final int gm_settings=0x7f0c0045;
         public static final int graphRadioGroup=0x7f0c000e;
         public static final int graph_view=0x7f0c0017;
         public static final int help_info_text=0x7f0c000a;
+        public static final int imageView1=0x7f0c0030;
         public static final int info_text=0x7f0c0005;
         public static final int legal_text=0x7f0c0006;
         public static final int li_ac_channelNumber=0x7f0c001c;
@@ -160,35 +166,33 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int li_ctd_channelNumber=0x7f0c001f;
         public static final int li_ctd_checkbox=0x7f0c0021;
         public static final int li_ctd_sensor=0x7f0c0020;
-        public static final int linearLayout1=0x7f0c0031;
         public static final int lvConfigs=0x7f0c002d;
-        public static final int lvSessions=0x7f0c0040;
+        public static final int lvSessions=0x7f0c0043;
         public static final int lv_channelsSelection=0x7f0c0007;
         public static final int lyHeader=0x7f0c0013;
-        public static final int lyTitle=0x7f0c002f;
-        public static final int nc_mac_address=0x7f0c0034;
-        public static final int nc_sampling_freq_view=0x7f0c0036;
-        public static final int nc_sampling_seekbar=0x7f0c0035;
-        public static final int nc_txt_active_channels=0x7f0c0037;
-        public static final int nc_txt_channels_to_show=0x7f0c0038;
+        public static final int nc_mac_address=0x7f0c0035;
+        public static final int nc_sampling_freq_view=0x7f0c0037;
+        public static final int nc_sampling_seekbar=0x7f0c0036;
+        public static final int nc_txt_active_channels=0x7f0c0038;
+        public static final int nc_txt_channels_to_show=0x7f0c0039;
         public static final int nr_bttn_StartPause=0x7f0c0016;
         public static final int nr_buttons=0x7f0c0014;
         public static final int nr_graph_details=0x7f0c0018;
-        public static final int nr_graphs=0x7f0c003e;
+        public static final int nr_graphs=0x7f0c003f;
         public static final int nr_reception_freq=0x7f0c001a;
-        public static final int nr_restore_zoom=0x7f0c0046;
+        public static final int nr_restore_zoom=0x7f0c0049;
         public static final int nr_sampling_freq=0x7f0c001b;
-        public static final int nr_scroll_view=0x7f0c003d;
-        public static final int nr_settings=0x7f0c0045;
+        public static final int nr_scroll_view=0x7f0c003e;
+        public static final int nr_settings=0x7f0c0048;
         public static final int nr_txt_mac=0x7f0c0019;
-        public static final int nr_txt_recordingName=0x7f0c003c;
+        public static final int nr_txt_recordingName=0x7f0c003d;
         public static final int rawGraphBtn=0x7f0c000f;
-        public static final int regForm=0x7f0c0032;
+        public static final int regForm=0x7f0c0033;
         public static final int shadow=0x7f0c0012;
-        public static final int sl_bttnCancel=0x7f0c003a;
+        public static final int sl_bttnCancel=0x7f0c003b;
         public static final int sl_button=0x7f0c002b;
-        public static final int sl_buttons=0x7f0c0039;
-        public static final int txtTitle=0x7f0c0030;
+        public static final int sl_buttons=0x7f0c003a;
+        public static final int spinner1=0x7f0c0032;
     }
     public static final class layout {
         public static final int connection_status_activity=0x7f030000;
@@ -199,22 +203,24 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int dialog_help=0x7f030005;
         public static final int dialog_newrecording_backbutton_content=0x7f030006;
         public static final int dialog_recording_name_content=0x7f030007;
-        public static final int display_stored_graph_activity=0x7f030008;
-        public static final int header_shadow=0x7f030009;
-        public static final int in_ly_buttons=0x7f03000a;
-        public static final int in_ly_graph=0x7f03000b;
-        public static final int in_ly_graph_details=0x7f03000c;
-        public static final int li_active_channels=0x7f03000d;
-        public static final int li_channels_to_display=0x7f03000e;
-        public static final int li_configuration=0x7f03000f;
-        public static final int li_recording=0x7f030010;
-        public static final int ly_configurations=0x7f030011;
-        public static final int ly_home=0x7f030012;
-        public static final int ly_new_configuration=0x7f030013;
-        public static final int ly_new_recording=0x7f030014;
-        public static final int ly_recordings=0x7f030015;
-        public static final int toast_error=0x7f030016;
-        public static final int toast_info=0x7f030017;
+        public static final int dialog_stored_recordings=0x7f030008;
+        public static final int display_stored_graph_activity=0x7f030009;
+        public static final int header_shadow=0x7f03000a;
+        public static final int in_ly_buttons=0x7f03000b;
+        public static final int in_ly_graph=0x7f03000c;
+        public static final int in_ly_graph_details=0x7f03000d;
+        public static final int li_active_channels=0x7f03000e;
+        public static final int li_channels_to_display=0x7f03000f;
+        public static final int li_configuration=0x7f030010;
+        public static final int li_recording=0x7f030011;
+        public static final int ly_configurations=0x7f030012;
+        public static final int ly_home=0x7f030013;
+        public static final int ly_new_configuration=0x7f030014;
+        public static final int ly_new_recording=0x7f030015;
+        public static final int ly_patientsession=0x7f030016;
+        public static final int ly_recordings=0x7f030017;
+        public static final int toast_error=0x7f030018;
+        public static final int toast_info=0x7f030019;
     }
     public static final class menu {
         public static final int global_menu=0x7f0d0000;
@@ -272,20 +278,26 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ca_header_title=0x7f09002d;
         public static final int ca_info_recording_canceled=0x7f09002f;
         public static final int ca_name_dialog_title=0x7f090030;
+        public static final int cancel_btn=0x7f0900a5;
         /**  CONFIGURATION LIST ADAPTER 
  CONFIGURATION LIST ADAPTER 
          */
         public static final int cl_active=0x7f09003f;
         public static final int cl_display=0x7f090040;
         public static final int configurations_label=0x7f09000c;
-        public static final int d_confirmationCheck=0x7f0900a3;
+        public static final int confirm_btn=0x7f0900a4;
+        public static final int d_confirmationCheck=0x7f0900a7;
+        public static final int d_fileSizeErrorMsg=0x7f0900a8;
+        public static final int d_fileSizeErrorTitle=0x7f0900a9;
         /**  DIALOGS 
  DIALOG NAME 
          */
-        public static final int d_hint=0x7f0900a2;
+        public static final int d_hint=0x7f0900a6;
+        public static final int delete_btn=0x7f0900a3;
         public static final int device_connection=0x7f090042;
         public static final int display_stored_graph_label=0x7f090010;
         public static final int divider_image_content=0x7f090008;
+        public static final int export_btn=0x7f0900a2;
         public static final int fft_data_btn=0x7f0900a0;
         public static final int fft_img_btn=0x7f0900a1;
         public static final int global_settings_label=0x7f09000a;
@@ -443,7 +455,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         /**  IDs 
  IDs 
          */
-        public static final int service_id=0x7f0900a4;
+        public static final int service_id=0x7f0900aa;
         /**   CONNECTION STATUS ACTIVITY 
          */
         public static final int status_label=0x7f090041;

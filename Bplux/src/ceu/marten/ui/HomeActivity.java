@@ -1,108 +1,76 @@
-//Modified by Brittaney Geisler November 2014
+//Modified by Brittaney Geisler March 2015
 
 package ceu.marten.ui;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.Scanner;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.widget.Spinner;
 import android.widget.Toast;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.DeviceConfiguration;
-
-import com.ubc.capstonegroup70.DisplayStoredGraphActivity;
 //import com.mburman.fileexplore.FileExplore.Item;
 
 public class HomeActivity extends Activity {//implements android.widget.PopupMenu.OnMenuItemClickListener {
 
 	public static boolean configset = false;
 	public static boolean nameset = false;
-	public static String recname = "DEFAULT";
+	public static String PatientName = "Brittaney";
 	public int i=1;
 	public static String btName = "bitalino";//"EMG_Sensor";
-	public static String recname1;
-	public static int sfValue = 100;
 	private DeviceConfiguration newConfiguration;
 	private String[]  activeChannels = {"EMG"};
-	public static int freq;
+	private String[] spinner_array = new String[20];
+	private int spinner_array_count;
+	Context context = this;
+	private boolean remove_patient = false;
 	
-	// Variables for file explorer
-	private final int REQUEST_CODE_PICK_DIR = 1;
-	private final int REQUEST_CODE_PICK_FILE = 2;
-	
-	// Stores names of traversed directories
-	  ArrayList<String> str = new ArrayList<String>();
-
-	// Check if the first level of the directory structure is the one showing
-	private Boolean firstLvl = true;
-	
-	private static final String TAG = "F_PATH";
-	
-	private Item[] fileList;
-	private File path = new File(Environment.getExternalStorageDirectory() + "/Bioplux");
-	private String chosenFile;
-	private static final int DIALOG_LOAD_FILE = 1000;
-	
-	ListAdapter adapter;
-	
-	/*@Override
-	public boolean onMenuItemClick(MenuItem item) {
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	        case R.id.gm_settings:
-	        	Intent globalSettingsIntent = new Intent(this, SettingsActivity.class);
-	        	globalSettingsIntent.putExtra(Constants.KEY_SETTINGS_TYPE, 1);
-	        	startActivity(globalSettingsIntent);
-	            return true;
-	       
-	        case R.id.gm_help:
-	        	HelpDialog help = new HelpDialog(this);
-	        	help.setTitle(getString(R.string.gm_help_title));
-	        	help.setCanceledOnTouchOutside(true);
-	        	help.show();
-	        	return true;
-	        	
-	        case R.id.gm_about:
-	        	AboutDialog about = new AboutDialog(this);
-	        	about.requestWindowFeature(Window.FEATURE_NO_TITLE);
-	        	about.setCanceledOnTouchOutside(true);
-	        	about.show();
-	            return true;
-	        
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
-	}*/
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.ly_home);
-	}
+		final Spinner spinner = (Spinner) findViewById(R.id.spinner1);
+		ArrayAdapter SpinnerAdapter =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  spinner_array);
+		SpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(SpinnerAdapter);
+		spinner_array[0] = "--  Patient Name  --";
+		spinner_array[1] = "-- Add New Patient --";
+		spinner_array[2] = "-- Remove Patient --";
+		spinner_array_count = 3;
+		for (int j=3; j<20; j++){
+			spinner_array[j] = " ";
+		}
+		try {
+			readNamesFromFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
 
 
 	/************************ BUTTON EVENTS *******************/
@@ -114,94 +82,94 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	    inflater.inflate(R.menu.global_menu, popup.getMenu());
 	    popup.show();
 	}*/
+		
+	spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+		
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {                
+
+        	if (position == 0) {
+        		nameset = false;
+        		remove_patient = false;
+        	}
+        	else if (position == 1){
+        		AddNewPatientDialog(view);
+        		spinner.setSelection(0);
+        		nameset = false;
+        		remove_patient = false;
+        	}
+        	else if (position == 2){
+        		remove_patient = true;
+        		spinner.performClick();
+        		for (int j=0; j<2; j++)
+        		Toast.makeText(getApplicationContext(), "         SELECT PATIENT TO REMOVE\nOR PRESS --Patient Name-- TO CANCEL",Toast.LENGTH_LONG).show();
+        	}
+        	else if (position >= spinner_array_count){
+        		nameset = false;
+        		spinner.setSelection(0);
+        		remove_patient = false;
+        	}
+        	else {
+        		if (remove_patient){
+        			
+        			File file = new File("/storage/emulated/0/"+spinner_array[position]+"INFO"+".txt");
+        			if(file.exists()) {
+        				file.delete();
+        			}
+        			
+        			spinner_array[position] = " ";
+        			remove_patient = false;
+        			spinner.setSelection(0);
+        			for (int j=position; j<spinner_array_count; j++){
+        				spinner_array[j] = spinner_array[j+1];
+        			}
+        			removePatientFromFile(position-3);
+        			spinner_array_count--;
+        			
+        		}
+        		else {
+        			PatientName = (String) spinner.getItemAtPosition(position);
+        			nameset = true;
+        		}
+            }
+            
+        }
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+        	
+        }
+    });  
 	
-	public void onClickedSetPatientName(View view) {
-		setPatientNameDialog(view);
+
+	
 	}
 	
-	private void setPatientNameDialog(View view) {
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setTitle("Enter Patient Name: ");
-		final EditText input = new EditText(this);
-		alertDialogBuilder.setView(input);
-		input.setText(recname);
-		alertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				  Editable value = input.getText();
-				  recname = value.toString();
-				  nameset = true;
-				  //BitalinoAndroid.btName = recname;
-			}
-		});
-		alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			  public void onClick(DialogInterface dialog, int whichButton) {
-			   
-			  }
-		});
-		alertDialogBuilder.show();	
-	}
-
-
 	public void onClickedStart(View view) {
 		if (configset && nameset){
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String currentDateandTime = sdf.format(new Date());
-			//DateFormat dateFormat = DateFormat.getDateTimeInstance();
-			//Date date = new Date();
-			recname1 = recname + " " + currentDateandTime;//dateFormat.format(date);
-			Intent newRecordingIntent = new Intent(this, NewRecordingActivity.class);
+			//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			//String currentDateandTime = sdf.format(new Date());
+			//recname1 = recname + " " + currentDateandTime;
+			Intent patientSessionIntent = new Intent(this, PatientSessionActivity.class);
 			//newRecordingIntent.putExtra(ConfigurationsActivity.KEY_RECORDING_NAME, recname1);
 			//newRecordingIntent.putExtra(ConfigurationsActivity.KEY_CONFIGURATION, ConfigurationsActivity.configurations.get(ConfigurationsActivity.configurationClickedPosition));
-			newRecordingIntent.putExtra("recordingName", recname1);
-			newRecordingIntent.putExtra("configuration", newConfiguration);
-			
-			//newRecordingIntent.putExtra("configuration", ConfigurationsActivity.configurations.get(0));
-			startActivity(newRecordingIntent);
+			patientSessionIntent.putExtra("patientName", PatientName);
+			patientSessionIntent.putExtra("configuration", newConfiguration);
+			startActivity(patientSessionIntent);
 			overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
 		}
-		else if (!configset && !nameset) Toast.makeText(getApplicationContext(), "Please Set Configurations and Patient Name First",Toast.LENGTH_SHORT).show();
-		else if (!configset) Toast.makeText(getApplicationContext(), "Please Set Configurations First",Toast.LENGTH_SHORT).show();
-		else Toast.makeText(getApplicationContext(), "Please Set Patient Name First",Toast.LENGTH_SHORT).show();
-	}
-
-	public void onClickedSavedData(View view) {
-//		startActivity(new Intent(this, RecordingsActivity.class));
-		
-		/*// Start FileBrowserActivity
-		Intent fileExploreIntent = new Intent(ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.INTENT_ACTION_SELECT_DIR, null, 
-				this, ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.class);
-		fileExploreIntent.putExtra(ua.com.vassiliev.androidfilebrowser.FileBrowserActivity.startDirectoryParameter, "/sdcard/Bioplux");
-		startActivityForResult(
-				fileExploreIntent,
-				REQUEST_CODE_PICK_FILE
-		);*/
-		
-		// Start FileExplorer
-//		startActivity(new Intent(this, FileExplore.class));
-		loadFileList();
-	    showDialog(DIALOG_LOAD_FILE);
-
-		overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+		else if (configset) Toast.makeText(getApplicationContext(), "NO PATIENT SELECTED",Toast.LENGTH_SHORT).show();
+		else if (nameset) Toast.makeText(getApplicationContext(), "NO BLUETOOTH SELECTED",Toast.LENGTH_SHORT).show();
+		else Toast.makeText(getApplicationContext(), "NO BLUETOOTH OR PATIENT SELECTED",Toast.LENGTH_SHORT).show();
 	}
 	
 	public void onClickedConfiguration(View view) {
-		//startActivity(new Intent(this, ConfigurationsActivity.class));
-		//overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-		
 		setConfigDialog(view);
 	}
-	/*public void onClickedtest(View view){
-		startActivity(new Intent(this, ConfigurationsActivity.class));
-		overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-				
-	}
-	*/
+	
 	private void setConfigDialog(View view){	
 		
 		newConfiguration = new DeviceConfiguration(this);
 		newConfiguration.setNumberOfBits(12);
-		//newConfiguration.setVisualizationFrequency(1000);
-		//newConfiguration.setSamplingFrequency(1000);
 		newConfiguration.setActiveChannels(activeChannels);
 		newConfiguration.setDisplayChannels(activeChannels);
 		newConfiguration.setName("MYconfig");
@@ -211,60 +179,14 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		
 		
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setTitle("Configuration:");
+		alertDialogBuilder.setTitle("Bluetooth Name");
 		Context context = this;
 		LinearLayout layout = new LinearLayout(context);
 		layout.setOrientation(LinearLayout.VERTICAL);
-
-		final TextView Title1 = new TextView(context);
-		Title1.setText("Bluetooth Name");
-		layout.addView(Title1);
 		
 		final EditText BTNamebox = new EditText(context);
 		BTNamebox.setText(btName);
 		layout.addView(BTNamebox);
-		
-		/*final TextView Title2 = new TextView(context);
-		Title2.setText("Sampling Frequency");
-		layout.addView(Title2);
-		
-		final SeekBar sBar = new SeekBar(context);
-		sBar.setMax(1000);
-		if (sfValue == 1) sBar.setProgress(1);
-		else if (sfValue == 10) sBar.setProgress(333);
-		else if (sfValue == 100) sBar.setProgress(666);
-		else if (sfValue == 1000) sBar.setProgress(1000);
-		layout.addView(sBar);
-		
-		final TextView Title3 = new TextView(context);
-		String string = Integer.toString(sfValue);
-		Title3.setText(string);
-		layout.addView(Title3);
-		
-		sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-	        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-	            if (progress>=1 && progress<250) sfValue = 1;
-	            else if (progress>=250 && progress<500) sfValue = 10;
-	            else if (progress>=500 && progress<750) sfValue = 100;
-	            else if (progress>=750 && progress<=1000) sfValue = 1000;   
-	            
-	    		String string = Integer.toString(sfValue);
-	    		Title3.setText(string);
-	            
-	        }
-
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-				
-			}
-	    });*/
 
 		alertDialogBuilder.setView(layout);
 		
@@ -276,7 +198,44 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				  newConfiguration.setVisualizationFrequency(1000);
 				  newConfiguration.setSamplingFrequency(100);
 				  newConfiguration.setMacAddress(btName);
-				  //freq = sfValue;
+				  
+			}
+		});
+		alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			  public void onClick(DialogInterface dialog, int whichButton) {
+			   
+			  }
+		});
+		alertDialogBuilder.show();	
+		
+	}
+	private void AddNewPatientDialog(View view){	
+		
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+		alertDialogBuilder.setTitle("Patient Name");
+		Context context = this;
+		LinearLayout layout = new LinearLayout(context);
+		layout.setOrientation(LinearLayout.VERTICAL);
+		
+		final EditText PNamebox = new EditText(context);
+		layout.addView(PNamebox);
+		
+		
+		alertDialogBuilder.setView(layout);
+		
+		alertDialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				  Editable PName = PNamebox.getText();
+				  spinner_array[spinner_array_count] = PName.toString();
+				  spinner_array_count++;
+				  
+				  try {
+					saveNameToFile(PName.toString());
+				  } catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				  }
+				  
 				  
 			}
 		});
@@ -289,190 +248,125 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		
 	}
 	
-	/*
-	 * Android File Explore
-	 * 
-	 * Copyright 2011 Manish Burman
-	 * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in 
-	 * compliance with the License. You may obtain a copy of the License at
-	 * 		http://www.apache.org/licenses/LICENSE-2.0
-	 * Unless required by applicable law or agreed to in writing, software distributed under the License is 
-	 * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-	 * See the License for the specific language governing permissions and limitations under the License.
-	 */
-	// Open FileExplore
-	private void loadFileList() {
-	    try {
-	      path.mkdirs();
-	    } catch (SecurityException e) {
-	      Log.e(TAG, "unable to write on the sd card ");
-	    }
+	private void saveNameToFile(String patientName) throws IOException{
+		
+		//WRITE 
+		
+		String write_string = patientName + '\n';
+		
+		try {
+			File file = new File("/storage/emulated/0/patientNames.txt");
+			if (!file.exists()) {
+				//Toast.makeText(context, "FIRST_EXISTS", Toast.LENGTH_SHORT).show();
+				file = new File(Environment.getExternalStorageDirectory(),"patientNames.txt");
+			}
+			//Toast.makeText(context, file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+			FileOutputStream outputStream = openFileOutput("patientNames.txt", Context.MODE_APPEND);
+			outputStream = new FileOutputStream(file, true);
+        
+			outputStream.write(write_string.getBytes());//patientName.getBytes());
+			outputStream.flush();
+		    outputStream.close();
+			        
+		
+		} catch (IOException e) {
+			    e.printStackTrace();
+			
+		}
+		//readNamesFromFile();
 
-	    // Checks whether path exists
-	    if (path.exists()) {
-	      FilenameFilter filter = new FilenameFilter() {
-	        @Override
-	        public boolean accept(File dir, String filename) {
-	          File sel = new File(dir, filename);
-	          // Filters based on whether the file is hidden or not
-	          return (sel.isFile() || sel.isDirectory())
-	              && !sel.isHidden();
-
-	        }
-	      };
-
-	      String[] fList = path.list(filter);
-	      fileList = new Item[fList.length];
-	      for (int i = 0; i < fList.length; i++) {
-	        fileList[i] = new Item(fList[i], R.drawable.file_icon);
-
-	        // Convert into file path
-	        File sel = new File(path, fList[i]);
-
-	        // Set drawables
-	        if (sel.isDirectory()) {
-	          fileList[i].icon = R.drawable.directory_icon;
-	          Log.d("DIRECTORY", fileList[i].file);
-	        } else {
-	          Log.d("FILE", fileList[i].file);
-	        }
-	      }
-
-	      if (!firstLvl) {
-	        Item temp[] = new Item[fileList.length + 1];
-	        for (int i = 0; i < fileList.length; i++) {
-	          temp[i + 1] = fileList[i];
-	        }
-	        temp[0] = new Item("Up", R.drawable.directory_up);
-	        fileList = temp;
-	      }
-	    } else {
-	      Log.e(TAG, "path does not exist");
-	    }
-
-	    adapter = new ArrayAdapter<Item>(this,
-	        android.R.layout.select_dialog_item, android.R.id.text1,
-	        fileList) {
-	      @Override
-	      public View getView(int position, View convertView, ViewGroup parent) {
-	        // creates view
-	        View view = super.getView(position, convertView, parent);
-	        TextView textView = (TextView) view
-	            .findViewById(android.R.id.text1);
-
-	        // put the image on the text view
-	        textView.setCompoundDrawablesWithIntrinsicBounds(
-	            fileList[position].icon, 0, 0, 0);
-
-	        // add margin between image and text (support various screen
-	        // densities)
-	        int dp5 = (int) (5 * getResources().getDisplayMetrics().density + 0.5f);
-	        textView.setCompoundDrawablePadding(dp5);
-
-	        return view;
-	      }
-	    };
-
-	  }
-
-	  private class Item {
-	    public String file;
-	    public int icon;
-
-	    public Item(String file, Integer icon) {
-	      this.file = file;
-	      this.icon = icon;
-	    }
-
-	    @Override
-	    public String toString() {
-	      return file;
-	    }
-	  }
+	}
+	private void readNamesFromFile() throws IOException{
+		
+		//READ
+		try {
+			//num_of_patients = 0;
+			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
+		    @SuppressWarnings("resource")
+			Scanner scanner = new Scanner(fIn);
+		    String readString = null;
+		    boolean first_read = true;
+		    while (scanner.hasNextLine())
+		    {
+		    	//num_of_patients ++;
+		    	
+		        String currentline = scanner.nextLine();
+		        if (first_read == true) {
+		        	readString = currentline;
+		        	first_read = false;
+		        }
+		        else readString = readString + currentline;
+		        //spinner_array[num_of_patients+1] = currentline;
+		        spinner_array[spinner_array_count] = currentline;
+		        spinner_array_count++;
+		    }
+		    //Toast.makeText(context, readString, Toast.LENGTH_SHORT).show();
+		        
+		} catch (IOException ioe) 
+		    {ioe.printStackTrace();}
+		
+	}
 	
-	@Override
-	  protected Dialog onCreateDialog(int id) {
-	    Dialog dialog = null;
-	    AlertDialog.Builder builder = new Builder(this);
-
-	    if (fileList == null) {
-	      Log.e(TAG, "No files loaded");
-	      dialog = builder.create();
-	      return dialog;
+	private void removePatientFromFile(int position){
+		
+		//READ
+		boolean first_write = true;
+	    String[] temp_array = new String[10];//temp array
+	    int temp_count = 0;//keeps track of location in array
+	    int total_count = 0;
+	    for (int j=0; j<10; j++){
+	    	temp_array[j] = null;
 	    }
-	    
-	    switch (id) {
-	    case DIALOG_LOAD_FILE:
-	      builder.setTitle("Choose your file");
-	      builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-	        @Override
-	        public void onClick(DialogInterface dialog, int which) {
-	          chosenFile = fileList[which].file;
-	          File sel = new File(path + "/" + chosenFile);
-	          if (sel.isDirectory()) {
-	            firstLvl = false;
+		try {
+			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
+			@SuppressWarnings("resource")
+			Scanner scanner = new Scanner(fIn);
+			while (scanner.hasNextLine())
+			{
+		    	String currentline = scanner.nextLine();
+			  	if (temp_count < position){
+			  		temp_array[temp_count] = currentline;
+					temp_count++;
+					total_count++;
+		    	}
+			  	else if (temp_count == position){
+			  		temp_count++;
+			  	}
+			  	else if (temp_count > position){
+			  		temp_array[temp_count-1] = currentline;
+			  		temp_count++;
+			  		total_count++;
+			  	}
+			  	//Toast.makeText(context, temp_array[temp_count-1], Toast.LENGTH_SHORT).show();
+		    }  	
 
-	            // Adds chosen directory to list
-	            str.add(chosenFile);
-	            fileList = null;
-	            path = new File(sel + "");
+		} catch (IOException ioe) 
+			 {ioe.printStackTrace();}
+				
+		//WRITE 
+			
+		String write_string=null;
+				
+		for (int j=0; j<total_count; j++){
+				write_string = temp_array[j]+'\n';
+				try {
+					File file = new File("/storage/emulated/0/patientNames.txt");
+					if (!file.exists()) {
+						file = new File(Environment.getExternalStorageDirectory(),"patientNames.txt");
+					}
+					FileOutputStream outputStream = openFileOutput("patientNames.txt", Context.MODE_APPEND);
+					if (first_write) {
+						outputStream = new FileOutputStream(file, false);
+						first_write = false;
+					}
+					else outputStream = new FileOutputStream(file, true);
+					outputStream.write(write_string.getBytes());
+					outputStream.flush();
+				    outputStream.close();			
+				} catch (IOException e) {
+					    e.printStackTrace();
+				}
+		}
+	}
 
-	            loadFileList();
-
-	            removeDialog(DIALOG_LOAD_FILE);
-	            showDialog(DIALOG_LOAD_FILE);
-	            Log.d(TAG, path.getAbsolutePath());
-
-	          }
-
-	          // Checks if 'up' was clicked
-	          else if (chosenFile.equalsIgnoreCase("up") && !sel.exists()) {
-
-	            // present directory removed from list
-	            String s = str.remove(str.size() - 1);
-
-	            // path modified to exclude present directory
-	            path = new File(path.toString().substring(0,
-	                path.toString().lastIndexOf(s)));
-	            fileList = null;
-
-	            // if there are no more directories in the list, then
-	            // its the first level
-	            if (str.isEmpty()) {
-	              firstLvl = true;
-	            }
-	            loadFileList();
-
-	            removeDialog(DIALOG_LOAD_FILE);
-	            showDialog(DIALOG_LOAD_FILE);
-	            Log.d(TAG, path.getAbsolutePath());
-
-	          }
-	          // File picked
-	          else {
-	            // Perform action with file picked
-	            System.out.println("FILE EXPLORE: Chosen file is: " + chosenFile);
-	            Intent intent = new Intent(HomeActivity.this, DisplayStoredGraphActivity.class);
-	            intent.putExtra("FILE_NAME", chosenFile);
-	            startActivity(intent);
-	          }
-
-	        }
-	      });
-	      break;
-	    }
-	    /*public boolean onLongClick(DialogInterface dialog, int which) {
-	    	
-	    }*/
-	    dialog = builder.show();
-	    /*dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-	        @Override
-	        public void onDismiss(final DialogInterface arg0) {
-	            // do something
-	        	finish();
-	        }
-	    });*/
-	    return dialog;
-	  }
-	// End of FileExplore
 }
