@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Scanner;
 
 import android.app.ActionBar.LayoutParams;
@@ -531,14 +532,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
+		
 	
 	public void onClickedSavedData(View view) {
 		// Start FileExplorer
@@ -577,21 +571,20 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	        @Override
 	        public boolean accept(File dir, String filename) {
 	          File sel = new File(dir, filename);
-	          // Filters based on whether the file is hidden or not
-//	          System.out.println(filename + "matches with \"benchmark\": " + filename.matches("benchmark-\\d+.zip"));
-	         return (sel.isFile() || sel.isDirectory()) && !sel.isHidden(); //&& filename.matches("benchmark-\\d+.zip");
+	          // Create string for filtering files based on the current patient's personal health number
+	          String fileFilter = "\\w+-" + newPatient.health_number + "\\S+";
+	          // Filters based on whether the file is hidden or not, as well as whether or not it belongs to the current patient
+	          return (sel.isFile() || sel.isDirectory()) && !sel.isHidden() && filename.matches(fileFilter);
 	          
 	        }
 	      };
 
 	      String[] fList = path.list(filter);
+	      // Sort the list of files in alphabetical order
 	      for(int i=0; i<fList.length; i++) {
-	    	  fList[i] = fList[i].toLowerCase();
-//	    	  System.out.println("###LOAD_FILE_LIST### - OLD:" + fList[i]);
+	    	  fList[i] = fList[i].toUpperCase(Locale.getDefault());
 	      }
 	      Arrays.sort(fList);
-//	      for(int i=0; i<fList.length; i++)
-//	    	  System.out.println("###LOAD_FILE_LIST### - NEW:" + fList[i]);
 	      fileList = new Item[fList.length];
 	      for (int i = 0; i < fList.length; i++) {
 	        fileList[i] = new Item(fList[i], R.drawable.file_icon);
@@ -634,8 +627,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	        textView.setCompoundDrawablesWithIntrinsicBounds(
 	            fileList[position].icon, 0, 0, 0);
 
-	        // add margin between image and text (support various screen
-	        // densities)
+	        // add margin between image and text (support various screen densities)
 	        int dp5 = (int) (5 * getResources().getDisplayMetrics().density + 0.5f);
 	        textView.setCompoundDrawablePadding(dp5);
 
