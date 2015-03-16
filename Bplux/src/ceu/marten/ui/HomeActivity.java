@@ -70,24 +70,25 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		try {
 			readNamesFromFile();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
-		if(file.exists()) {
-			try {
-				readwriteBT(false, null);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		else {
-			btListGenerator();
-		}
-
-		mButton = (Button)findViewById(R.id.button1);
-		mButton.setText("BLUETOOTH: "+newConfiguration.getMacAddress());
-		mButton.setBackgroundColor(Color.parseColor("#FFF4A460"));//#FFADD8E6"));
-		mButton.setTextSize(15);
+				if(file.exists()) {
+					try {
+						readwriteBT(false, null);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				else {
+					btListGenerator();
+				}
+		
+				mButton = (Button)findViewById(R.id.button1);
+				mButton.setText("BLUETOOTH: "+newConfiguration.getMacAddress());
+				mButton.setBackgroundColor(Color.parseColor("#FFF4A460"));//#FFADD8E6"));
+				mButton.setTextSize(15);
 	
 
 
@@ -181,7 +182,6 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	}
 	
 	public void onClickedConfiguration(View view) {
-		//setConfigDialog();
 		btListGenerator();
 	}
 	
@@ -198,7 +198,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		newConfiguration.setSamplingFrequency(100);
 	}
 	
-	private void btListGenerator(){
+private void btListGenerator(){
 		
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -237,7 +237,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		dialog = builder.create();
 		dialog.show();
 	}
-	
+
 	private void AddNewPatientDialog(View view){	
 		
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -273,7 +273,8 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 			   
 			  }
 		});
-		alertDialogBuilder.show();		
+		alertDialogBuilder.show();	
+		
 	}
 	
 	private void saveNameToFile(String patientName) throws IOException{
@@ -308,6 +309,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		
 		//READ
 		try {
+			//num_of_patients = 0;
 			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
 		    @SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
@@ -315,15 +317,19 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		    boolean first_read = true;
 		    while (scanner.hasNextLine())
 		    {
+		    	//num_of_patients ++;
+		    	
 		        String currentline = scanner.nextLine();
 		        if (first_read == true) {
 		        	readString = currentline;
 		        	first_read = false;
 		        }
 		        else readString = readString + currentline;
+		        //spinner_array[num_of_patients+1] = currentline;
 		        spinner_array[spinner_array_count] = currentline;
 		        spinner_array_count++;
 		    }
+		    //Toast.makeText(context, readString, Toast.LENGTH_SHORT).show();
 		        
 		} catch (IOException ioe) 
 		    {ioe.printStackTrace();}
@@ -360,6 +366,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 			  		temp_count++;
 			  		total_count++;
 			  	}
+			  	//Toast.makeText(context, temp_array[temp_count-1], Toast.LENGTH_SHORT).show();
 		    }  	
 
 		} catch (IOException ioe) 
@@ -390,8 +397,8 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				}
 		}
 	}
-	
-	private void readwriteBT(boolean task, String btName) throws IOException{
+
+private void readwriteBT(boolean task, String btName) throws IOException{
 		
 		if (task){
 			//WRITE

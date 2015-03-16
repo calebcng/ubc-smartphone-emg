@@ -1,27 +1,19 @@
 package com.ubc.capstonegroup70;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.Collections;
 import java.util.Random;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 import java.lang.String;
 
 import com.bitalino.util.SensorDataConverter;
@@ -29,41 +21,25 @@ import com.bitalino.util.SensorDataConverter;
 //import com.example.bluetoothnew.R;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
-import ceu.marten.ui.HomeActivity;
-
-import com.jjoe64.graphview.CustomLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
-import com.jjoe64.graphview.GraphView.LegendAlign;
 import com.jjoe64.graphview.GraphViewSeries;
-import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
-import com.jjoe64.graphview.GraphViewStyle;
 import com.jjoe64.graphview.LineGraphView;
 
 import org.apache.commons.math3.complex.Complex;
 import org.jtransforms.fft.*;
-import pl.edu.icm.jlargearrays.DoubleLargeArray;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.Toast;
-import android.app.Activity;
 
 /** 
  * Reads the data stored in a target recordings text file and plots
