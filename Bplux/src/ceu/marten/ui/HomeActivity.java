@@ -2,23 +2,23 @@
 
 package ceu.marten.ui;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.Set;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -38,21 +39,23 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 
 	public static boolean configset = false;
 	public static boolean nameset = false;
-	public static String PatientName = "Brittaney";
+	public static String PatientName;
 	public int i=1;
-	public static String btName = "bitalino";//"EMG_Sensor";
+	public static String btName;
 	private DeviceConfiguration newConfiguration;
 	private String[]  activeChannels = {"EMG"};
 	private String[] spinner_array = new String[20];
 	private int spinner_array_count;
 	Context context = this;
 	private boolean remove_patient = false;
+	Button mButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.ly_home);
+		setConfigurationDefaults();
 		final Spinner spinner = (Spinner) findViewById(R.id.spinner1);
 		ArrayAdapter SpinnerAdapter =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  spinner_array);
 		SpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -67,9 +70,24 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		try {
 			readNamesFromFile();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
+		if(file.exists()) {
+			try {
+				readwriteBT(false, null);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			btListGenerator();
+		}
+
+		mButton = (Button)findViewById(R.id.button1);
+		mButton.setText("BLUETOOTH: "+newConfiguration.getMacAddress());
+		mButton.setBackgroundColor(Color.parseColor("#FFF4A460"));//#FFADD8E6"));
+		mButton.setTextSize(15);
 	
 
 
@@ -163,11 +181,11 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	}
 	
 	public void onClickedConfiguration(View view) {
-		setConfigDialog(view);
+		//setConfigDialog();
+		btListGenerator();
 	}
 	
-	private void setConfigDialog(View view){	
-		
+	private void setConfigurationDefaults(){
 		newConfiguration = new DeviceConfiguration(this);
 		newConfiguration.setNumberOfBits(12);
 		newConfiguration.setActiveChannels(activeChannels);
@@ -176,39 +194,50 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		DateFormat dateFormat = DateFormat.getDateTimeInstance();
 		Date date = new Date();
 		newConfiguration.setCreateDate(dateFormat.format(date));
-		
-		
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setTitle("Bluetooth Name");
-		Context context = this;
-		LinearLayout layout = new LinearLayout(context);
-		layout.setOrientation(LinearLayout.VERTICAL);
-		
-		final EditText BTNamebox = new EditText(context);
-		BTNamebox.setText(btName);
-		layout.addView(BTNamebox);
-
-		alertDialogBuilder.setView(layout);
-		
-		alertDialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				  Editable BTName = BTNamebox.getText();
-				  btName = BTName.toString();
-				  configset = true;
-				  newConfiguration.setVisualizationFrequency(1000);
-				  newConfiguration.setSamplingFrequency(100);
-				  newConfiguration.setMacAddress(btName);
-				  
-			}
-		});
-		alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			  public void onClick(DialogInterface dialog, int whichButton) {
-			   
-			  }
-		});
-		alertDialogBuilder.show();	
-		
+		newConfiguration.setVisualizationFrequency(1000);
+		newConfiguration.setSamplingFrequency(100);
 	}
+	
+	private void btListGenerator(){
+		
+		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+		
+		final String[] string= new String[pairedDevices.size()];
+		for (int j=0; j<pairedDevices.size(); j++){
+			string[j] = " ";
+		}
+		int count=0;
+		for(BluetoothDevice bt : pairedDevices){
+			string[count] = bt.getName();
+			count++;
+		}
+		
+		AlertDialog dialog ;
+		
+		AlertDialog.Builder builder=new AlertDialog.Builder(this);
+		builder.setTitle("PAIRED DEVICES");
+		builder.setItems(string, new DialogInterface.OnClickListener() {
+
+			@Override
+		    public void onClick(DialogInterface dialog, int position) {
+				btName = string[position];
+				configset = true;
+				newConfiguration.setMacAddress(btName);
+				mButton.setText("BLUETOOTH: "+newConfiguration.getMacAddress());
+				try {
+					readwriteBT(true, btName);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		    }
+
+		});
+		
+		dialog = builder.create();
+		dialog.show();
+	}
+	
 	private void AddNewPatientDialog(View view){	
 		
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -244,8 +273,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 			   
 			  }
 		});
-		alertDialogBuilder.show();	
-		
+		alertDialogBuilder.show();		
 	}
 	
 	private void saveNameToFile(String patientName) throws IOException{
@@ -280,7 +308,6 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		
 		//READ
 		try {
-			//num_of_patients = 0;
 			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
 		    @SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
@@ -288,19 +315,15 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		    boolean first_read = true;
 		    while (scanner.hasNextLine())
 		    {
-		    	//num_of_patients ++;
-		    	
 		        String currentline = scanner.nextLine();
 		        if (first_read == true) {
 		        	readString = currentline;
 		        	first_read = false;
 		        }
 		        else readString = readString + currentline;
-		        //spinner_array[num_of_patients+1] = currentline;
 		        spinner_array[spinner_array_count] = currentline;
 		        spinner_array_count++;
 		    }
-		    //Toast.makeText(context, readString, Toast.LENGTH_SHORT).show();
 		        
 		} catch (IOException ioe) 
 		    {ioe.printStackTrace();}
@@ -337,7 +360,6 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 			  		temp_count++;
 			  		total_count++;
 			  	}
-			  	//Toast.makeText(context, temp_array[temp_count-1], Toast.LENGTH_SHORT).show();
 		    }  	
 
 		} catch (IOException ioe) 
@@ -366,6 +388,44 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 				} catch (IOException e) {
 					    e.printStackTrace();
 				}
+		}
+	}
+	
+	private void readwriteBT(boolean task, String btName) throws IOException{
+		
+		if (task){
+			//WRITE
+			try {
+				File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
+				if (!file.exists()) {
+					file = new File(Environment.getExternalStorageDirectory(),"Bplux_BluetoothSelection.txt");
+				}
+				FileOutputStream outputStream = openFileOutput("Bplux_BluetoothSelection.txt", Context.MODE_APPEND);
+				outputStream = new FileOutputStream(file, false);
+				outputStream.write(btName.getBytes());
+				outputStream.flush();
+			    outputStream.close();			
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		else {
+			//READ
+			try {
+				FileInputStream fIn = new FileInputStream("/storage/emulated/0/Bplux_BluetoothSelection.txt");
+			    @SuppressWarnings("resource")
+				Scanner scanner = new Scanner(fIn);
+			    while (scanner.hasNextLine())
+			    {
+			        String currentline = scanner.nextLine();
+					newConfiguration.setMacAddress(currentline);
+					btName = currentline;
+					configset = true;   
+			    }  
+			} catch (IOException ioe) 
+			    {ioe.printStackTrace();}
+			
 		}
 	}
 
