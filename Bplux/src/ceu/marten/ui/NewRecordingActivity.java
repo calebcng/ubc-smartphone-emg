@@ -110,6 +110,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private int currentZoomValue = 0;
 	private String duration = null; 
 	private SharedPreferences sharedPref = null;
+	private String patientName = "DEFAULT";
 	
 	private boolean isServiceBounded = false;
 	private boolean recordingOverride = false;
@@ -330,6 +331,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		savingDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		savingDialog.setProgress(0); //starts with 0%
 		savingDialog.setMax(100); //100%
+		patientName = extras.getString("patientName");
 		
 		inflater = this.getLayoutInflater();
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -671,9 +673,12 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 						if(connectionError){
 							displayConnectionErrorDialog(bpErrorCode);
 						}else{
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
+							String currentDateandTime = sdf.format(new Date());
 							Intent intent = new Intent(classContext, BiopluxService.class);
-							intent.putExtra(KEY_RECORDING_NAME, recording.getName());
+							intent.putExtra(KEY_RECORDING_NAME, recording.getName() + currentDateandTime);
 							intent.putExtra(KEY_CONFIGURATION, recordingConfiguration);
+							intent.putExtra("patientName", patientName);
 							startService(intent);
 							bindToService();
 							startChronometer();

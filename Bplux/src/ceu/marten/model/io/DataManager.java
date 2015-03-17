@@ -13,6 +13,8 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -21,6 +23,8 @@ import com.bitalino.comm.BITalinoFrame;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
 import ceu.marten.model.DeviceConfiguration;
+import ceu.marten.ui.PatientClass;
+import ceu.marten.ui.PatientSessionActivity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -59,6 +63,7 @@ public class DataManager {
 	private String recordingName;
 	private String duration;
 	
+	private PatientClass newPatient;
 	
 	private Context context;
 	
@@ -78,6 +83,80 @@ public class DataManager {
 			Log.e(TAG, "file to write frames on, not found", e);
 		}
 		bufferedWriter = new BufferedWriter(outStreamWriter);
+	}
+	
+	/**
+	 * Constructor 2 - Accepts additional input for patient name. Initializes the number of channels activated, the outStream
+	 * write and the Buffered writer
+	 * @author Caleb Ng
+	 */
+	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientName) {
+		this.context = serviceContext;
+		this.recordingName = _recordingName;
+		this.configuration = _configuration;
+		
+		
+		File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
+		if(file.exists()) {
+			try {
+				readInfoFromFile(patientName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else {
+			newPatient.setPatientName(patientName);
+			newPatient.setGender(true);
+			newPatient.setHealthNumber("123456789");
+			newPatient.setBirthYear("1999");
+			newPatient.setBirthMonth("01");
+			newPatient.setBirthDay("01");
+		}
+		
+		
+		this.numberOfChannelsActivated = configuration.getActiveChannelsNumber();
+		try {
+			outStreamWriter = new OutputStreamWriter(context.openFileOutput(Constants.TEMP_FILE, Context.MODE_PRIVATE));
+		} catch (FileNotFoundException e) {
+			Log.e(TAG, "file to write frames on, not found", e);
+		}
+		bufferedWriter = new BufferedWriter(outStreamWriter);
+	}
+	
+	/**
+	 * Adapted from PatientSessionActivity.java
+	 * @param patientName
+	 * @throws IOException
+	 */
+	private void readInfoFromFile(String patientName) throws IOException{
+		
+		int linecount = 0;
+		//READ
+		try {
+			FileInputStream fIn = new FileInputStream("/storage/emulated/0/"+patientName+"INFO"+".txt");
+		    @SuppressWarnings("resource")
+			Scanner scanner = new Scanner(fIn);
+		    while (scanner.hasNextLine())
+		    {
+		        String currentline = scanner.nextLine();
+		        if (linecount == 0) newPatient.setPatientName(currentline);
+		        else if (linecount == 1) newPatient.setHealthNumber(currentline);
+		        else if (linecount == 2) {
+		        	if (currentline.equals("Male")) newPatient.setGender(true);
+		        	else newPatient.setGender(false);
+		        }
+		        else if (linecount == 3) newPatient.setBirthYear(currentline);
+		        else if (linecount == 4) newPatient.setBirthMonth(currentline);
+		        else if (linecount == 5) newPatient.setBirthDay(currentline);
+		        linecount++;
+		        //Toast.makeText(context, currentline, Toast.LENGTH_SHORT).show();
+		    }
+		    
+		        
+		} catch (IOException ioe) 
+		    {ioe.printStackTrace();}
+		
 	}
 	
 	/**
@@ -303,6 +382,109 @@ public class DataManager {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * New header makes to work with EDF viewers
+	 * Creates and appends the header on the recording session file
+	 * @author Caleb Ng
+	 * 
+	 * Returns true if the text file was written successfully or false if an
+	 * exception was caught
+	 */
+	private boolean appendEDFHeader() {
+		
+		DateFormat dateFormat = DateFormat.getDateTimeInstance();
+		String tmpFilePath = context.getFilesDir() + "/" + Constants.TEMP_FILE;
+		Date date = new Date();
+		OutputStreamWriter out = null;
+		BufferedInputStream origin = null;
+		BufferedOutputStream dest = null;
+		FileInputStream fi = null;
+		
+		try {
+			/**
+			 *  Prepare information to add to Header Record
+			 *  Order of Header Record is as follows:
+			 *  	1. Data Format			2. Local Patient ID		3. Local Recording Info		4. Start Date (dd.mm.yy)	5. Start Time (hh.mm.ss)
+			 *  	6. Header byte size		7. Reserved_1			8. Number of data records	9. Duration of record		10. Number of signals
+			 *  	11. Label				12. Transducer type		13. Physical Dimension		14. Physical Min			15. Physical Max
+			 *  	16. Digital Min			17. Digital Max			18. Prefiltering			19. Number of samples		20. Reserved_2
+			 */ 
+			String dataFormat = extendString("0", 8);
+			String gender;
+			if (newPatient.getGender()) gender = "MALE";
+        	else gender = "FEMALE";
+			String localPatientID = extendString("X " + gender + " X " + newPatient.getPatientName() + " X DOB: " + newPatient.getBirthYear() + "-" + 
+												newPatient.getBirthMonth() + "-" + newPatient.getBirthDay(), 80);
+			String localRecordingInfo = extendString("Startdate DD-MMM-YYYY X X X", 80);
+			
+			
+			
+			
+			out = new OutputStreamWriter(context.openFileOutput(recordingName + ".txt", Context.MODE_PRIVATE));
+			out.write("# JSON Text File Format\n");
+			out.write("\""+configuration.getSamplingFrequency()+"\", ");
+			
+						
+			out.flush();
+			out.close();
+	
+			// APPEND DATA
+			FileOutputStream outBytes = new FileOutputStream(context.getFilesDir()
+											+ "/" + recordingName + Constants.TEXT_FILE_EXTENTION, true);
+			dest = new BufferedOutputStream(outBytes);
+			fi = new FileInputStream(tmpFilePath);
+			 
+			origin = new BufferedInputStream(fi, BUFFER);
+			int count;
+			byte data[] = new byte[BUFFER];
+			
+			Long tmpFileSize = (new File(tmpFilePath)).length();
+			long currentBitsCopied = 0;
+			
+			while ((count = origin.read(data, 0, BUFFER)) != -1) {
+				dest.write(data, 0, count);
+				currentBitsCopied += BUFFER;
+				sendPercentageToActivity((int)( currentBitsCopied * 100 / tmpFileSize), STATE_APPENDING_HEADER);
+			}
+	
+		} catch (FileNotFoundException e) {
+			Log.e(TAG, "File to write header on, not found", e);
+			return false;
+		} catch (IOException e) {
+			Log.e(TAG, "Write header stream exception", e);
+			return false;
+		}
+		finally{
+			try {
+				fi.close();
+				out.close();
+				origin.close();
+				dest.close();
+				context.deleteFile(Constants.TEMP_FILE);
+			} catch (IOException e) {
+				try {out.close();} catch (IOException e1) {}
+				try {origin.close();} catch (IOException e1) {}
+				try {dest.close();} catch (IOException e1) {};
+				Log.e(TAG, "Closing streams exception", e);
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Extend a string to a given length using space characters
+	 * @author Caleb Ng
+	 * 
+	 * Inputs: 	String data - original data to build string from;
+	 * 			int length - length to extend string to
+	 * Output:	String extendedString - string containing the original data extended 
+	 * 									to the length specified by length
+	 */
+	private String extendString(String data, int length) {
+		return String.format(Locale.getDefault(), "%-" + length + "s", data);
 	}
 	
 	
