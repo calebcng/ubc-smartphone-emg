@@ -45,12 +45,13 @@
 
     <Spinner
         android:id="@+id/spinner1"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button2"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="30dip"
         android:layout_marginRight="30dip"
+        android:gravity = "center"
         android:layout_marginTop="17dp" />
 
 </RelativeLayout>
