@@ -90,6 +90,7 @@ public class DataManager {
 	 * write and the Buffered writer
 	 * @author Caleb Ng
 	 */
+//	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientHealthNumber) {
 	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientName) {
 		this.context = serviceContext;
 		this.recordingName = _recordingName;
@@ -417,8 +418,24 @@ public class DataManager {
         	else gender = "FEMALE";
 			String localPatientID = extendString("X " + gender + " X " + newPatient.getPatientName() + " X DOB: " + newPatient.getBirthYear() + "-" + 
 												newPatient.getBirthMonth() + "-" + newPatient.getBirthDay(), 80);
-			String localRecordingInfo = extendString("Startdate DD-MMM-YYYY X X X", 80);
-			
+			String localRecordingInfo = extendString("BITALINO - FREESTYLE", 80);
+			String monthString = "NUL";
+			switch(newPatient.getBirthMonth()) {
+				case "01": monthString = "JAN";
+				case "02": monthString = "FEB";
+				case "03": monthString = "MAR";
+				case "04": monthString = "APR";
+				case "05": monthString = "MAY";
+				case "06": monthString = "JUN";
+				case "07": monthString = "JUL";
+				case "08": monthString = "AUG";
+				case "09": monthString = "SEP";
+				case "10": monthString = "OCT";
+				case "11": monthString = "NOV";
+				case "12": monthString = "DEC";
+			}			
+//			String StartDate = extendString("DD.MM.YY", 8);
+
 			
 			
 			

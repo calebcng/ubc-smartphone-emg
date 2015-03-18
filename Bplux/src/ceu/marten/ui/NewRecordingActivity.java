@@ -111,6 +111,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private String duration = null; 
 	private SharedPreferences sharedPref = null;
 	private String patientName = "DEFAULT";
+//	private String patientHealthNumber = "1234567890";
 	
 	private boolean isServiceBounded = false;
 	private boolean recordingOverride = false;
@@ -332,6 +333,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		savingDialog.setProgress(0); //starts with 0%
 		savingDialog.setMax(100); //100%
 		patientName = extras.getString("patientName");
+//		patientHealthNumber = extras.getString("PHN");
 		
 		inflater = this.getLayoutInflater();
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -679,6 +681,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 							intent.putExtra(KEY_RECORDING_NAME, recording.getName() + currentDateandTime);
 							intent.putExtra(KEY_CONFIGURATION, recordingConfiguration);
 							intent.putExtra("patientName", patientName);
+//							intent.putExtra("PHN", patientHealthNumber);
 							startService(intent);
 							bindToService();
 							startChronometer();
