@@ -98,13 +98,16 @@ public class DataManager {
 		this.recordingName = _recordingName;
 		this.configuration = _configuration;
 		System.out.println("##### DataManager ##### - patientName received is: " + patientName);
+		newPatient = new PatientClass();
 		
 		File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
 		if(file.exists()) {
 			try {
+				System.out.println("##### DataManager ##### - " + patientName + "INFO.txt exists");
 				readInfoFromFile(patientName);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
+				System.out.println("##### DataManager ##### - ERROR OPENING patient file");
 				e.printStackTrace();
 			}
 		}
@@ -116,7 +119,7 @@ public class DataManager {
 			newPatient.setBirthMonth("01");
 			newPatient.setBirthDay("01");
 		}
-		
+		System.out.println("##### DataManager ##### - finished reading info for patient " + patientName);
 		
 		this.numberOfChannelsActivated = configuration.getActiveChannelsNumber();
 		try {
@@ -133,17 +136,22 @@ public class DataManager {
 	 * @throws IOException
 	 */
 	private void readInfoFromFile(String patientName) throws IOException{
-		
+		System.out.println("##### DataManager ##### - reading info from file");
 		int linecount = 0;
 		//READ
 		try {
 			FileInputStream fIn = new FileInputStream("/storage/emulated/0/"+patientName+"INFO"+".txt");
 		    @SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
+		    System.out.println("##### DataManager ##### - Preparing to scan " + fIn + " for next line");
 		    while (scanner.hasNextLine())
 		    {
 		        String currentline = scanner.nextLine();
-		        if (linecount == 0) newPatient.setPatientName(currentline);
+		        System.out.println("##### DataManager ##### - current line from file is: " + currentline);
+		        if (linecount == 0)  {
+		        	newPatient.setPatientName(currentline);
+		        	
+		        }
 		        else if (linecount == 1) newPatient.setHealthNumber(currentline);
 		        else if (linecount == 2) {
 		        	if (currentline.equals("Male")) newPatient.setGender(true);
@@ -158,7 +166,8 @@ public class DataManager {
 		    
 		        
 		} catch (IOException ioe) 
-		    {ioe.printStackTrace();}
+		    { System.out.println("##### DataManager ##### - Error scanning file");
+			ioe.printStackTrace();}
 		
 	}
 	
@@ -481,7 +490,7 @@ public class DataManager {
 			out = new OutputStreamWriter(context.openFileOutput(recordingName + ".txt", Context.MODE_PRIVATE));
 			out.write(dataFormat + localPatientID + localRecordingInfo + startDate + startTime + headerSize + reserved44 
 					+ numberRecords + durationRecord + numberSignals + label + transducerType + physicalDimensions + physicalMin
-					+ physicalMax + digitalMin + digitalMax + prefilter + numberSamples + reserved32);
+					+ physicalMax + digitalMin + digitalMax + prefilter + numberSamples + reserved32 + "\n");
 			
 			out.flush();
 			out.close();
@@ -643,7 +652,9 @@ public class DataManager {
 		this.client = client;
 		if(!enoughStorageAvailable())
 			return false;
-		if (!appendHeader())
+//		if (!appendHeader())
+//			return false;
+		if (!appendEDFHeader())
 			return false;
 		if (!compressFile())
 			return false;

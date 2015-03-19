@@ -424,10 +424,11 @@ public class DisplayStoredGraphActivity extends Activity {
 			  			
 			  			// Extract a substring of the file header text
 //			  			System.out.println("Extracting header substring.");
-			  			String regexPattern = endOfHeader; //"\"ColumnLabels\"";
+			  			/*String regexPattern = endOfHeader; //"\"ColumnLabels\"";
 			  			strings.useDelimiter(regexPattern);
 			  			String extracted = strings.next();
-			  			System.out.println("Extracted: " + extracted);
+			  			System.out.println("Extracted: " + extracted);*/
+			  			strings.nextLine();
 			  			
 			  			// Determine the sampling frequency from the header text
 			  			/*System.out.println("Extracting sampling frequency.");
