@@ -430,16 +430,16 @@ public class DisplayStoredGraphActivity extends Activity {
 			  			System.out.println("Extracted: " + extracted);
 			  			
 			  			// Determine the sampling frequency from the header text
-			  			System.out.println("Extracting sampling frequency.");
+			  			/*System.out.println("Extracting sampling frequency.");
 			  			Pattern pattern = Pattern.compile("\"SamplingFrequency\": \"(\\d+)\"");
 			  			Matcher matcher = pattern.matcher(extracted);
 			  			if (matcher.find()) {
 			  				samplingFrequency = Integer.parseInt(matcher.group(1));
 			  				System.out.println(samplingFrequency);
-			  			}
+			  			}*/
 			  			
-			  			// Determine the start date and time from the header text
-			  			System.out.println("Extracting start date and time.");
+			  			// Determine the start date and time from the header text - Commented out due to change in header format
+			  			/*System.out.println("Extracting start date and time.");
 			  			pattern = Pattern.compile("StartDateTime\": \"(\\w+\\s\\d+,\\s\\d+) (\\d+):(\\d+):(\\d+) (\\w+)\"");
 			  			matcher = pattern.matcher(extracted);
 			  			if (matcher.find()) {
@@ -455,7 +455,7 @@ public class DisplayStoredGraphActivity extends Activity {
 			  				}
 			  				else
 			  					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
-			  			}
+			  			}*/
 			  			
 			  			// Use tabs as a delimiter for file data
 			  			strings.findWithinHorizon(endOfHeader,0);    		

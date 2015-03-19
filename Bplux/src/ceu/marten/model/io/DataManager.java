@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -95,7 +97,7 @@ public class DataManager {
 		this.context = serviceContext;
 		this.recordingName = _recordingName;
 		this.configuration = _configuration;
-		
+		System.out.println("##### DataManager ##### - patientName received is: " + patientName);
 		
 		File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
 		if(file.exists()) {
@@ -433,17 +435,54 @@ public class DataManager {
 				case "10": monthString = "OCT";
 				case "11": monthString = "NOV";
 				case "12": monthString = "DEC";
-			}			
-//			String StartDate = extendString("DD.MM.YY", 8);
-
+			}
+			String startDate = extendString("UNKNOWN",8);
+			String startTime = extendString("UNKNOWN",8);
+			Pattern pattern = Pattern.compile("\\w+-\\d+-\\d+-\\w+-\\d+__(\\d+)-(\\d+)-(\\d+).(\\d+).(\\d+).(\\d+)");
+  			Matcher matcher = pattern.matcher(recordingName);
+			if (matcher.find()) {
+  				if (matcher.groupCount() == 6) {	  				
+	  				String recordingYear = String.format(Locale.getDefault(), "%-4s", matcher.group(1));
+	  				String recordingMonth = String.format(Locale.getDefault(), "%-2s", matcher.group(2));
+	  				String recordingDay = String.format(Locale.getDefault(), "%-2s", matcher.group(3));
+	  				String recordingHour = String.format(Locale.getDefault(), "%-2s", matcher.group(4));
+	  				String recordingMinute = String.format(Locale.getDefault(), "%-2s", matcher.group(5));
+	  				String recordingSecond = String.format(Locale.getDefault(), "%-2s", matcher.group(6));
+	  				startDate = recordingDay + "." + recordingMonth + "." + recordingYear.substring(2, 3);
+	  				startTime = recordingHour + "." + recordingMinute + "." + recordingSecond;
+  				}
+  				else {
+  					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+  					startDate = extendString("UNKNOWN",8);
+  					startTime = extendString("UNKNOWN",8);
+  				}  					
+  			}
+			else {
+				System.out.print("ERROR: No matches found!");
+			}
+			String headerSize = extendString("512", 8);
+			String reserved44 = extendString("", 44);
+			String numberRecords = extendString("1", 8);
+			String durationRecord = extendString("0.001", 8);
+			String numberSignals = extendString("1", 4);
+			String label = extendString("EEG 3", 16);
+			String transducerType = extendString("Conductive strip electrodes", 80);
+			String physicalDimensions = extendString("mV", 8);
+			String physicalMin = extendString("-5", 8);
+			String physicalMax = extendString("5", 8);
+			String digitalMin = extendString("0", 8);
+			String digitalMax = extendString("1023", 8);
+			String prefilter = extendString("HP:0.1Hz LP:75Hz", 80);
+			String numberSamples = extendString("1", 8);
+			String reserved32 = extendString("", 32);
 			
 			
-			
+			// Output header text into file
 			out = new OutputStreamWriter(context.openFileOutput(recordingName + ".txt", Context.MODE_PRIVATE));
-			out.write("# JSON Text File Format\n");
-			out.write("\""+configuration.getSamplingFrequency()+"\", ");
+			out.write(dataFormat + localPatientID + localRecordingInfo + startDate + startTime + headerSize + reserved44 
+					+ numberRecords + durationRecord + numberSignals + label + transducerType + physicalDimensions + physicalMin
+					+ physicalMax + digitalMin + digitalMax + prefilter + numberSamples + reserved32);
 			
-						
 			out.flush();
 			out.close();
 	

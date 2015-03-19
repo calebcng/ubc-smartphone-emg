@@ -186,6 +186,7 @@ public class BiopluxService extends Service {
 				.getSerializableExtra(NewRecordingActivity.KEY_CONFIGURATION);	
 //		patientHealthNumber = intent.getStringExtra("PHN").toString();
 		patientName = intent.getStringExtra("patientName").toString();
+		System.out.println("##### BiopluxService ##### - patientName received is: " + patientName);
 		
 		//added to avoid the lagging - Brittaney
 		//if (configuration.getVisualizationFrequency()==1000) TIMER_TIME = 5;

@@ -680,7 +680,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 							Intent intent = new Intent(classContext, BiopluxService.class);
 							intent.putExtra(KEY_RECORDING_NAME, recording.getName() + currentDateandTime);
 							intent.putExtra(KEY_CONFIGURATION, recordingConfiguration);
-							intent.putExtra("patientName", patientName);
+							System.out.println("##### NewRecordingActivity ##### - patientName passed is: " + patientName);
+							intent.putExtra("patientName", patientName);							
 //							intent.putExtra("PHN", patientHealthNumber);
 							startService(intent);
 							bindToService();
