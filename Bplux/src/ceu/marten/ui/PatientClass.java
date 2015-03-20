@@ -1,6 +1,8 @@
 package ceu.marten.ui;
 
 import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 
@@ -10,6 +12,8 @@ public class PatientClass implements Serializable{
 	
 	private static Context context;
 	public String patient_name;
+	private String patient_firstName = "NULL";
+	private String patient_lastName = "NULL";
 	public String health_number;
 	public boolean gender;//true = male , false = female
 	public String birth_year;
@@ -24,11 +28,41 @@ public class PatientClass implements Serializable{
 	}
 	
 	public void setPatientName(String patient_name) {
-		this.patient_name = patient_name;
+//		this.patient_name = patient_name;
+		Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+		Matcher matcher = pattern.matcher(patient_name);
+		if (matcher.find()) {
+				if (matcher.groupCount() == 2) {	  				
+					patient_firstName = matcher.group(1);
+					patient_lastName = matcher.group(2);
+				}
+				else {
+					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+					patient_firstName = "NULL";
+					patient_lastName = "NULL";
+				}
+		}
+	}
+	
+	public void setPatientFName(String patient_firstName) {
+		this.patient_firstName = patient_firstName;
+	}
+	
+	public void setPatientLName(String patient_lastName) {
+		this.patient_lastName = patient_lastName;
 	}
 	
 	public String getPatientName() {
-		return patient_name;
+//		return patient_name;
+		return patient_firstName + " " + patient_lastName;
+	}
+	
+	public String getPatientFirstName() {
+		return patient_firstName;
+	}
+	
+	public String getPatientLastName() {
+		return patient_lastName;
 	}
 	
 	public void setHealthNumber(String health_number) {

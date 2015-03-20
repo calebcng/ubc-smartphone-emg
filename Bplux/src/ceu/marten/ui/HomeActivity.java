@@ -8,8 +8,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,6 +43,8 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	public static boolean configset = false;
 	public static boolean nameset = false;
 	public static String PatientName;
+	public static String PatientFName;
+	public static String PatientLName;
 	public int i=1;
 	public static String btName;
 	private DeviceConfiguration newConfiguration;
@@ -148,6 +153,17 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
         		}
         		else {
         			PatientName = (String) spinner.getItemAtPosition(position);
+        			Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+          			Matcher matcher = pattern.matcher(PatientName);
+        			if (matcher.find()) {
+          				if (matcher.groupCount() == 2) {	  				
+        	  				PatientFName = matcher.group(1);
+        	  				PatientLName = matcher.group(2);
+          				}
+          				else {
+          					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+          				}
+        			}
         			nameset = true;
         		}
             }
@@ -172,6 +188,8 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 			//newRecordingIntent.putExtra(ConfigurationsActivity.KEY_RECORDING_NAME, recname1);
 			//newRecordingIntent.putExtra(ConfigurationsActivity.KEY_CONFIGURATION, ConfigurationsActivity.configurations.get(ConfigurationsActivity.configurationClickedPosition));
 			patientSessionIntent.putExtra("patientName", PatientName);
+			patientSessionIntent.putExtra("patientFName", PatientFName);
+			patientSessionIntent.putExtra("patientLName", PatientLName);
 			patientSessionIntent.putExtra("configuration", newConfiguration);
 			startActivity(patientSessionIntent);
 			overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
@@ -246,20 +264,30 @@ private void btListGenerator(){
 		LinearLayout layout = new LinearLayout(context);
 		layout.setOrientation(LinearLayout.VERTICAL);
 		
-		final EditText PNamebox = new EditText(context);
-		layout.addView(PNamebox);
+//		final EditText PNamebox = new EditText(context);
+//		layout.addView(PNamebox);
+		final EditText patientFNameBox = new EditText(context);
+		final EditText patientLNameBox = new EditText(context);
+		patientFNameBox.setHint("First Name");
+		patientLNameBox.setHint("Last Name");
+		layout.addView(patientFNameBox);
+		layout.addView(patientLNameBox);
 		
 		
 		alertDialogBuilder.setView(layout);
 		
 		alertDialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				  Editable PName = PNamebox.getText();
-				  spinner_array[spinner_array_count] = PName.toString();
+//				  Editable PName = PNamebox.getText();
+				  Editable patientFName = patientFNameBox.getText();
+				  Editable patientLName = patientLNameBox.getText();
+//				  spinner_array[spinner_array_count] = PName.toString();
+				  spinner_array[spinner_array_count] = patientFName.toString() + " " + patientLName.toString();
 				  spinner_array_count++;
 				  
 				  try {
-					saveNameToFile(PName.toString());
+//					  saveNameToFile(PName.toString());					
+					  saveNameToFile(patientFName.toString() + " " + patientLName.toString());
 				  } catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

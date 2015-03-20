@@ -129,7 +129,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		File file = new File("/storage/emulated/0/"+extras.getString("patientName")+"INFO"+".txt");
 		if(file.exists()) {
 			try {
-				readInfoFromFile(extras.getString("patientName"));
+				String patientName = extras.getString("patientFName") + " " + extras.getString("patientLName");
+				readInfoFromFile(patientName);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -460,7 +461,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	public void onClickedStart(View view) {
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
 //		String currentDateandTime = sdf.format(new Date());
-		recname1 = newPatient.getPatientName() + "-" + newPatient.health_number + "-" + newPatient.birth_year + "-" + newPatient.birth_month 
+		recname1 = newPatient.getPatientFirstName().charAt(0) + newPatient.getPatientLastName().charAt(0) + "-" + newPatient.health_number + "-" + newPatient.birth_year + "-" + newPatient.birth_month 
 					+ "-" + newPatient.birth_day + "__";// + currentDateandTime;//dateFormat.format(date);
 //		recname1 = newPatient.getPatientName() + " ";
 		Intent newRecordingIntent = new Intent(this, NewRecordingActivity.class);
