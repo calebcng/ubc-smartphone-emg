@@ -21,12 +21,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.bitalino.comm.BITalinoFrame;
+import com.ubc.capstonegroup70.PatientClass;
+import com.ubc.capstonegroup70.PatientSessionActivity;
 
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
 import ceu.marten.model.DeviceConfiguration;
-import ceu.marten.ui.PatientClass;
-import ceu.marten.ui.PatientSessionActivity;
 
 import android.content.Context;
 import android.content.Intent;

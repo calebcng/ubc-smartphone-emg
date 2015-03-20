@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="ceu.marten.ui.PatientSessionActivity"
+            android:name="com.ubc.capstonegroup70.PatientSessionActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/home_label"
             android:parentActivityName="ceu.marten.ui.HomeActivity"

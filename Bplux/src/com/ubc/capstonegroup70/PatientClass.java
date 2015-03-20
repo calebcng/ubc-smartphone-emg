@@ -1,10 +1,25 @@
-package ceu.marten.ui;
+package com.ubc.capstonegroup70;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ActionBar.LayoutParams;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class PatientClass implements Serializable{
 	

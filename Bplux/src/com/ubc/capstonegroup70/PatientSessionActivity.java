@@ -1,6 +1,6 @@
 //Author: Brittaney Geisler - March 2015
 
-package ceu.marten.ui;
+package com.ubc.capstonegroup70;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,9 +45,8 @@ import android.widget.Toast;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
 import ceu.marten.model.DeviceConfiguration;
+import ceu.marten.ui.NewRecordingActivity;
 
-import com.ubc.capstonegroup70.DisplayStoredGraphActivity;
-//import com.mburman.fileexplore.FileExplore.Item;
 
 public class PatientSessionActivity extends Activity {//implements android.widget.PopupMenu.OnMenuItemClickListener {
 
