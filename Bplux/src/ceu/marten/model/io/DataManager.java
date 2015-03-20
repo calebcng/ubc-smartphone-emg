@@ -64,7 +64,8 @@ public class DataManager {
 
 	private String recordingName;
 	private String duration;
-	
+	private String PInfoDirectory = "/storage/emulated/0/Bioplux/Patients/";
+	private String PatientInfoExtension = "INFO.txt";	
 	private PatientClass newPatient;
 	
 	private Context context;
@@ -99,7 +100,9 @@ public class DataManager {
 		this.configuration = _configuration;
 		newPatient = new PatientClass();
 		
-		File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
+//		File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
+//		File file = new File(PInfoDirectory+newPatient.getPatientFirstName() + newPatient.getPatientLastName() + "(" + newPatient.getHealthNumber() + ")" + PatientInfoExtension);
+		File file = new File(PInfoDirectory + patientName + PatientInfoExtension);
 		if(file.exists()) {
 			try {
 				readInfoFromFile(patientName);
@@ -135,7 +138,9 @@ public class DataManager {
 		int linecount = 0;
 		//READ
 		try {
-			FileInputStream fIn = new FileInputStream("/storage/emulated/0/"+patientName+"INFO"+".txt");
+//			FileInputStream fIn = new FileInputStream("/storage/emulated/0/"+patientName+"INFO"+".txt");
+//			FileInputStream fIn = new FileInputStream(PInfoDirectory+newPatient.getPatientFirstName() + newPatient.getPatientLastName() + "(" + newPatient.getHealthNumber() + ")" + PatientInfoExtension);
+			FileInputStream fIn = new FileInputStream(PInfoDirectory + patientName + PatientInfoExtension);
 		    @SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
 		    while (scanner.hasNextLine())
@@ -419,24 +424,26 @@ public class DataManager {
 			String gender;
 			if (newPatient.getGender()) gender = "MALE";
         	else gender = "FEMALE";
-			String localPatientID = extendString("X " + gender + " X " + newPatient.getPatientName() + " X DOB: " + newPatient.getBirthYear() + "-" + 
-												newPatient.getBirthMonth() + "-" + newPatient.getBirthDay(), 80);
-			String localRecordingInfo = extendString("BITALINO - FREESTYLE", 80);
-			String monthString = "NUL";
+			String birthYear = String.format(Locale.getDefault(), "%2s", newPatient.getBirthYear());
+			String birthDay = String.format(Locale.getDefault(), "%4s", newPatient.getBirthDay());
+			String birthMonth = "NUL";
 			switch(newPatient.getBirthMonth()) {
-				case "01": monthString = "JAN";
-				case "02": monthString = "FEB";
-				case "03": monthString = "MAR";
-				case "04": monthString = "APR";
-				case "05": monthString = "MAY";
-				case "06": monthString = "JUN";
-				case "07": monthString = "JUL";
-				case "08": monthString = "AUG";
-				case "09": monthString = "SEP";
-				case "10": monthString = "OCT";
-				case "11": monthString = "NOV";
-				case "12": monthString = "DEC";
+				case "01": birthMonth = "JAN";
+				case "02": birthMonth = "FEB";
+				case "03": birthMonth = "MAR";
+				case "04": birthMonth = "APR";
+				case "05": birthMonth = "MAY";
+				case "06": birthMonth = "JUN";
+				case "07": birthMonth = "JUL";
+				case "08": birthMonth = "AUG";
+				case "09": birthMonth = "SEP";
+				case "10": birthMonth = "OCT";
+				case "11": birthMonth = "NOV";
+				case "12": birthMonth = "DEC";
 			}
+			String localPatientID = extendString("X " + gender + " X " + newPatient.getPatientName() + " X DOB: " + birthYear + "-" + 
+												birthMonth + "-" + birthDay, 80);
+			String localRecordingInfo = extendString("BITALINO - FREESTYLE", 80);
 			String startDate = extendString("UNKNOWN",8);
 			String startTime = extendString("UNKNOWN",8);
 			Pattern pattern = Pattern.compile("\\w+-\\d+-\\d+-\\w+-\\d+__(\\d+)-(\\d+)-(\\d+).(\\d+).(\\d+).(\\d+)");
@@ -449,7 +456,7 @@ public class DataManager {
 	  				String recordingHour = String.format(Locale.getDefault(), "%-2s", matcher.group(4));
 	  				String recordingMinute = String.format(Locale.getDefault(), "%-2s", matcher.group(5));
 	  				String recordingSecond = String.format(Locale.getDefault(), "%-2s", matcher.group(6));
-	  				startDate = recordingDay + "." + recordingMonth + "." + recordingYear.substring(2, 3);
+	  				startDate = recordingDay + "." + recordingMonth + "." + recordingYear.substring(2);
 	  				startTime = recordingHour + "." + recordingMinute + "." + recordingSecond;
   				}
   				else {
@@ -482,7 +489,7 @@ public class DataManager {
 			out = new OutputStreamWriter(context.openFileOutput(recordingName + ".txt", Context.MODE_PRIVATE));
 			out.write(dataFormat + localPatientID + localRecordingInfo + startDate + startTime + headerSize + reserved44 
 					+ numberRecords + durationRecord + numberSignals + label + transducerType + physicalDimensions + physicalMin
-					+ physicalMax + digitalMin + digitalMax + prefilter + numberSamples + reserved32 + "\n");
+					+ physicalMax + digitalMin + digitalMax + prefilter + numberSamples + reserved32 + "\r\n");
 			
 			out.flush();
 			out.close();

@@ -5,6 +5,7 @@ package ceu.marten.ui;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -64,6 +65,11 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	private String[] Day_29_Array = {"01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29"};
 	private int spinner_num = 0;
 	private int day_num = 0;
+	private String SettingsDirectory = "/storage/emulated/0/Bioplux/Settings/";
+	private String PInfoDirectory = "/storage/emulated/0/Bioplux/Patients/";
+	private String SettingsFile = "Bplux_BluetoothSelection.txt";
+	private String MasterPatientList = "patientNames.txt";
+	private String PatientInfoExtension = "INFO.txt";
 	Context context = this;
 	
 	// Variables for file explorer
@@ -126,7 +132,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		extras = getIntent().getExtras();
 		newConfiguration = (DeviceConfiguration) extras.getSerializable("configuration");
 		
-		File file = new File("/storage/emulated/0/"+extras.getString("patientName")+"INFO"+".txt");
+//		File file = new File("/storage/emulated/0/"+extras.getString("patientName")+"INFO"+".txt");
+		File file = new File(PInfoDirectory +extras.getString("patientName")+PatientInfoExtension);
 		if(file.exists()) {
 			try {
 				String patientName = extras.getString("patientFName") + " " + extras.getString("patientLName");
@@ -461,9 +468,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	public void onClickedStart(View view) {
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
 //		String currentDateandTime = sdf.format(new Date());
-		recname1 = newPatient.getPatientFirstName().charAt(0) + newPatient.getPatientLastName().charAt(0) + "-" + newPatient.health_number + "-" + newPatient.birth_year + "-" + newPatient.birth_month 
-					+ "-" + newPatient.birth_day + "__";// + currentDateandTime;//dateFormat.format(date);
-//		recname1 = newPatient.getPatientName() + " ";
+		recname1 = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "-" + newPatient.getBirthYear() + "-" + newPatient.getBirthMonth() 
+					+ "-" + newPatient.getBirthDay() + "__";// + currentDateandTime;//dateFormat.format(date);
 		Intent newRecordingIntent = new Intent(this, NewRecordingActivity.class);
 		newRecordingIntent.putExtra("recordingName", recname1);
 		newRecordingIntent.putExtra("configuration", newConfiguration);
@@ -477,17 +483,17 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		
 		//WRITE 
 		
-		String write_string1 = patientName + '\n';
-		String write_string2 = healthNumber + '\n';
-		String write_string3;
-		if (gender) write_string3 = "Male"+'\n';
-		else write_string3 = "Female"+'\n';
-		String write_string4 = birthYear + '\n';
-		String write_string5 = birthMonth + '\n';
-		String write_string6 = birthDay + '\n';
+		String nameString = patientName + '\n';
+		String healthNumString = healthNumber + '\n';
+		String genderString;
+		if (gender) genderString = "Male"+'\n';
+		else genderString = "Female"+'\n';
+		String birthYearString = birthYear + '\n';
+		String birthMonthString = birthMonth + '\n';
+		String birthDayString = birthDay + '\n';
 		
 		try {
-			File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
+			/*File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
 			if (!file.exists()) {
 				file = new File(Environment.getExternalStorageDirectory(),patientName+"INFO"+".txt");
 			}
@@ -500,7 +506,27 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 			outputStream.write(write_string5.getBytes());
 			outputStream.write(write_string6.getBytes());
 			outputStream.flush();
-		    outputStream.close();
+		    outputStream.close();*/
+		    
+		    // Check if the directory for the settings exists; create the folders if they don't exist
+		    File root = new File(PInfoDirectory);
+ 			if (!root.exists()) {
+ 				root.mkdirs();
+ 			}
+ 			// Check if the Master Patient List file exists
+ 			File file = new File(root, patientName + PatientInfoExtension);
+ 			if (!file.exists()) {
+ 				file = new File(root, patientName + PatientInfoExtension);
+ 			}
+ 			FileWriter writer = new FileWriter(file);
+ 			writer.write(nameString);
+ 			writer.write(healthNumString);
+ 			writer.write(genderString);
+ 			writer.write(birthYearString);
+ 			writer.write(birthMonthString);
+ 			writer.write(birthDayString);
+ 			writer.flush();
+ 			writer.close();
 		
 		} catch (IOException e) {
 			    e.printStackTrace();
@@ -512,7 +538,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		int linecount = 0;
 		//READ
 		try {
-			FileInputStream fIn = new FileInputStream("/storage/emulated/0/"+patientName+"INFO"+".txt");
+//			FileInputStream fIn = new FileInputStream("/storage/emulated/0/"+patientName+"INFO"+".txt");
+			FileInputStream fIn = new FileInputStream(PInfoDirectory+patientName+PatientInfoExtension);
 		    @SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
 		    while (scanner.hasNextLine())
@@ -577,7 +604,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	        public boolean accept(File dir, String filename) {
 	          File sel = new File(dir, filename);
 	          // Create string for filtering files based on the current patient's personal health number
-	          String fileFilter = "\\w+-" + newPatient.health_number + "\\S+";
+	          String fileFilter = "\\w+-" + newPatient.getHealthNumber() + "\\S+";
 	          // Filters based on whether the file is hidden or not, as well as whether or not it belongs to the current patient
 	          return (sel.isFile() || sel.isDirectory()) && !sel.isHidden() && filename.matches(fileFilter);
 	          
@@ -802,27 +829,9 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					// On click of positive button, allow user to export selected files
-					/*if(mSelectedItems.size() <= 0) {
-						removeDialog(DIALOG_EXPORT);
-			            showDialog(DIALOG_LOAD_FILE);
-					}
-					else if(mSelectedItems.size() == 1) {
-						File recordingZipFile = new File(externalStorageDirectory + Constants.APP_DIRECTORY + fileList[mSelectedItems.get(0)]);
-						sendSingleRecording(recordingZipFile);
-					}
-					else {
-						sendMultipleRecordings(mSelectedItems);
-					}*/
 					sendRecordings(mSelectedItems);
-					
-					/*loadFileList();
-					if(isChecked) {
-						// If user checked this item, add this to list of files to export
-						mSelectedItems.add(which);
-					} else if(mSelectedItems.contains(which)) {
-						// If the user selects to remove a checked item, then remove from list of files to export
-						mSelectedItems.remove(Integer.valueOf(which));
-					}*/
+					Toast toast = Toast.makeText(getApplicationContext(), "Item(s) exported", Toast.LENGTH_SHORT);
+					toast.show();					
 				}
 			});			
 			// Set text of negative button to "Cancel"
@@ -871,7 +880,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 						Toast toast = Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
 						toast.show();	
 					}
-					
+					Toast toast = Toast.makeText(getApplicationContext(), "Item(s) deleted", Toast.LENGTH_SHORT);
+					toast.show();
 					
 				}
 			});			

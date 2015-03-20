@@ -5,6 +5,7 @@ package ceu.marten.ui;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
@@ -47,6 +48,11 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	public static String PatientLName;
 	public int i=1;
 	public static String btName;
+	private String SettingsDirectory = "/storage/emulated/0/Bioplux/Settings/";
+	private String PInfoDirectory = "/storage/emulated/0/Bioplux/Patients/";
+	private String SettingsFile = "Bplux_BluetoothSelection.txt";
+	private String MasterPatientList = "patientNames.txt";
+	private String PatientInfoExtension = "INFO.txt";
 	private DeviceConfiguration newConfiguration;
 	private String[]  activeChannels = {"EMG"};
 	private String[] spinner_array = new String[20];
@@ -78,22 +84,23 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
-				if(file.exists()) {
-					try {
-						readwriteBT(false, null);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				else {
-					btListGenerator();
-				}
-		
-				mButton = (Button)findViewById(R.id.button1);
-				mButton.setText("BLUETOOTH: "+newConfiguration.getMacAddress());
-				mButton.setBackgroundColor(Color.parseColor("#FFF4A460"));//#FFADD8E6"));
-				mButton.setTextSize(15);
+//		File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
+		File file = new File(SettingsDirectory + SettingsFile);
+		if(file.exists()) {
+			try {
+				readwriteBT(false, null);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			btListGenerator();
+		}
+
+		mButton = (Button)findViewById(R.id.button1);
+		mButton.setText("BLUETOOTH: "+newConfiguration.getMacAddress());
+		mButton.setBackgroundColor(Color.parseColor("#FFF4A460"));//#FFADD8E6"));
+		mButton.setTextSize(15);
 	
 
 
@@ -136,7 +143,8 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
         	else {
         		if (remove_patient){
         			
-        			File file = new File("/storage/emulated/0/"+spinner_array[position]+"INFO"+".txt");
+//        			File file = new File("/storage/emulated/0/"+spinner_array[position]+"INFO"+".txt");
+        			File file = new File(PInfoDirectory + spinner_array[position] + PatientInfoExtension);
         			if(file.exists()) {
         				file.delete();
         			}
@@ -312,18 +320,33 @@ private void btListGenerator(){
 		String write_string = patientName + '\n';
 		
 		try {
-			File file = new File("/storage/emulated/0/patientNames.txt");
-			if (!file.exists()) {
-				//Toast.makeText(context, "FIRST_EXISTS", Toast.LENGTH_SHORT).show();
-				file = new File(Environment.getExternalStorageDirectory(),"patientNames.txt");
+//			File file = new File("/storage/emulated/0/patientNames.txt");
+//			if (!file.exists()) {
+//				//Toast.makeText(context, "FIRST_EXISTS", Toast.LENGTH_SHORT).show();
+//				file = new File(Environment.getExternalStorageDirectory(),"patientNames.txt");
+//			}
+//			//Toast.makeText(context, file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+//			FileOutputStream outputStream = openFileOutput("patientNames.txt", Context.MODE_APPEND);
+//			outputStream = new FileOutputStream(file, true);
+//        
+//			outputStream.write(write_string.getBytes());//patientName.getBytes());
+//			outputStream.flush();
+//		    outputStream.close();
+		    
+		    // Check if the directory for the settings exists; create the folders if they don't exist
+			File root = new File(SettingsDirectory);
+			if (!root.exists()) {
+				root.mkdirs();
 			}
-			//Toast.makeText(context, file.getAbsolutePath(), Toast.LENGTH_LONG).show();
-			FileOutputStream outputStream = openFileOutput("patientNames.txt", Context.MODE_APPEND);
-			outputStream = new FileOutputStream(file, true);
-        
-			outputStream.write(write_string.getBytes());//patientName.getBytes());
-			outputStream.flush();
-		    outputStream.close();
+			// Check if the Master Patient List file exists
+			File file = new File(root, MasterPatientList);
+			if (!file.exists()) {
+				file = new File(SettingsDirectory, MasterPatientList);
+			}
+			FileWriter writer = new FileWriter(file);
+			writer.append(write_string);
+			writer.flush();
+			writer.close();
 			        
 		
 		} catch (IOException e) {
@@ -338,7 +361,8 @@ private void btListGenerator(){
 		//READ
 		try {
 			//num_of_patients = 0;
-			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
+//			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
+			FileInputStream fIn = new FileInputStream(SettingsDirectory + MasterPatientList);
 		    @SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
 		    String readString = null;
@@ -375,7 +399,8 @@ private void btListGenerator(){
 	    	temp_array[j] = null;
 	    }
 		try {
-			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
+//			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
+			FileInputStream fIn = new FileInputStream(SettingsDirectory + MasterPatientList);
 			@SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
 			while (scanner.hasNextLine())
@@ -407,11 +432,8 @@ private void btListGenerator(){
 		for (int j=0; j<total_count; j++){
 				write_string = temp_array[j]+'\n';
 				try {
-					File file = new File("/storage/emulated/0/patientNames.txt");
-					if (!file.exists()) {
-						file = new File(Environment.getExternalStorageDirectory(),"patientNames.txt");
-					}
-					FileOutputStream outputStream = openFileOutput("patientNames.txt", Context.MODE_APPEND);
+//					File file = new File("/storage/emulated/0/patientNames.txt");
+					/*FileOutputStream outputStream = openFileOutput("patientNames.txt", Context.MODE_APPEND);
 					if (first_write) {
 						outputStream = new FileOutputStream(file, false);
 						first_write = false;
@@ -419,7 +441,21 @@ private void btListGenerator(){
 					else outputStream = new FileOutputStream(file, true);
 					outputStream.write(write_string.getBytes());
 					outputStream.flush();
-				    outputStream.close();			
+				    outputStream.close();	*/
+					// Check if the directory for the settings exists; create the folders if they don't exist
+					File root = new File(SettingsDirectory);
+					if (!root.exists()) {
+						root.mkdirs();
+					}
+					// Check if the Master Patient List file exists
+					File file = new File(root, MasterPatientList);
+					if (!file.exists()) {
+						file = new File(SettingsDirectory, MasterPatientList);
+					}
+					FileWriter writer = new FileWriter(file);
+					writer.append(write_string);
+					writer.flush();
+					writer.close();
 				} catch (IOException e) {
 					    e.printStackTrace();
 				}
@@ -431,15 +467,32 @@ private void readwriteBT(boolean task, String btName) throws IOException{
 		if (task){
 			//WRITE
 			try {
-				File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
+				/*File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
 				if (!file.exists()) {
-					file = new File(Environment.getExternalStorageDirectory(),"Bplux_BluetoothSelection.txt");
+//					file = new File(Environment.getExternalStorageDirectory(),"Bplux_BluetoothSelection.txt");
+					System.out.println("##### HomeActivity ##### - Settings file doesn't exist, creating now.");
+					file = new File("/storage/emulated/0/","Bplux_BluetoothSelection.txt");
 				}
 				FileOutputStream outputStream = openFileOutput("Bplux_BluetoothSelection.txt", Context.MODE_APPEND);
 				outputStream = new FileOutputStream(file, false);
 				outputStream.write(btName.getBytes());
 				outputStream.flush();
-			    outputStream.close();			
+			    outputStream.close();	*/
+				// Check if the directory for the settings exists; create the folders if they don't exist
+				File root = new File(SettingsDirectory);
+				if (!root.exists()) {
+					root.mkdirs();
+				}
+				// Check if the settings file exists
+				File file = new File(root, SettingsFile);
+				if (!file.exists()) {
+					file = new File(SettingsDirectory, SettingsFile);
+				}
+				FileWriter writer = new FileWriter(file);
+				writer.write(HomeActivity.btName);
+				writer.flush();
+				writer.close();
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -448,16 +501,18 @@ private void readwriteBT(boolean task, String btName) throws IOException{
 		else {
 			//READ
 			try {
-				FileInputStream fIn = new FileInputStream("/storage/emulated/0/Bplux_BluetoothSelection.txt");
+//				FileInputStream fIn = new FileInputStream("/storage/emulated/0/Bplux_BluetoothSelection.txt");
+				FileInputStream fIn = new FileInputStream(SettingsDirectory + SettingsFile);
 			    @SuppressWarnings("resource")
 				Scanner scanner = new Scanner(fIn);
 			    while (scanner.hasNextLine())
 			    {
 			        String currentline = scanner.nextLine();
 					newConfiguration.setMacAddress(currentline);
-					btName = currentline;
+					HomeActivity.btName = currentline;
 					configset = true;   
 			    }  
+			    fIn.close();
 			} catch (IOException ioe) 
 			    {ioe.printStackTrace();}
 			

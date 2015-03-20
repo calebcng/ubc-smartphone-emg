@@ -202,7 +202,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			}
 			case BiopluxService.MSG_SAVED: {
 				savingDialog.dismiss();
-				saveRecordingOnInternalDB();
+//				saveRecordingOnInternalDB();
 				if (closeRecordingActivity) {
 					closeRecordingActivity = false;
 					finish();
@@ -358,7 +358,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		
 		// INIT ANDROID' WIDGETS
 		uiRecordingName = (TextView) findViewById(R.id.nr_txt_recordingName);
-		uiRecordingName.setText(recording.getName());
+//		uiRecordingName.setText(recording.getName());
+		uiRecordingName.setText("Recording session for " + this.patientName);
 		uiMainbutton = (Button) findViewById(R.id.nr_bttn_StartPause);
 		chronometer = new Chronometer(classContext);
 		
@@ -849,7 +850,22 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			startRecording();
 		// Overwrites recording
 		} else if (!isServiceRunning() && recordingOverride) {
-			showOverwriteDialog();
+//			showOverwriteDialog();
+			// Reset activity variables
+			recordingOverride = false;
+			serviceError = false;
+			closeRecordingActivity = false;
+			savingDialogMessageChanged = false;
+			goToEnd = true;
+			
+			// Reset activity content
+			View graphsView = findViewById(R.id.nr_graphs);
+			((ViewGroup) graphsView).removeAllViews();
+			initActivityContentLayout();
+			savingDialog.setMessage(getString(R.string.nr_saving_dialog_adding_header_message));
+			savingDialog.setProgress(0);
+			
+			startRecording();
 		// Stops recording
 		} else if (isServiceRunning()) {
 			recordingOverride = true;

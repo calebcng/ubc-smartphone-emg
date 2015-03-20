@@ -11,14 +11,14 @@ public class PatientClass implements Serializable{
 	private static final long serialVersionUID = -4487071327586521666L;
 	
 	private static Context context;
-	public String patient_name;
+	private String patient_name;
 	private String patient_firstName = "NULL";
 	private String patient_lastName = "NULL";
-	public String health_number;
-	public boolean gender;//true = male , false = female
-	public String birth_year;
-	public String birth_month;
-	public String birth_day;
+	private String health_number;
+	private boolean gender;//true = male , false = female
+	private String birth_year;
+	private String birth_month;
+	private String birth_day;
 	
 	public PatientClass() {
 	}
