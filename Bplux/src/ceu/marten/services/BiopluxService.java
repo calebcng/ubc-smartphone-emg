@@ -85,6 +85,8 @@ public class BiopluxService extends Service {
 	private boolean clientActive = false;
 	Notification serviceNotification = null;
 	private SharedPreferences sharedPref;
+//	private String patientHealthNumber = "1234567890";
+	private String patientName = "DEFAULT";
 
 	// Target we publish for clients to send messages to IncomingHandler
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
@@ -182,6 +184,9 @@ public class BiopluxService extends Service {
 				NewRecordingActivity.KEY_RECORDING_NAME).toString();
 		configuration = (DeviceConfiguration) intent
 				.getSerializableExtra(NewRecordingActivity.KEY_CONFIGURATION);	
+//		patientHealthNumber = intent.getStringExtra("PHN").toString();
+		patientName = intent.getStringExtra("patientName").toString();
+		System.out.println("##### BiopluxService ##### - patientName received is: " + patientName);
 		
 		//added to avoid the lagging - Brittaney
 		//if (configuration.getVisualizationFrequency()==1000) TIMER_TIME = 5;
@@ -206,7 +211,9 @@ public class BiopluxService extends Service {
 		// Revisar }
 
 		if (connectToBiopluxDevice()) {
-			dataManager = new DataManager(this, recordingName, configuration);
+//			dataManager = new DataManager(this, recordingName, configuration);
+			dataManager = new DataManager(this, recordingName, configuration, patientName);
+//			dataManager = new DataManager(this, recordingName, configuration, patientHealthNumber);
 			createNotification();
 		}
 		return START_NOT_STICKY; // do not re-create service if system kills it

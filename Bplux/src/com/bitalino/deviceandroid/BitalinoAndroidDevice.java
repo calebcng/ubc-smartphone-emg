@@ -11,11 +11,11 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import ceu.marten.ui.HomeActivity;
 import ceu.marten.ui.NewRecordingActivity;
-import ceu.marten.ui.PatientSessionActivity;
 
 import com.bitalino.comm.BITalinoDevice;
 import com.bitalino.comm.BITalinoException;
 import com.bitalino.comm.BITalinoFrame;
+import com.ubc.capstonegroup70.PatientSessionActivity;
 
 /**
  * Wrapper for the Java SDK of Bitalino by ppires

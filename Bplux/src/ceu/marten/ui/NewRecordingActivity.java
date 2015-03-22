@@ -110,6 +110,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private int currentZoomValue = 0;
 	private String duration = null; 
 	private SharedPreferences sharedPref = null;
+	private String patientName = "DEFAULT";
+//	private String patientHealthNumber = "1234567890";
 	
 	private boolean isServiceBounded = false;
 	private boolean recordingOverride = false;
@@ -200,7 +202,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			}
 			case BiopluxService.MSG_SAVED: {
 				savingDialog.dismiss();
-				saveRecordingOnInternalDB();
+//				saveRecordingOnInternalDB();
 				if (closeRecordingActivity) {
 					closeRecordingActivity = false;
 					finish();
@@ -330,6 +332,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		savingDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		savingDialog.setProgress(0); //starts with 0%
 		savingDialog.setMax(100); //100%
+		patientName = extras.getString("patientName");
+//		patientHealthNumber = extras.getString("PHN");
 		
 		inflater = this.getLayoutInflater();
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -354,7 +358,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		
 		// INIT ANDROID' WIDGETS
 		uiRecordingName = (TextView) findViewById(R.id.nr_txt_recordingName);
-		uiRecordingName.setText(recording.getName());
+//		uiRecordingName.setText(recording.getName());
+		uiRecordingName.setText("Recording session for " + this.patientName);
 		uiMainbutton = (Button) findViewById(R.id.nr_bttn_StartPause);
 		chronometer = new Chronometer(classContext);
 		
@@ -671,9 +676,14 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 						if(connectionError){
 							displayConnectionErrorDialog(bpErrorCode);
 						}else{
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
+							String currentDateandTime = sdf.format(new Date());
 							Intent intent = new Intent(classContext, BiopluxService.class);
-							intent.putExtra(KEY_RECORDING_NAME, recording.getName());
+							intent.putExtra(KEY_RECORDING_NAME, recording.getName() + currentDateandTime);
 							intent.putExtra(KEY_CONFIGURATION, recordingConfiguration);
+							System.out.println("##### NewRecordingActivity ##### - patientName passed is: " + patientName);
+							intent.putExtra("patientName", patientName);							
+//							intent.putExtra("PHN", patientHealthNumber);
 							startService(intent);
 							bindToService();
 							startChronometer();
@@ -840,7 +850,22 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			startRecording();
 		// Overwrites recording
 		} else if (!isServiceRunning() && recordingOverride) {
-			showOverwriteDialog();
+//			showOverwriteDialog();
+			// Reset activity variables
+			recordingOverride = false;
+			serviceError = false;
+			closeRecordingActivity = false;
+			savingDialogMessageChanged = false;
+			goToEnd = true;
+			
+			// Reset activity content
+			View graphsView = findViewById(R.id.nr_graphs);
+			((ViewGroup) graphsView).removeAllViews();
+			initActivityContentLayout();
+			savingDialog.setMessage(getString(R.string.nr_saving_dialog_adding_header_message));
+			savingDialog.setProgress(0);
+			
+			startRecording();
 		// Stops recording
 		} else if (isServiceRunning()) {
 			recordingOverride = true;

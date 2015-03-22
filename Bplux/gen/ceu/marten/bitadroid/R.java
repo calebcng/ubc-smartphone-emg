@@ -94,29 +94,33 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int bcchildrens=0x7f020000;
         public static final int biosignalsplux_logo=0x7f020001;
         public static final int browse=0x7f020002;
-        public static final int chronometer=0x7f020003;
-        public static final int dir_up=0x7f020004;
-        public static final int directory_icon=0x7f020005;
-        public static final int directory_up=0x7f020006;
-        public static final int error=0x7f020007;
-        public static final int file_icon=0x7f020008;
-        public static final int folder_icon=0x7f020009;
-        public static final int folder_icon_light=0x7f02000a;
-        public static final int ic_launcher=0x7f02000b;
-        public static final int ic_launcher_new=0x7f02000c;
-        public static final int icon=0x7f02000d;
-        public static final int info=0x7f02000e;
-        public static final int menu_button=0x7f02000f;
-        public static final int new_configuration=0x7f020010;
-        public static final int notification=0x7f020011;
-        public static final int pluxlogo=0x7f020012;
-        public static final int right_arrow=0x7f020013;
-        public static final int select=0x7f020014;
-        public static final int share=0x7f020015;
-        public static final int start=0x7f020016;
-        public static final int title_bar_shadow=0x7f020017;
-        public static final int zoom_in=0x7f020018;
-        public static final int zoom_out=0x7f020019;
+        public static final int button=0x7f020003;
+        public static final int button_blue=0x7f020004;
+        public static final int button_header=0x7f020005;
+        public static final int chronometer=0x7f020006;
+        public static final int dir_up=0x7f020007;
+        public static final int directory_icon=0x7f020008;
+        public static final int directory_up=0x7f020009;
+        public static final int error=0x7f02000a;
+        public static final int file_icon=0x7f02000b;
+        public static final int folder_icon=0x7f02000c;
+        public static final int folder_icon_light=0x7f02000d;
+        public static final int ic_launcher=0x7f02000e;
+        public static final int ic_launcher_new=0x7f02000f;
+        public static final int icon=0x7f020010;
+        public static final int info=0x7f020011;
+        public static final int menu_button=0x7f020012;
+        public static final int new_configuration=0x7f020013;
+        public static final int notification=0x7f020014;
+        public static final int pluxlogo=0x7f020015;
+        public static final int right_arrow=0x7f020016;
+        public static final int select=0x7f020017;
+        public static final int share=0x7f020018;
+        public static final int start=0x7f020019;
+        public static final int sunshine=0x7f02001a;
+        public static final int title_bar_shadow=0x7f02001b;
+        public static final int zoom_in=0x7f02001c;
+        public static final int zoom_out=0x7f02001d;
     }
     public static final class id {
         public static final int Button01=0x7f0c0040;
@@ -129,6 +133,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int bttn_positive=0x7f0c000c;
         public static final int button1=0x7f0c002f;
         public static final int button2=0x7f0c0031;
+        public static final int button3=0x7f0c0032;
         public static final int buttons=0x7f0c0015;
         public static final int checkbox_confirm=0x7f0c0009;
         public static final int configuration_battery_level=0x7f0c0004;
@@ -192,7 +197,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int sl_bttnCancel=0x7f0c003b;
         public static final int sl_button=0x7f0c002b;
         public static final int sl_buttons=0x7f0c003a;
-        public static final int spinner1=0x7f0c0032;
     }
     public static final class layout {
         public static final int connection_status_activity=0x7f030000;

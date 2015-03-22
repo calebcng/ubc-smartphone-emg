@@ -38,6 +38,7 @@ import com.haarman.listviewanimations.itemmanipulation.SwipeDismissAdapter;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.ubc.capstonegroup70.PatientSessionActivity;
 
 /**
  * Loads, from Android's internal Database, and displays a list of the device

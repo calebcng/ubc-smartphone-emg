@@ -6,7 +6,7 @@
         android:id="@+id/lyHeader"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@xml/header_color"
+        android:background="@drawable/button_header"
         android:paddingBottom="5dp"
         android:paddingTop="5dp" >
 
@@ -74,7 +74,7 @@
                 android:layout_width="fill_parent"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:background="@xml/button_selector"
+                android:background="@drawable/button_header"
                 android:onClick="onMainButtonClicked"
                 android:text="@string/nr_button_start"
                 android:textColor="@android:color/white"

@@ -7,7 +7,7 @@
         android:id="@+id/imageView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/button2"
+        android:layout_above="@+id/lyHeader"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
@@ -19,7 +19,7 @@
         android:layout_height="80dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:background="@xml/button_selector"
+        android:background="@drawable/button_blue"
         android:drawableEnd="@drawable/start"
         android:onClick="onClickedStart"
         android:paddingLeft="45dip"
@@ -28,22 +28,6 @@
         android:textColor="@android:color/white"
         android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/lyHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:background="#FFF4A460"
-        android:gravity="center"
-        android:paddingBottom="10dip"
-        android:paddingTop="10dip"
-        android:text="PATIENT NAME"
-        android:textColor="@android:color/black"
-        android:textSize="16sp" 
-        android:onClick="onClickedSetPatientInfo" />
-
     <Button
         android:id="@+id/Button01"
         android:layout_width="wrap_content"
@@ -51,11 +35,11 @@
         android:layout_below="@+id/button2"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="41dp"
-        android:background="@xml/button_selector"
+        android:background="@drawable/button"
         android:paddingLeft="50dip"
         android:paddingRight="40dip"
         android:text="Saved Recordings"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="16sp" 
         android:onClick="onClickedSavedData" />
 
@@ -67,12 +51,27 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/Button01"
         android:layout_marginTop="20dp"
-        android:background="@xml/button_selector"
+        android:background="@drawable/button"
         android:paddingLeft="30dip"
         android:paddingRight="20dip"
         android:text="Edit Patient Information"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="16sp" 
         android:onClick="onClickedSetPatientInfo"/>
+
+    <TextView
+        android:id="@+id/lyHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:onClick="onClickedSetPatientInfo"
+        android:paddingBottom="10dip"
+        android:paddingTop="10dip"
+        android:text="PATIENT NAME"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
 
 </RelativeLayout>
