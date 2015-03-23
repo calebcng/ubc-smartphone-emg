@@ -9,14 +9,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:background="@xml/button_selector"
+        
         android:onClick="onClickedConfiguration"
         android:paddingLeft="15dip"
         android:paddingRight="15dip"
         android:text="BLUETOOTH"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="16sp" 
-        android:layout_marginBottom="5dp"/>
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/button"/>
 
     <ImageView
         android:id="@+id/imageView1"
@@ -34,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:background="@xml/button_selector"
+        android:background="@drawable/button_blue"
         android:paddingLeft="45dip"
         android:paddingRight="35dip"
         android:drawableEnd="@drawable/start"
@@ -43,15 +44,19 @@
         android:textSize="16sp" 
         android:text="START SESSION" />
 
-    <Spinner
-        android:id="@+id/spinner1"
-        android:layout_width="250dp"
+            
+      
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button2"
         android:layout_centerHorizontal="true"
-        android:layout_marginLeft="30dip"
-        android:layout_marginRight="30dip"
-        android:gravity = "center"
-        android:layout_marginTop="17dp" />
+        android:layout_centerVertical="true"
+        android:onClick="onClickedPatientName"
+        android:textSize="16sp" 
+        android:text="Patient Name" 
+        android:background="@drawable/button"
+        android:layout_margin="10dp"/>
 
 </RelativeLayout>

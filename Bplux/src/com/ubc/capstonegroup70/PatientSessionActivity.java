@@ -26,6 +26,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -138,17 +140,17 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 				String patientName = extras.getString("patientFName") + " " + extras.getString("patientLName");
 				readInfoFromFile(patientName);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		else {
 			newPatient.setPatientName(extras.getString("patientName"));
 			newPatient.setGender(true);
-			newPatient.setHealthNumber("123456789");
+			newPatient.setHealthNumber("0123456789");
 			newPatient.setBirthYear("1999");
 			newPatient.setBirthMonth("01");
 			newPatient.setBirthDay("01");
+			setPatientInfoDialog();
 		}
 		nameset = true;
 		configset = true;
@@ -168,10 +170,10 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	}*/
 	
 	public void onClickedSetPatientInfo(View view) {
-		setPatientInfoDialog(view);
+		setPatientInfoDialog();
 	}
 	
-	private void setPatientInfoDialog(View view) {
+	private void setPatientInfoDialog() {
 		
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 		alertDialogBuilder.setTitle("Patient Information");
@@ -214,6 +216,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		labelLayoutParams.addRule(RelativeLayout.BELOW, 3);
 		editArray[1].setText(newPatient.getHealthNumber());
+		editArray[1].setInputType(InputType.TYPE_CLASS_NUMBER);
+		editArray[1].setFilters( new InputFilter[] {new InputFilter.LengthFilter(10)});
 		editArray[1].setId(4);
 		layout.addView(editArray[1], labelLayoutParams);
 		
@@ -291,6 +295,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		labelLayoutParams.addRule(RelativeLayout.BELOW, 10);
 		editArray[2].setText(newPatient.getBirthYear());
+		editArray[2].setInputType(InputType.TYPE_CLASS_NUMBER);
+		editArray[2].setFilters( new InputFilter[] {new InputFilter.LengthFilter(4)});
 		editArray[2].setId(9);
 		layout.addView(editArray[2], labelLayoutParams);
 
@@ -465,15 +471,12 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 
 
 	public void onClickedStart(View view) {
-//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
-//		String currentDateandTime = sdf.format(new Date());
 		recname1 = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "-" + newPatient.getBirthYear() + "-" + newPatient.getBirthMonth() 
 					+ "-" + newPatient.getBirthDay() + "__";// + currentDateandTime;//dateFormat.format(date);
 		Intent newRecordingIntent = new Intent(this, NewRecordingActivity.class);
 		newRecordingIntent.putExtra("recordingName", recname1);
 		newRecordingIntent.putExtra("configuration", newConfiguration);
 		newRecordingIntent.putExtra("patientName", newPatient.getPatientName());
-//		newRecordingIntent.putExtra("PHN", newPatient.getPatientName());
 		startActivity(newRecordingIntent);
 		overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
 	}
@@ -492,20 +495,6 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		String birthDayString = birthDay + '\n';
 		
 		try {
-			/*File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
-			if (!file.exists()) {
-				file = new File(Environment.getExternalStorageDirectory(),patientName+"INFO"+".txt");
-			}
-			FileOutputStream outputStream = openFileOutput(patientName+"INFO"+".txt", Context.MODE_APPEND);
-			outputStream = new FileOutputStream(file, false);
-			outputStream.write(write_string1.getBytes());
-			outputStream.write(write_string2.getBytes());
-			outputStream.write(write_string3.getBytes());
-			outputStream.write(write_string4.getBytes());
-			outputStream.write(write_string5.getBytes());
-			outputStream.write(write_string6.getBytes());
-			outputStream.flush();
-		    outputStream.close();*/
 		    
 		    // Check if the directory for the settings exists; create the folders if they don't exist
 		    File root = new File(PInfoDirectory);

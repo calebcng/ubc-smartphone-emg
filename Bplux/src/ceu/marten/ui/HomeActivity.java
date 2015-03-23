@@ -4,18 +4,14 @@ package ceu.marten.ui;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.ubc.capstonegroup70.PatientSessionActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,23 +22,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.Editable;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.DeviceConfiguration;
-//import com.mburman.fileexplore.FileExplore.Item;
 
-public class HomeActivity extends Activity {//implements android.widget.PopupMenu.OnMenuItemClickListener {
+import com.ubc.capstonegroup70.PatientSessionActivity;
 
+
+public class HomeActivity extends Activity {
+	
 	public static boolean configset = false;
 	public static boolean nameset = false;
 	public static String PatientName;
@@ -60,8 +55,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 	private String[] spinner_array = new String[20];
 	private int spinner_array_count;
 	Context context = this;
-	private boolean remove_patient = false;
-	Button mButton;
+	Button mButton, mButton1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,24 +63,15 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.ly_home);
 		setConfigurationDefaults();
-		final Spinner spinner = (Spinner) findViewById(R.id.spinner1);
-		ArrayAdapter SpinnerAdapter =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  spinner_array);
-		SpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinner.setAdapter(SpinnerAdapter);
-		spinner_array[0] = "--  Patient Name  --";
-		spinner_array[1] = "-- Add New Patient --";
-		spinner_array[2] = "-- Remove Patient --";
-		spinner_array_count = 3;
-		for (int j=3; j<20; j++){
+		spinner_array_count = 0;
+		for (int j=0; j<20; j++){
 			spinner_array[j] = " ";
 		}
 		try {
 			readNamesFromFile();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
 		File file = new File(SettingsDirectory + SettingsFile);
 		if(file.exists()) {
 			try {
@@ -101,102 +86,111 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 
 		mButton = (Button)findViewById(R.id.button1);
 		mButton.setText("BLUETOOTH: "+newConfiguration.getMacAddress());
-		mButton.setBackgroundColor(Color.parseColor("#FFF4A460"));//#FFADD8E6"));
 		mButton.setTextSize(15);
+		mButton1 = (Button)findViewById(R.id.button3);
+		mButton1.setTextSize(15);
 	
-
-
-	/************************ BUTTON EVENTS *******************/
+	}
 	
-	/*public void onClikedMenuItems(View v) {
-	    PopupMenu popup = new PopupMenu(this, v);
-	    popup.setOnMenuItemClickListener(this);
-	    MenuInflater inflater = popup.getMenuInflater();
-	    inflater.inflate(R.menu.global_menu, popup.getMenu());
-	    popup.show();
-	}*/
+	public void onClickedPatientName(View view) {
+		patientListGenerator();
+	}
+	
+	private void patientListGenerator(){
 		
-	spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+		final String[] string= new String[spinner_array_count];
+		final boolean[] states = new boolean[spinner_array_count];
+		for (int j=0; j<spinner_array_count; j++){
+			string[j] = spinner_array[j];
+			states[j] = false;
+		}
 		
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {                
+		AlertDialog dialog ;
+		
+		AlertDialog.Builder builder=new AlertDialog.Builder(this);
+		builder.setTitle("Patients");
 
-        	if (position == 0) {
-        		nameset = false;
-        		remove_patient = false;
-        	}
-        	else if (position == 1){
-        		AddNewPatientDialog(view);
-        		spinner.setSelection(0);
-        		nameset = false;
-        		remove_patient = false;
-        	}
-        	else if (position == 2){
-        		remove_patient = true;
-        		spinner.performClick();
-        		for (int j=0; j<2; j++)
-        		Toast.makeText(getApplicationContext(), "         SELECT PATIENT TO REMOVE\nOR PRESS --Patient Name-- TO CANCEL",Toast.LENGTH_LONG).show();
-        	}
-        	else if (position >= spinner_array_count){
-        		nameset = false;
-        		spinner.setSelection(0);
-        		remove_patient = false;
-        	}
-        	else {
-        		if (remove_patient){
-        			
-//        			File file = new File("/storage/emulated/0/"+spinner_array[position]+"INFO"+".txt");
-        			File file = new File(PInfoDirectory + spinner_array[position] + PatientInfoExtension);
-        			if(file.exists()) {
-        				file.delete();
-        			}
-        			
-        			spinner_array[position] = " ";
-        			remove_patient = false;
-        			spinner.setSelection(0);
-        			for (int j=position; j<spinner_array_count; j++){
-        				spinner_array[j] = spinner_array[j+1];
-        			}
-        			removePatientFromFile(position-3);
-        			spinner_array_count--;
-        			
-        		}
-        		else {
-        			PatientName = (String) spinner.getItemAtPosition(position);
-        			Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
-          			Matcher matcher = pattern.matcher(PatientName);
-        			if (matcher.find()) {
-          				if (matcher.groupCount() == 2) {	  				
-        	  				PatientFName = matcher.group(1);
-        	  				PatientLName = matcher.group(2);
-          				}
-          				else {
-          					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
-          				}
-        			}
-        			nameset = true;
-        		}
-            }
-            
-        }
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-        	
-        }
-    });  
-	
+		builder.setMultiChoiceItems(string, states, new DialogInterface.OnMultiChoiceClickListener(){
+			public void onClick(DialogInterface dialogInterface, int item, boolean state) {
 
-	
+			}
+		});
+		
+		builder.setPositiveButton("NEW", new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int id) {
+		    	AddNewPatientDialog();
+		    }
+		});
+		
+		builder.setNeutralButton("SELECT", new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int id) {
+		    	int j=0;
+		    	boolean choice = true;
+		    	SparseBooleanArray Checked = ((AlertDialog)dialog).getListView().getCheckedItemPositions();
+		    	while (Checked.get(j) == false){
+		    		j++;
+		    		if (j == spinner_array_count) {
+		    			choice = false;
+		    			break;
+		    		}
+		    	}
+		    	if (choice){
+					PatientName = spinner_array[j];
+	    			Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+	      			Matcher matcher = pattern.matcher(PatientName);
+	    			if (matcher.find()) {
+	      				if (matcher.groupCount() == 2) {	  				
+	    	  				PatientFName = matcher.group(1);
+	    	  				PatientLName = matcher.group(2);
+	      				}
+	      				else {
+	      					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+	      				}
+	    			}
+	    			nameset = true;
+			    	mButton1.setText(spinner_array[j]);
+		    	}
+		    	else {
+		    		mButton1.setText("Patient Name");
+		    		nameset = false;
+		    	}
+		    }
+		});
+		
+		builder.setNegativeButton("DELETE", new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int id) {
+		    	
+	            SparseBooleanArray Checked = ((AlertDialog)dialog).getListView().getCheckedItemPositions();
+	            for (int j=0; j<spinner_array_count; j++){
+	            
+	            	if(Checked.get(j) == true){
+	            		File file = new File(PInfoDirectory + spinner_array[j] + PatientInfoExtension);
+	            		Toast.makeText(getApplicationContext(), PInfoDirectory + spinner_array[j] + PatientInfoExtension,Toast.LENGTH_SHORT).show();
+	          			if(file.exists()) {
+	          				file.delete();
+	          			}
+	          			spinner_array[j] = " ";
+	          			
+	          			for (int l=j; l<spinner_array_count; l++){
+	          				spinner_array[j] = spinner_array[j+1];
+	          			}
+	          			removePatientFromFile(j);
+	          			spinner_array_count--;
+	          			mButton1.setText("Patient Name");
+	    	    		nameset = false;
+	            	}
+	            }
+	    		
+		    }
+		});
+		
+		dialog = builder.create();
+		dialog.show();
 	}
 	
 	public void onClickedStart(View view) {
 		if (configset && nameset){
-			//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			//String currentDateandTime = sdf.format(new Date());
-			//recname1 = recname + " " + currentDateandTime;
 			Intent patientSessionIntent = new Intent(this, PatientSessionActivity.class);
-			//newRecordingIntent.putExtra(ConfigurationsActivity.KEY_RECORDING_NAME, recname1);
-			//newRecordingIntent.putExtra(ConfigurationsActivity.KEY_CONFIGURATION, ConfigurationsActivity.configurations.get(ConfigurationsActivity.configurationClickedPosition));
 			patientSessionIntent.putExtra("patientName", PatientName);
 			patientSessionIntent.putExtra("patientFName", PatientFName);
 			patientSessionIntent.putExtra("patientLName", PatientLName);
@@ -226,7 +220,7 @@ public class HomeActivity extends Activity {//implements android.widget.PopupMen
 		newConfiguration.setSamplingFrequency(100);
 	}
 	
-private void btListGenerator(){
+	private void btListGenerator(){
 		
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -266,16 +260,14 @@ private void btListGenerator(){
 		dialog.show();
 	}
 
-	private void AddNewPatientDialog(View view){	
+	private void AddNewPatientDialog(){	
 		
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 		alertDialogBuilder.setTitle("Patient Name");
 		Context context = this;
 		LinearLayout layout = new LinearLayout(context);
 		layout.setOrientation(LinearLayout.VERTICAL);
-		
-//		final EditText PNamebox = new EditText(context);
-//		layout.addView(PNamebox);
+
 		final EditText patientFNameBox = new EditText(context);
 		final EditText patientLNameBox = new EditText(context);
 		patientFNameBox.setHint("First Name");
@@ -288,27 +280,38 @@ private void btListGenerator(){
 		
 		alertDialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-//				  Editable PName = PNamebox.getText();
 				  Editable patientFName = patientFNameBox.getText();
 				  Editable patientLName = patientLNameBox.getText();
-//				  spinner_array[spinner_array_count] = PName.toString();
 				  spinner_array[spinner_array_count] = patientFName.toString() + " " + patientLName.toString();
 				  spinner_array_count++;
 				  
-				  try {
-//					  saveNameToFile(PName.toString());					
+				  try {				
 					  saveNameToFile(patientFName.toString() + " " + patientLName.toString());
 				  } catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				  }
+				  
+				  PatientName = spinner_array[spinner_array_count -1];
+				  Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+	      		  Matcher matcher = pattern.matcher(PatientName);
+	      		  if (matcher.find()) {
+	      			  if (matcher.groupCount() == 2) {	  				
+	      				  PatientFName = matcher.group(1);
+	      				  PatientLName = matcher.group(2);
+	      			  }
+	      			  else {
+	      				  System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+	      			  }
+	      		  }
+	      		  nameset = true;
+	      		  mButton1.setText(spinner_array[spinner_array_count-1]);
 				  
 				  
 			}
 		});
 		alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 			  public void onClick(DialogInterface dialog, int whichButton) {
-			   
+				  nameset = false;
 			  }
 		});
 		alertDialogBuilder.show();	
@@ -322,18 +325,6 @@ private void btListGenerator(){
 		String write_string = patientName + '\n';
 		
 		try {
-//			File file = new File("/storage/emulated/0/patientNames.txt");
-//			if (!file.exists()) {
-//				//Toast.makeText(context, "FIRST_EXISTS", Toast.LENGTH_SHORT).show();
-//				file = new File(Environment.getExternalStorageDirectory(),"patientNames.txt");
-//			}
-//			//Toast.makeText(context, file.getAbsolutePath(), Toast.LENGTH_LONG).show();
-//			FileOutputStream outputStream = openFileOutput("patientNames.txt", Context.MODE_APPEND);
-//			outputStream = new FileOutputStream(file, true);
-//        
-//			outputStream.write(write_string.getBytes());//patientName.getBytes());
-//			outputStream.flush();
-//		    outputStream.close();
 		    
 		    // Check if the directory for the settings exists; create the folders if they don't exist
 			File root = new File(SettingsDirectory);
@@ -345,7 +336,7 @@ private void btListGenerator(){
 			if (!file.exists()) {
 				file = new File(SettingsDirectory, MasterPatientList);
 			}
-			FileWriter writer = new FileWriter(file);
+			FileWriter writer = new FileWriter(file, true);
 			writer.append(write_string);
 			writer.flush();
 			writer.close();
@@ -355,15 +346,12 @@ private void btListGenerator(){
 			    e.printStackTrace();
 			
 		}
-		//readNamesFromFile();
 
 	}
 	private void readNamesFromFile() throws IOException{
 		
 		//READ
 		try {
-			//num_of_patients = 0;
-//			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
 			FileInputStream fIn = new FileInputStream(SettingsDirectory + MasterPatientList);
 		    @SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
@@ -371,19 +359,15 @@ private void btListGenerator(){
 		    boolean first_read = true;
 		    while (scanner.hasNextLine())
 		    {
-		    	//num_of_patients ++;
-		    	
 		        String currentline = scanner.nextLine();
 		        if (first_read == true) {
 		        	readString = currentline;
 		        	first_read = false;
 		        }
 		        else readString = readString + currentline;
-		        //spinner_array[num_of_patients+1] = currentline;
 		        spinner_array[spinner_array_count] = currentline;
 		        spinner_array_count++;
 		    }
-		    //Toast.makeText(context, readString, Toast.LENGTH_SHORT).show();
 		        
 		} catch (IOException ioe) 
 		    {ioe.printStackTrace();}
@@ -401,7 +385,6 @@ private void btListGenerator(){
 	    	temp_array[j] = null;
 	    }
 		try {
-//			FileInputStream fIn = new FileInputStream("/storage/emulated/0/patientNames.txt");
 			FileInputStream fIn = new FileInputStream(SettingsDirectory + MasterPatientList);
 			@SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);
@@ -421,7 +404,6 @@ private void btListGenerator(){
 			  		temp_count++;
 			  		total_count++;
 			  	}
-			  	//Toast.makeText(context, temp_array[temp_count-1], Toast.LENGTH_SHORT).show();
 		    }  	
 
 		} catch (IOException ioe) 
@@ -434,16 +416,6 @@ private void btListGenerator(){
 		for (int j=0; j<total_count; j++){
 				write_string = temp_array[j]+'\n';
 				try {
-//					File file = new File("/storage/emulated/0/patientNames.txt");
-					/*FileOutputStream outputStream = openFileOutput("patientNames.txt", Context.MODE_APPEND);
-					if (first_write) {
-						outputStream = new FileOutputStream(file, false);
-						first_write = false;
-					}
-					else outputStream = new FileOutputStream(file, true);
-					outputStream.write(write_string.getBytes());
-					outputStream.flush();
-				    outputStream.close();	*/
 					// Check if the directory for the settings exists; create the folders if they don't exist
 					File root = new File(SettingsDirectory);
 					if (!root.exists()) {
@@ -454,7 +426,12 @@ private void btListGenerator(){
 					if (!file.exists()) {
 						file = new File(SettingsDirectory, MasterPatientList);
 					}
-					FileWriter writer = new FileWriter(file);
+					FileWriter writer;
+					if (first_write) {
+						writer = new FileWriter(file, false);
+						first_write = false;
+					}
+					else writer = new FileWriter(file, true);
 					writer.append(write_string);
 					writer.flush();
 					writer.close();
@@ -469,17 +446,6 @@ private void readwriteBT(boolean task, String btName) throws IOException{
 		if (task){
 			//WRITE
 			try {
-				/*File file = new File("/storage/emulated/0/Bplux_BluetoothSelection.txt");
-				if (!file.exists()) {
-//					file = new File(Environment.getExternalStorageDirectory(),"Bplux_BluetoothSelection.txt");
-					System.out.println("##### HomeActivity ##### - Settings file doesn't exist, creating now.");
-					file = new File("/storage/emulated/0/","Bplux_BluetoothSelection.txt");
-				}
-				FileOutputStream outputStream = openFileOutput("Bplux_BluetoothSelection.txt", Context.MODE_APPEND);
-				outputStream = new FileOutputStream(file, false);
-				outputStream.write(btName.getBytes());
-				outputStream.flush();
-			    outputStream.close();	*/
 				// Check if the directory for the settings exists; create the folders if they don't exist
 				File root = new File(SettingsDirectory);
 				if (!root.exists()) {
@@ -503,7 +469,6 @@ private void readwriteBT(boolean task, String btName) throws IOException{
 		else {
 			//READ
 			try {
-//				FileInputStream fIn = new FileInputStream("/storage/emulated/0/Bplux_BluetoothSelection.txt");
 				FileInputStream fIn = new FileInputStream(SettingsDirectory + SettingsFile);
 			    @SuppressWarnings("resource")
 				Scanner scanner = new Scanner(fIn);
