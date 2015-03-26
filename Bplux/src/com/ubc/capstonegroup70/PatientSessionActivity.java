@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Scanner;
@@ -604,7 +605,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	      for(int i=0; i<fList.length; i++) {
 	    	  fList[i] = fList[i].toUpperCase(Locale.getDefault());
 	      }
-	      Arrays.sort(fList);
+//	      Arrays.sort(fList);
+	      Arrays.sort(fList,Collections.reverseOrder());
 	      fileList = new Item[fList.length];
 	      for (int i = 0; i < fList.length; i++) {
 	        fileList[i] = new Item(fList[i], R.drawable.file_icon);

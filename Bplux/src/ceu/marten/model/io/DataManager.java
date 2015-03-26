@@ -21,6 +21,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.bitalino.comm.BITalinoFrame;
+import com.bitalino.util.SensorDataConverter;
 import com.ubc.capstonegroup70.PatientClass;
 import com.ubc.capstonegroup70.PatientSessionActivity;
 
@@ -176,7 +177,7 @@ public class DataManager {
 	public boolean writeFrameToTmpFile(BITalinoFrame frame, int frameSeq) {
 		sb.delete(0, sb.length());
 		try {
-			sb.append(frameSeq).append("\t");
+			/*sb.append(frameSeq).append("\t");
 			// WRITE THE DATA OF ACTIVE CHANNELS ONLY
 			
 			//Bitalino always send 6 channels but only active which you selected
@@ -188,7 +189,19 @@ public class DataManager {
 				sb.append(frame.getAnalog(activeChannelsArray[i])).append("\t");
 			}
 			// WRITE A NEW LINE
-			bufferedWriter.write(sb.append("\n").toString());
+			bufferedWriter.write(sb.append("\n").toString());*/
+			
+			// WRITE THE DATA OF ACTIVE CHANNELS ONLY
+			//Bitalino always send 6 channels but only active which you selected
+			ArrayList<Integer> activeChannels = configuration.getActiveChannels();
+			int[] activeChannelsArray = convertToBitalinoChannelsArray(activeChannels);
+			int firstChannelUsed=activeChannelsArray[0];
+			
+			for(int i=0; i< activeChannelsArray.length;i++){
+				sb.append(SensorDataConverter.scaleEMG(frame.getAnalog(activeChannelsArray[i]))).append("\t");
+			}
+			// WRITE A NEW LINE
+			bufferedWriter.write(sb.toString());
 			
 		} catch (Exception e) {
 			try {bufferedWriter.close();} catch (Exception e1) {}
@@ -424,22 +437,34 @@ public class DataManager {
 			String gender;
 			if (newPatient.getGender()) gender = "MALE";
         	else gender = "FEMALE";
-			String birthYear = String.format(Locale.getDefault(), "%2s", newPatient.getBirthYear());
-			String birthDay = String.format(Locale.getDefault(), "%4s", newPatient.getBirthDay());
-			String birthMonth = "NUL";
-			switch(newPatient.getBirthMonth()) {
-				case "01": birthMonth = "JAN";
-				case "02": birthMonth = "FEB";
-				case "03": birthMonth = "MAR";
-				case "04": birthMonth = "APR";
-				case "05": birthMonth = "MAY";
-				case "06": birthMonth = "JUN";
-				case "07": birthMonth = "JUL";
-				case "08": birthMonth = "AUG";
-				case "09": birthMonth = "SEP";
-				case "10": birthMonth = "OCT";
-				case "11": birthMonth = "NOV";
-				case "12": birthMonth = "DEC";
+			String birthYear = String.format(Locale.getDefault(), "%4s", newPatient.getBirthYear());
+			String birthDay = String.format(Locale.getDefault(), "%02d", Integer.parseInt(newPatient.getBirthDay()));
+			String birthMonth = String.format(Locale.getDefault(), "%02d", Integer.parseInt(newPatient.getBirthMonth()));
+			switch(Integer.parseInt(birthMonth)) {
+				case 1: birthMonth = "JAN";
+						break;
+				case 2: birthMonth = "FEB";
+						break;
+				case 3: birthMonth = "MAR";
+						break;
+				case 4: birthMonth = "APR";
+						break;
+				case 5: birthMonth = "MAY";
+						break;
+				case 6: birthMonth = "JUN";
+						break;
+				case 7: birthMonth = "JUL";
+						break;
+				case 8: birthMonth = "AUG";
+						break;
+				case 9: birthMonth = "SEP";
+						break;
+				case 10: birthMonth = "OCT";
+						break;
+				case 11: birthMonth = "NOV";
+						break;
+				case 12: birthMonth = "DEC";
+						break;
 			}
 			String localPatientID = extendString("X " + gender + " X " + newPatient.getPatientName() + " X DOB: " + birthYear + "-" + 
 												birthMonth + "-" + birthDay, 80);

@@ -459,9 +459,9 @@ public class DisplayStoredGraphActivity extends Activity {
 			  			}*/
 			  			
 			  			// Use tabs as a delimiter for file data
-			  			strings.findWithinHorizon(endOfHeader,0);    		
+//			  			strings.findWithinHorizon(endOfHeader,0);    		
 			      		strings.useDelimiter("\t *");
-			      		strings.next();
+//			      		strings.next();
 			  		}
 				}
 				catch (FileNotFoundException error) {
@@ -476,11 +476,12 @@ public class DisplayStoredGraphActivity extends Activity {
 				while (strings.hasNext())
 				{
 					double dataPoint = Double.parseDouble(strings.next());
-					dataSetRAW.add(SensorDataConverter.scaleEMG(dataPoint));
-					if (strings.hasNext())
-						strings.next();
-					else
-						break;
+//					dataSetRAW.add(SensorDataConverter.scaleEMG(dataPoint));
+					dataSetRAW.add(dataPoint);
+//					if (strings.hasNext())
+//						strings.next();
+//					else
+//						break;
 				}
 				System.out.println("Closing strings.");
 				try {

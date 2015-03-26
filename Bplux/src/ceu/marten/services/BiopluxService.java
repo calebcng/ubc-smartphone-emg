@@ -248,8 +248,9 @@ public class BiopluxService extends Service {
 		synchronized (weAreWritingDataToFileLock) {
 			areWeWritingDataToFile = true;
 		}
-
+		
 		BITalinoFrame[] frames = getFrames(numberOfFrames);
+		System.out.println("##### BiopluxService ##### - Number of frames is: " + frames.length);
 		for (BITalinoFrame frame : frames) {
 			// Revisar i++;
 			frameSeq = frameSeq + 1 < 16 ? frameSeq + 1 : 0;
