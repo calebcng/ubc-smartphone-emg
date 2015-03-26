@@ -471,8 +471,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 
 
 	public void onClickedStart(View view) {
-		recname1 = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "-" + newPatient.getBirthYear() + "-" + newPatient.getBirthMonth() 
-					+ "-" + newPatient.getBirthDay() + "__";// + currentDateandTime;//dateFormat.format(date);
+		recname1 = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "-" + String.format(Locale.getDefault(), "%04d", Integer.parseInt(newPatient.getBirthYear())) 
+					+ "-" + String.format(Locale.getDefault(), "%02d", Integer.parseInt(newPatient.getBirthMonth())) + "-" + String.format(Locale.getDefault(), "%02d", Integer.parseInt(newPatient.getBirthDay())) + "__";
 		Intent newRecordingIntent = new Intent(this, NewRecordingActivity.class);
 		newRecordingIntent.putExtra("recordingName", recname1);
 		newRecordingIntent.putExtra("configuration", newConfiguration);

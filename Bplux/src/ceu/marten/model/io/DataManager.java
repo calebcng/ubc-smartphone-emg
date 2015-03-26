@@ -63,7 +63,7 @@ public class DataManager {
 	private int numberOfChannelsActivated;
 
 	private String recordingName;
-	private String duration;
+	private String duration = "0";
 	private String PInfoDirectory = "/storage/emulated/0/Bioplux/Patients/";
 	private String PatientInfoExtension = "INFO.txt";	
 	private PatientClass newPatient;
@@ -471,7 +471,7 @@ public class DataManager {
 			String headerSize = extendString("512", 8);
 			String reserved44 = extendString("", 44);
 			String numberRecords = extendString("1", 8);
-			String durationRecord = extendString("0.001", 8);
+			String durationRecord = extendString(duration, 8);
 			String numberSignals = extendString("1", 4);
 			String label = extendString("EEG 3", 16);
 			String transducerType = extendString("Conductive strip electrodes", 80);
@@ -716,6 +716,5 @@ public class DataManager {
 	 */
 	public void setDuration(String _duration) {
 		this.duration = _duration;
-	}
-	
+	}	
 }
