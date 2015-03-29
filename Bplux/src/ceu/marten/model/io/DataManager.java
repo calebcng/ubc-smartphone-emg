@@ -201,7 +201,7 @@ public class DataManager {
 				sb.append(SensorDataConverter.scaleEMG(frame.getAnalog(activeChannelsArray[i]))).append("\t");
 			}
 			// WRITE A NEW LINE
-			bufferedWriter.write(sb.toString());
+			bufferedWriter.write(sb.append("\n").toString());
 			
 		} catch (Exception e) {
 			try {bufferedWriter.close();} catch (Exception e1) {}

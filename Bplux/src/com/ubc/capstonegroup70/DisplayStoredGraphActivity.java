@@ -460,7 +460,8 @@ public class DisplayStoredGraphActivity extends Activity {
 			  			
 			  			// Use tabs as a delimiter for file data
 //			  			strings.findWithinHorizon(endOfHeader,0);    		
-			      		strings.useDelimiter("\t *");
+//			      		strings.useDelimiter("\t *");
+			  			strings.useDelimiter("\n *");
 //			      		strings.next();
 			  		}
 				}
