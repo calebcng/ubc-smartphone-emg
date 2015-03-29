@@ -127,6 +127,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int Button02=0x7f0c0041;
         public static final int TAG_POSITION=0x7f0c0000;
         public static final int TAG_SPINNER=0x7f0c0001;
+        public static final int bday1=0x7f0c004c;
         public static final int btnRegister=0x7f0c003c;
         public static final int bttnAddConfig=0x7f0c002e;
         public static final int bttn_negative=0x7f0c000d;
@@ -134,6 +135,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int button1=0x7f0c002f;
         public static final int button2=0x7f0c0031;
         public static final int button3=0x7f0c0032;
+        public static final int buttonCANCEL=0x7f0c0053;
+        public static final int buttonSUBMIT=0x7f0c0054;
         public static final int buttons=0x7f0c0015;
         public static final int checkbox_confirm=0x7f0c0009;
         public static final int configuration_battery_level=0x7f0c0004;
@@ -141,6 +144,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int connection_status=0x7f0c0003;
         public static final int connection_status_label=0x7f0c0002;
         public static final int dataGraph=0x7f0c0011;
+        public static final int day1=0x7f0c0051;
+        public static final int day2=0x7f0c0052;
         public static final int dev_name=0x7f0c0034;
         public static final int dialog_txt_new_recording_name=0x7f0c000b;
         public static final int display_text=0x7f0c0044;
@@ -156,9 +161,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int empty_list_configurations=0x7f0c002c;
         public static final int empty_list_recordings=0x7f0c0042;
         public static final int fftGraphBtn=0x7f0c0010;
-        public static final int gm_about=0x7f0c0047;
-        public static final int gm_help=0x7f0c0046;
-        public static final int gm_settings=0x7f0c0045;
+        public static final int gender1=0x7f0c0049;
+        public static final int gender2=0x7f0c004a;
+        public static final int gender3=0x7f0c004b;
+        public static final int gm_about=0x7f0c0057;
+        public static final int gm_help=0x7f0c0056;
+        public static final int gm_settings=0x7f0c0055;
         public static final int graphRadioGroup=0x7f0c000e;
         public static final int graph_view=0x7f0c0017;
         public static final int help_info_text=0x7f0c000a;
@@ -175,6 +183,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int lvSessions=0x7f0c0043;
         public static final int lv_channelsSelection=0x7f0c0007;
         public static final int lyHeader=0x7f0c0013;
+        public static final int month1=0x7f0c004f;
+        public static final int month2=0x7f0c0050;
+        public static final int name1=0x7f0c0045;
+        public static final int name2=0x7f0c0046;
         public static final int nc_mac_address=0x7f0c0035;
         public static final int nc_sampling_freq_view=0x7f0c0037;
         public static final int nc_sampling_seekbar=0x7f0c0036;
@@ -185,18 +197,22 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int nr_graph_details=0x7f0c0018;
         public static final int nr_graphs=0x7f0c003f;
         public static final int nr_reception_freq=0x7f0c001a;
-        public static final int nr_restore_zoom=0x7f0c0049;
+        public static final int nr_restore_zoom=0x7f0c0059;
         public static final int nr_sampling_freq=0x7f0c001b;
         public static final int nr_scroll_view=0x7f0c003e;
-        public static final int nr_settings=0x7f0c0048;
+        public static final int nr_settings=0x7f0c0058;
         public static final int nr_txt_mac=0x7f0c0019;
         public static final int nr_txt_recordingName=0x7f0c003d;
+        public static final int phn1=0x7f0c0047;
+        public static final int phn2=0x7f0c0048;
         public static final int rawGraphBtn=0x7f0c000f;
         public static final int regForm=0x7f0c0033;
         public static final int shadow=0x7f0c0012;
         public static final int sl_bttnCancel=0x7f0c003b;
         public static final int sl_button=0x7f0c002b;
         public static final int sl_buttons=0x7f0c003a;
+        public static final int year1=0x7f0c004d;
+        public static final int year2=0x7f0c004e;
     }
     public static final class layout {
         public static final int connection_status_activity=0x7f030000;
@@ -497,14 +513,16 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int FullscreenTheme=0x7f0b0002;
     }
     public static final class xml {
-        public static final int button_default=0x7f050000;
-        public static final int button_pressed=0x7f050001;
-        public static final int button_selector=0x7f050002;
-        public static final int button_zoom_in=0x7f050003;
-        public static final int button_zoom_out=0x7f050004;
-        public static final int header_color=0x7f050005;
-        public static final int main_preference=0x7f050006;
-        public static final int recording_preference=0x7f050007;
+        public static final int adb_button=0x7f050000;
+        public static final int anp_button=0x7f050001;
+        public static final int button_default=0x7f050002;
+        public static final int button_pressed=0x7f050003;
+        public static final int button_selector=0x7f050004;
+        public static final int button_zoom_in=0x7f050005;
+        public static final int button_zoom_out=0x7f050006;
+        public static final int header_color=0x7f050007;
+        public static final int main_preference=0x7f050008;
+        public static final int recording_preference=0x7f050009;
     }
     public static final class styleable {
         /** 

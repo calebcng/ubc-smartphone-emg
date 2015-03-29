@@ -4,18 +4,15 @@ package com.ubc.capstonegroup70;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Scanner;
 
-import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -31,16 +28,17 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ListAdapter;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,14 +62,18 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	private String[] Day_31_Array = {"01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"};
 	private String[] Day_30_Array = {"01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"};
 	private String[] Day_29_Array = {"01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29"};
-	private int spinner_num = 0;
-	private int day_num = 0;
 	private String SettingsDirectory = "/storage/emulated/0/Bioplux/Settings/";
 	private String PInfoDirectory = "/storage/emulated/0/Bioplux/Patients/";
 	private String SettingsFile = "Bplux_BluetoothSelection.txt";
 	private String MasterPatientList = "patientNames.txt";
 	private String PatientInfoExtension = "INFO.txt";
 	Context context = this;
+	boolean entry_error = false;
+	ArrayAdapter SpinnerAdapter1;
+	ArrayAdapter SpinnerAdapter2; 
+	ArrayAdapter SpinnerAdapter3;
+	boolean first_time_editing_patient = true;
+	
 	
 	// Variables for file explorer
 	private final int REQUEST_CODE_PICK_DIR = 1;
@@ -94,35 +96,6 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	private static final int DIALOG_DELETE = 1002;
 	
 	ListAdapter adapter;
-	
-	/*@Override
-	public boolean onMenuItemClick(MenuItem item) {
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	        case R.id.gm_settings:
-	        	Intent globalSettingsIntent = new Intent(this, SettingsActivity.class);
-	        	globalSettingsIntent.putExtra(Constants.KEY_SETTINGS_TYPE, 1);
-	        	startActivity(globalSettingsIntent);
-	            return true;
-	       
-	        case R.id.gm_help:
-	        	HelpDialog help = new HelpDialog(this);
-	        	help.setTitle(getString(R.string.gm_help_title));
-	        	help.setCanceledOnTouchOutside(true);
-	        	help.show();
-	        	return true;
-	        	
-	        case R.id.gm_about:
-	        	AboutDialog about = new AboutDialog(this);
-	        	about.requestWindowFeature(Window.FEATURE_NO_TITLE);
-	        	about.setCanceledOnTouchOutside(true);
-	        	about.show();
-	            return true;
-	        
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
-	}*/
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -133,12 +106,18 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		extras = getIntent().getExtras();
 		newConfiguration = (DeviceConfiguration) extras.getSerializable("configuration");
 		
+		SpinnerAdapter1 =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  Day_31_Array);
+		SpinnerAdapter2 =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  Day_30_Array);
+		SpinnerAdapter3 =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  Day_29_Array);
+		
+		
 //		File file = new File("/storage/emulated/0/"+extras.getString("patientName")+"INFO"+".txt");
 		File file = new File(PInfoDirectory +extras.getString("patientName")+PatientInfoExtension);
 		if(file.exists()) {
 			try {
 				String patientName = extras.getString("patientFName") + " " + extras.getString("patientLName");
 				readInfoFromFile(patientName);
+				first_time_editing_patient = false;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -150,6 +129,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 			newPatient.setBirthYear("1999");
 			newPatient.setBirthMonth("01");
 			newPatient.setBirthDay("01");
+			first_time_editing_patient = true;
 			setPatientInfoDialog();
 		}
 		nameset = true;
@@ -161,318 +141,192 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 
 	/************************ BUTTON EVENTS *******************/
 	
-	/*public void onClikedMenuItems(View v) {
-	    PopupMenu popup = new PopupMenu(this, v);
-	    popup.setOnMenuItemClickListener(this);
-	    MenuInflater inflater = popup.getMenuInflater();
-	    inflater.inflate(R.menu.global_menu, popup.getMenu());
-	    popup.show();
-	}*/
-	
 	public void onClickedSetPatientInfo(View view) {
 		setPatientInfoDialog();
 	}
 	
 	private void setPatientInfoDialog() {
 		
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setTitle("Patient Information");
-		Context context = this;
-		RelativeLayout layout = new RelativeLayout(context);
-		RelativeLayout.LayoutParams labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		 
-		final TextView[] textArray = new TextView[10];
-		final EditText[] editArray = new EditText[3];
-		final CheckBox[] checkboxArray = new CheckBox[3];
-		final Spinner[] spinnerArray = new Spinner[4];
+		entry_error = false;
+		final Dialog dialog = new Dialog(context);
+		dialog.setTitle("Patient Information");
+		dialog.setContentView(R.xml.adb_button);
 		
-		for(int i = 0; i < 10; i++) {
-			textArray[i] = new TextView(this);
-		}
-		for(int i = 0; i < 3; i++) {
-			editArray[i] = new EditText(this);
-			checkboxArray[i] = new CheckBox(this);
-		}
-		for(int i = 0; i < 4; i++) {
-			spinnerArray[i] = new Spinner(this);
-		}
-
-		textArray[0].setText("Name:");
-		textArray[0].setId(1);
-		layout.addView(textArray[0]);
+		final EditText name2 = (EditText)dialog.findViewById(R.id.name2);
+		name2.setText(newPatient.getPatientName());
+		name2.setEnabled(false);
 		
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 1);
-		editArray[0].setText(newPatient.getPatientName());
-		editArray[0].setId(2);
-		editArray[0].setEnabled(false);
-		layout.addView(editArray[0], labelLayoutParams);
-
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 2);
-		textArray[1].setText("Provincial Health Number");
-		textArray[1].setId(3);
-		layout.addView(textArray[1], labelLayoutParams);
+		final EditText phn2 = (EditText)dialog.findViewById(R.id.phn2);
+		phn2.setText(newPatient.getHealthNumber());
+		phn2.setInputType(InputType.TYPE_CLASS_NUMBER);
+		phn2.setFilters( new InputFilter[] {new InputFilter.LengthFilter(10)});
+		if (!first_time_editing_patient) phn2.setEnabled(false);
 		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 3);
-		editArray[1].setText(newPatient.getHealthNumber());
-		editArray[1].setInputType(InputType.TYPE_CLASS_NUMBER);
-		editArray[1].setFilters( new InputFilter[] {new InputFilter.LengthFilter(10)});
-		editArray[1].setId(4);
-		layout.addView(editArray[1], labelLayoutParams);
+		final CheckBox gender2 = (CheckBox)dialog.findViewById(R.id.gender2);
+		gender2.setChecked(newPatient.getGender());
 		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 4);
-		checkboxArray[0].setText("Male");
-		checkboxArray[0].setId(5);
-		layout.addView(checkboxArray[0], labelLayoutParams);
-		checkboxArray[0].setChecked(newPatient.getGender());
+		final CheckBox gender3 = (CheckBox)dialog.findViewById(R.id.gender3);
+		gender3.setChecked(!newPatient.getGender());
 		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.RIGHT_OF, 5);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 4);
-		checkboxArray[1].setText("Female");
-		checkboxArray[1].setId(6);
-		layout.addView(checkboxArray[1], labelLayoutParams);
-		checkboxArray[1].setChecked(!newPatient.getGender());
-
-		
-		checkboxArray[0].setOnCheckedChangeListener(new OnCheckedChangeListener(){
+		gender2.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (checkboxArray[0].isChecked()) {
-					checkboxArray[1].setChecked(false);
+				if (gender2.isChecked()) {
+					gender3.setChecked(false);
 				}
 				else{
-					checkboxArray[1].setChecked(true);
+					gender3.setChecked(true);
 				}
-			}
-			
+			}	
 		});
 		
-		checkboxArray[1].setOnCheckedChangeListener(new OnCheckedChangeListener(){
+		gender3.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (checkboxArray[1].isChecked()) {
-					checkboxArray[0].setChecked(false);
+				if (gender3.isChecked()) {
+					gender2.setChecked(false);
 				}
 				else{
-					checkboxArray[0].setChecked(true);
+					gender2.setChecked(true);
 				}
-			}
-			
+			}	
 		});
 		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 5);
-		textArray[2].setText("Birthday:");
-		textArray[2].setId(7);
-		layout.addView(textArray[2], labelLayoutParams);
-		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 7);
-		textArray[3].setText("YEAR:");
-		textArray[3].setId(8);
-		layout.addView(textArray[3], labelLayoutParams);
-		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.ALIGN_START, 11);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 7);
-		textArray[4].setText("MONTH:");
-		textArray[4].setId(10);
-		layout.addView(textArray[4], labelLayoutParams);
-		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.ALIGN_END , 11);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 7);
-		textArray[5].setText("DAY:");
-		textArray[5].setId(12);
-		layout.addView(textArray[5], labelLayoutParams);
+		final EditText year2 = (EditText)dialog.findViewById(R.id.year2);
+		year2.setText(newPatient.getBirthYear());	
+		year2.setInputType(InputType.TYPE_CLASS_NUMBER);
+		year2.setFilters( new InputFilter[] {new InputFilter.LengthFilter(4)});
 		
 		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 10);
-		editArray[2].setText(newPatient.getBirthYear());
-		editArray[2].setInputType(InputType.TYPE_CLASS_NUMBER);
-		editArray[2].setFilters( new InputFilter[] {new InputFilter.LengthFilter(4)});
-		editArray[2].setId(9);
-		layout.addView(editArray[2], labelLayoutParams);
-
-		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.RIGHT_OF, 9);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 10);
+		final Spinner month2 = (Spinner)dialog.findViewById(R.id.month2);
 		ArrayAdapter SpinnerAdapter =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  Month_Array);
-		spinnerArray[0].setAdapter(SpinnerAdapter);
-		spinnerArray[0].setId(11);
-		layout.addView(spinnerArray[0], labelLayoutParams);
-		spinnerArray[0].setSelection(Integer.parseInt(newPatient.getBirthMonth())-1);
+		month2.setAdapter(SpinnerAdapter);
+		month2.setSelection(Integer.parseInt(newPatient.getBirthMonth())-1);
 		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.RIGHT_OF, 11);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 10);
-		ArrayAdapter SpinnerAdapter1 =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  Day_31_Array);
-		spinnerArray[1].setAdapter(SpinnerAdapter1);
-		spinnerArray[1].setId(13);
-		layout.addView(spinnerArray[1], labelLayoutParams);
-		spinnerArray[1].setSelection(Integer.parseInt(newPatient.getBirthDay())-1);
-		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.RIGHT_OF, 11);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 10);
-		ArrayAdapter SpinnerAdapter2 =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  Day_30_Array);
-		spinnerArray[2].setAdapter(SpinnerAdapter2);
-		spinnerArray[2].setId(14);
-		layout.addView(spinnerArray[2], labelLayoutParams);
-		spinnerArray[2].setSelection(Integer.parseInt(newPatient.getBirthDay())-1);
-		
-		labelLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		labelLayoutParams.addRule(RelativeLayout.RIGHT_OF, 11);
-		labelLayoutParams.addRule(RelativeLayout.BELOW, 10);
-		ArrayAdapter SpinnerAdapter3 =  new ArrayAdapter(this, android.R.layout.simple_spinner_item,  Day_29_Array);
-		spinnerArray[3].setAdapter(SpinnerAdapter3);
-		spinnerArray[3].setId(15);
-		layout.addView(spinnerArray[3], labelLayoutParams);
-		spinnerArray[3].setSelection(Integer.parseInt(newPatient.getBirthDay())-1);
+		final Spinner day2 = (Spinner)dialog.findViewById(R.id.day2);
+		day2.setAdapter(SpinnerAdapter1);
 		
 		if (((Integer.parseInt(newPatient.getBirthMonth())-1)==0)||((Integer.parseInt(newPatient.getBirthMonth())-1)==2)||((Integer.parseInt(newPatient.getBirthMonth())-1)==4)||((Integer.parseInt(newPatient.getBirthMonth())-1)==6)||((Integer.parseInt(newPatient.getBirthMonth())-1)==7)||((Integer.parseInt(newPatient.getBirthMonth())-1)==9)||((Integer.parseInt(newPatient.getBirthMonth())-1)==11)){
-			spinnerArray[1].setVisibility(View.VISIBLE);
-			spinnerArray[2].setVisibility(View.GONE);
-			spinnerArray[3].setVisibility(View.GONE);
-			spinner_num = 1;
+			day2.setAdapter(SpinnerAdapter1);
 		}
 		else if (((Integer.parseInt(newPatient.getBirthMonth())-1)==3)||((Integer.parseInt(newPatient.getBirthMonth())-1)==5)||((Integer.parseInt(newPatient.getBirthMonth())-1)==8)||((Integer.parseInt(newPatient.getBirthMonth())-1)==10)){
-			spinnerArray[2].setVisibility(View.VISIBLE);
-			spinnerArray[1].setVisibility(View.GONE);
-			spinnerArray[3].setVisibility(View.GONE);
-			spinner_num = 2;
+			day2.setAdapter(SpinnerAdapter2);
 		}
 		else {
-			spinnerArray[3].setVisibility(View.VISIBLE);
-			spinnerArray[2].setVisibility(View.GONE);
-			spinnerArray[1].setVisibility(View.GONE);
-			spinner_num = 3;
+			day2.setAdapter(SpinnerAdapter3);
 		}
 		
-		
-	
-		spinnerArray[0].setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+		month2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 	        @Override
 	        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {                
 
 	            int item = position;
 	            if ((item == 0) || (item==2) || (item== 4) ||(item== 6)||(item== 7)||(item== 9)||(item== 11)){
-	            	spinner_num = 1;
-	            	spinnerArray[1].setVisibility(View.VISIBLE);
-	            	spinnerArray[2].setVisibility(View.GONE);
-	            	spinnerArray[3].setVisibility(View.GONE);
+	            	int position1 = day2.getSelectedItemPosition();
+	            	day2.setAdapter(SpinnerAdapter1);
+	            	day2.setSelection(position1);
 	            }
 	            else if ((item==3) || (item==5) || (item==8) || (item==10)){
-	            	if (day_num == 30) spinnerArray[2].setSelection(0);
-	            	spinner_num = 2;
-	            	spinnerArray[2].setVisibility(View.VISIBLE);
-	            	spinnerArray[1].setVisibility(View.GONE);
-	            	spinnerArray[3].setVisibility(View.GONE);
+	            	int position1 = day2.getSelectedItemPosition();
+	            	day2.setAdapter(SpinnerAdapter2);
+	            	if (position1 > 30) day2.setSelection(0);
+	            	else day2.setSelection(position1);
 	            }
 	            else {
-	            	if ((day_num == 30)||(day_num == 29)) spinnerArray[3].setSelection(0);
-	            	spinner_num = 3;
-	            	spinnerArray[3].setVisibility(View.VISIBLE);
-	            	spinnerArray[2].setVisibility(View.GONE);
-	            	spinnerArray[1].setVisibility(View.GONE);
+	            	int position1 = day2.getSelectedItemPosition();
+	            	day2.setAdapter(SpinnerAdapter3);
+	            	if (position1 > 29) day2.setSelection(0);
+	            	else day2.setSelection(position1);
 	            }
 	        }
 	        @Override
 	        public void onNothingSelected(AdapterView<?> parent) {
-	        	
-	        }
-	    });  
-		
-		spinnerArray[1].setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-	        @Override
-	        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {                
-
-	            day_num = position;
-	        }
-
-	        @Override
-	        public void onNothingSelected(AdapterView<?> parent) {
-	        	
-	        }
-	    });
-		spinnerArray[2].setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-	        @Override
-	        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {                
-
-	            day_num = position;
-	        }
-
-	        @Override
-	        public void onNothingSelected(AdapterView<?> parent) {
-	        	
-	        }
-	    });
-		spinnerArray[3].setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-	        @Override
-	        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {                
-
-	            day_num = position;
-	        }
-
-	        @Override
-	        public void onNothingSelected(AdapterView<?> parent) {
-	        	
 	        }
 	    });
 		
-		alertDialogBuilder.setView(layout);
+		day2.setSelection(Integer.parseInt(newPatient.getBirthDay())-1);
 		
-		alertDialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				  newPatient.setPatientName(editArray[0].getText().toString());
-				  newPatient.setHealthNumber(editArray[1].getText().toString());
-				  if (checkboxArray[0].isChecked()) {
-					  newPatient.setGender(true);
-				  }
-				  else newPatient.setGender(false);
-				  
-				  newPatient.setBirthYear(editArray[2].getText().toString());
-				  newPatient.setBirthMonth(Integer.toString(spinnerArray[0].getSelectedItemPosition()+1));
-				  if (spinner_num == 1) newPatient.setBirthDay(Integer.toString(spinnerArray[1].getSelectedItemPosition()+1));
-				  else if (spinner_num == 2) newPatient.setBirthDay(Integer.toString(spinnerArray[2].getSelectedItemPosition()+1));
-				  else if (spinner_num == 3) newPatient.setBirthDay(Integer.toString(spinnerArray[3].getSelectedItemPosition()+1));
-				  
-				  try {
-					saveInfoToFile(newPatient.getPatientName(), newPatient.getHealthNumber(), newPatient.getGender(), newPatient.getBirthYear(), newPatient.getBirthMonth(), newPatient.getBirthDay());
-				  } catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				  }
-				  try {
-					readInfoFromFile(newPatient.getPatientName());
-				  } catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				  }
-			}
-		});
+		dialog.setCanceledOnTouchOutside(false);
 		
+		final AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
 		
-		alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			  public void onClick(DialogInterface dialog, int whichButton) {
-			   
-			  }
-		});
-		
-		alertDialogBuilder.show();	
+		Button negButton = (Button) dialog.findViewById(R.id.buttonCANCEL);
+        	negButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	if(!first_time_editing_patient) dialog.dismiss();
+            	
+            	else {
+            		dlgAlert.setMessage("Please Submit Patient Information First");
+            	
+            		dlgAlert.setPositiveButton("OK", null);
+            		dlgAlert.setCancelable(true);
+            		dlgAlert.create().show();
+                
+            		dlgAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+            		});
+            	}
+            }
+        });
+        	
+        Button posButton = (Button) dialog.findViewById(R.id.buttonSUBMIT);
+        	posButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            
+              if (phn2.getText().toString().length() != 10) {
+            	  phn2.requestFocus();
+      			  phn2.setError("10 Digits Required");
+      			  entry_error = true;
+      		  }	  
+              if (year2.getText().toString().length() != 4) {
+            	  phn2.clearFocus();
+            	  year2.requestFocus();
+    			  year2.setError("4 Digits Required");
+    			  entry_error = true;
+              }
+      		  if (!entry_error){
+      			  newPatient.setHealthNumber(phn2.getText().toString());
+	              newPatient.setPatientName(name2.getText().toString());
+	              newPatient.setHealthNumber(phn2.getText().toString());
+	      		  if (gender2.isChecked()) {
+	      			  newPatient.setGender(true);
+	      		  }
+	      		  else newPatient.setGender(false);
+	      		  newPatient.setBirthYear(year2.getText().toString());
+	      		  newPatient.setBirthMonth(Integer.toString(month2.getSelectedItemPosition()+1));
+	      		  newPatient.setBirthDay(Integer.toString(day2.getSelectedItemPosition()+1));
+	      		  try {
+	      			saveInfoToFile(newPatient.getPatientName(), newPatient.getHealthNumber(), newPatient.getGender(), newPatient.getBirthYear(), newPatient.getBirthMonth(), newPatient.getBirthDay());
+	      		  } catch (IOException e) {
+	      			// TODO Auto-generated catch block
+	      			e.printStackTrace();
+	      		  }
+	      		  try {
+	      			readInfoFromFile(newPatient.getPatientName());
+	      		  } catch (IOException e) {
+	      			// TODO Auto-generated catch block
+	      			e.printStackTrace();
+	      		  }
+	      		  first_time_editing_patient = false;
+	      		  dialog.dismiss();
+      		  }
+      		  else {
+      			  entry_error = false;
+      		  }
+            }
+        });
+        dialog.show();	
 	}
 
 
 	public void onClickedStart(View view) {
-		recname1 = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "-" + newPatient.getBirthYear() + "-" + newPatient.getBirthMonth() 
-					+ "-" + newPatient.getBirthDay() + "__";// + currentDateandTime;//dateFormat.format(date);
+		recname1 = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "-" + String.format(Locale.getDefault(), "%04d", Integer.parseInt(newPatient.getBirthYear())) 
+					+ "-" + String.format(Locale.getDefault(), "%02d", Integer.parseInt(newPatient.getBirthMonth())) + "-" + String.format(Locale.getDefault(), "%02d", Integer.parseInt(newPatient.getBirthDay())) + "__";
 		Intent newRecordingIntent = new Intent(this, NewRecordingActivity.class);
 		newRecordingIntent.putExtra("recordingName", recname1);
 		newRecordingIntent.putExtra("configuration", newConfiguration);
@@ -604,7 +458,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	      for(int i=0; i<fList.length; i++) {
 	    	  fList[i] = fList[i].toUpperCase(Locale.getDefault());
 	      }
-	      Arrays.sort(fList);
+//	      Arrays.sort(fList);
+	      Arrays.sort(fList,Collections.reverseOrder());
 	      fileList = new Item[fList.length];
 	      for (int i = 0; i < fList.length; i++) {
 	        fileList[i] = new Item(fList[i], R.drawable.file_icon);

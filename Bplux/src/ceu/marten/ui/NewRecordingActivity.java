@@ -79,6 +79,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	public static final String KEY_DURATION = "duration";
 	public static final String KEY_RECORDING_NAME = "recordingName";
 	public static final String KEY_CONFIGURATION = "configSelected";
+	public static final String KEY_END = "recordingEnded";
 	
 	// key for recovery. Used when android kills activity
 	public static final String KEY_CHRONOMETER_BASE = "chronometerBase";
@@ -294,15 +295,23 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private void sendRecordingDuration() {
 		if (isServiceBounded && serviceMessenger != null) {
-			Message msg = Message.obtain(null, BiopluxService.MSG_RECORDING_DURATION, 0, 0);
+			/*Message msg = Message.obtain(null, BiopluxService.MSG_RECORDING_DURATION, 0, 0);
 			Bundle extras = new Bundle();
-			extras.putString(KEY_DURATION, duration); 
+			extras.putString(KEY_DURATION, duration);
+			System.out.println("##### NewRecordingActivity ##### - Duration: " + duration);
 			msg.setData(extras);
 			msg.replyTo = activityMessenger;
 			try {
 				serviceMessenger.send(msg);
 			} catch (RemoteException e) {
 				Log.e(TAG, "Error sending duration to service", e);
+				displayConnectionErrorDialog(10); // 10 -> fatal error
+			}*/
+			Message msg = Message.obtain(null, BiopluxService.MSG_END_RECORDING_FLAG, 0, 0);
+			try {
+				serviceMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.e(TAG, "Error sending end flag to service", e);
 				displayConnectionErrorDialog(10); // 10 -> fatal error
 			}
 		}else{Log.e(TAG, "Error sending duration to service");}
@@ -624,7 +633,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private void stopRecording(){
 		savingDialog.show();
-		stopChronometer();
+		//stopChronometer();
 		sendRecordingDuration();
 		unbindFromService();
 		stopService(new Intent(NewRecordingActivity.this, BiopluxService.class));
@@ -641,7 +650,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private boolean startRecording() {
 		
-		Toast.makeText(getApplicationContext(), "sampling: "+recordingConfiguration.getSamplingFrequency() +"visualization: "+recordingConfiguration.getVisualizationFrequency() ,Toast.LENGTH_SHORT).show();
+		//Toast.makeText(getApplicationContext(), "sampling: "+recordingConfiguration.getSamplingFrequency() +"visualization: "+recordingConfiguration.getVisualizationFrequency() ,Toast.LENGTH_SHORT).show();
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		final ProgressDialog progress;
 		if(recordingConfiguration.getMacAddress().compareTo("test")!= 0){ // 'test' is used to launch device emulator
@@ -679,14 +688,14 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
 							String currentDateandTime = sdf.format(new Date());
 							Intent intent = new Intent(classContext, BiopluxService.class);
-							intent.putExtra(KEY_RECORDING_NAME, recording.getName() + currentDateandTime);
+							intent.putExtra(KEY_RECORDING_NAME, recording.getName());// + currentDateandTime);
 							intent.putExtra(KEY_CONFIGURATION, recordingConfiguration);
 							System.out.println("##### NewRecordingActivity ##### - patientName passed is: " + patientName);
 							intent.putExtra("patientName", patientName);							
 //							intent.putExtra("PHN", patientHealthNumber);
 							startService(intent);
 							bindToService();
-							startChronometer();
+							//startChronometer();
 							uiMainbutton.setText(getString(R.string.nr_button_stop));
 							displayInfoToast(getString(R.string.nr_info_started));
 							drawState = false;
@@ -780,10 +789,12 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		chronometer.stop();
 		long elapsedMiliseconds = SystemClock.elapsedRealtime()
 				- chronometer.getBase();
-		duration = String.format("%02d:%02d:%02d",
+		/*duration = String.format("%02d:%02d:%02d",
 				(int) ((elapsedMiliseconds / (1000 * 60 * 60)) % 24), 	// hours
 				(int) ((elapsedMiliseconds / (1000 * 60)) % 60),	  	// minutes
-				(int) (elapsedMiliseconds / 1000) % 60);				// seconds
+				(int) (elapsedMiliseconds / 1000) % 60);				// seconds*/
+		duration = String.valueOf((int) (elapsedMiliseconds/1000) % 60);
+		System.out.println("##### NewRecordingActivity ##### - Duration of recording is: " + this.duration);
 	}
 
 	/**
@@ -846,6 +857,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	public void onMainButtonClicked(View view) {
 		// Starts recording
+		System.out.println("##### NewRecordingActivity ##### - Main Button is Clicked");
 		if (!isServiceRunning() && !recordingOverride) {
 			startRecording();
 		// Overwrites recording

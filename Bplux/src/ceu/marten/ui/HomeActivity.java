@@ -15,20 +15,20 @@ import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.SparseBooleanArray;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.DeviceConfiguration;
@@ -95,7 +95,7 @@ public class HomeActivity extends Activity {
 	public void onClickedPatientName(View view) {
 		patientListGenerator();
 	}
-	
+
 	private void patientListGenerator(){
 		
 		final String[] string= new String[spinner_array_count];
@@ -122,37 +122,54 @@ public class HomeActivity extends Activity {
 		    }
 		});
 		
+		final AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
+		
 		builder.setNeutralButton("SELECT", new DialogInterface.OnClickListener() {
 		    public void onClick(DialogInterface dialog, int id) {
 		    	int j=0;
+		    	int count = 0;
 		    	boolean choice = true;
 		    	SparseBooleanArray Checked = ((AlertDialog)dialog).getListView().getCheckedItemPositions();
-		    	while (Checked.get(j) == false){
-		    		j++;
-		    		if (j == spinner_array_count) {
-		    			choice = false;
-		    			break;
-		    		}
-		    	}
-		    	if (choice){
-					PatientName = spinner_array[j];
-	    			Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
-	      			Matcher matcher = pattern.matcher(PatientName);
-	    			if (matcher.find()) {
-	      				if (matcher.groupCount() == 2) {	  				
-	    	  				PatientFName = matcher.group(1);
-	    	  				PatientLName = matcher.group(2);
-	      				}
-	      				else {
-	      					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
-	      				}
-	    			}
-	    			nameset = true;
-			    	mButton1.setText(spinner_array[j]);
+		    	
+		    	if (((AlertDialog)dialog).getListView().getCheckedItemCount()>1){
+                    dlgAlert.setMessage("PLEASE SELECT ONE PATIENT");
+                    dlgAlert.setPositiveButton("OK", null);
+                    dlgAlert.setCancelable(true);
+                    dlgAlert.create().show();
+                    
+                    dlgAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                    });
 		    	}
 		    	else {
-		    		mButton1.setText("Patient Name");
-		    		nameset = false;
+			    	while (Checked.get(j) == false){
+			    		j++;
+			    		if (j == spinner_array_count) {
+			    			choice = false;
+			    			break;
+			    		}
+			    	}
+			    	if (choice){
+						PatientName = spinner_array[j];
+		    			Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+		      			Matcher matcher = pattern.matcher(PatientName);
+		    			if (matcher.find()) {
+		      				if (matcher.groupCount() == 2) {	  				
+		    	  				PatientFName = matcher.group(1);
+		    	  				PatientLName = matcher.group(2);
+		      				}
+		      				else {
+		      					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+		      				}
+		    			}
+		    			nameset = true;
+				    	mButton1.setText(spinner_array[j]);
+			    	}
+			    	else {
+			    		mButton1.setText("Patient Name");
+			    		nameset = false;
+			    	}
 		    	}
 		    }
 		});
@@ -165,7 +182,7 @@ public class HomeActivity extends Activity {
 	            
 	            	if(Checked.get(j) == true){
 	            		File file = new File(PInfoDirectory + spinner_array[j] + PatientInfoExtension);
-	            		Toast.makeText(getApplicationContext(), PInfoDirectory + spinner_array[j] + PatientInfoExtension,Toast.LENGTH_SHORT).show();
+	            		//Toast.makeText(getApplicationContext(), PInfoDirectory + spinner_array[j] + PatientInfoExtension,Toast.LENGTH_SHORT).show();
 	          			if(file.exists()) {
 	          				file.delete();
 	          			}
@@ -180,7 +197,6 @@ public class HomeActivity extends Activity {
 	    	    		nameset = false;
 	            	}
 	            }
-	    		
 		    }
 		});
 		
@@ -262,61 +278,73 @@ public class HomeActivity extends Activity {
 
 	private void AddNewPatientDialog(){	
 		
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setTitle("Patient Name");
-		Context context = this;
-		LinearLayout layout = new LinearLayout(context);
-		layout.setOrientation(LinearLayout.VERTICAL);
-
-		final EditText patientFNameBox = new EditText(context);
-		final EditText patientLNameBox = new EditText(context);
-		patientFNameBox.setHint("First Name");
-		patientLNameBox.setHint("Last Name");
-		layout.addView(patientFNameBox);
-		layout.addView(patientLNameBox);
+		final Dialog dialog = new Dialog(context);
+		dialog.setTitle("Patient Name");
+		dialog.setContentView(R.xml.anp_button);
 		
+		final EditText name1 = (EditText)dialog.findViewById(R.id.name1);
+		name1.setHint("First Name");
 		
-		alertDialogBuilder.setView(layout);
+		final EditText name2 = (EditText)dialog.findViewById(R.id.name2);
+		name2.setHint("Last Name");
 		
-		alertDialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				  Editable patientFName = patientFNameBox.getText();
-				  Editable patientLName = patientLNameBox.getText();
-				  spinner_array[spinner_array_count] = patientFName.toString() + " " + patientLName.toString();
-				  spinner_array_count++;
-				  
-				  try {				
-					  saveNameToFile(patientFName.toString() + " " + patientLName.toString());
-				  } catch (IOException e) {
-					e.printStackTrace();
-				  }
-				  
-				  PatientName = spinner_array[spinner_array_count -1];
-				  Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
-	      		  Matcher matcher = pattern.matcher(PatientName);
-	      		  if (matcher.find()) {
-	      			  if (matcher.groupCount() == 2) {	  				
-	      				  PatientFName = matcher.group(1);
-	      				  PatientLName = matcher.group(2);
-	      			  }
-	      			  else {
-	      				  System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
-	      			  }
-	      		  }
-	      		  nameset = true;
-	      		  mButton1.setText(spinner_array[spinner_array_count-1]);
-				  
-				  
-			}
-		});
-		alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			  public void onClick(DialogInterface dialog, int whichButton) {
-				  nameset = false;
-			  }
-		});
-		alertDialogBuilder.show();	
-		
-	}
+		Button negButton = (Button) dialog.findViewById(R.id.buttonCANCEL);
+        	negButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	dialog.dismiss();
+            }
+        });
+        	
+        final AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);	
+        Button posButton = (Button) dialog.findViewById(R.id.buttonSUBMIT);
+        	posButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	if (name1.getText().toString().equals("") || name2.getText().toString().equals("")){
+	            	dlgAlert.setMessage("PLEASE ENTER A FIRST AND LAST NAME");
+	                dlgAlert.setPositiveButton("OK", null);
+	                dlgAlert.setCancelable(true);
+	                dlgAlert.create().show();
+	                
+	                dlgAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	                        public void onClick(DialogInterface dialog, int which) {
+	                        }
+	                });
+            	}
+            	else{
+            		Editable patientFName = name1.getText();
+  				  	Editable patientLName = name2.getText();
+  				  	spinner_array[spinner_array_count] = patientFName.toString() + " " + patientLName.toString();
+  				  	spinner_array_count++;
+  				  
+  				  	try {				
+  				  		saveNameToFile(patientFName.toString() + " " + patientLName.toString());
+  				  	} catch (IOException e) {
+  				  		e.printStackTrace();
+  				  	}
+  				  
+	  				  PatientName = spinner_array[spinner_array_count -1];
+	  				  Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+	  	      		  Matcher matcher = pattern.matcher(PatientName);
+	  	      		  if (matcher.find()) {
+	  	      			  if (matcher.groupCount() == 2) {	  				
+	  	      				  PatientFName = matcher.group(1);
+	  	      				  PatientLName = matcher.group(2);
+	  	      			  }
+	  	      			  else {
+	  	      				  System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+	  	      			  }
+	  	      		  }
+	  	      		  nameset = true;
+	  	      		  mButton1.setText(spinner_array[spinner_array_count-1]);
+	  	      		  dialog.dismiss();
+            	}
+            	
+            }
+        });
+        dialog.show();	
+}
 	
 	private void saveNameToFile(String patientName) throws IOException{
 		
