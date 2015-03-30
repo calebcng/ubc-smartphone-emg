@@ -650,7 +650,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private boolean startRecording() {
 		
-		Toast.makeText(getApplicationContext(), "sampling: "+recordingConfiguration.getSamplingFrequency() +"visualization: "+recordingConfiguration.getVisualizationFrequency() ,Toast.LENGTH_SHORT).show();
+		//Toast.makeText(getApplicationContext(), "sampling: "+recordingConfiguration.getSamplingFrequency() +"visualization: "+recordingConfiguration.getVisualizationFrequency() ,Toast.LENGTH_SHORT).show();
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		final ProgressDialog progress;
 		if(recordingConfiguration.getMacAddress().compareTo("test")!= 0){ // 'test' is used to launch device emulator
