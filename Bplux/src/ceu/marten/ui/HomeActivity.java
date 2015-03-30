@@ -282,11 +282,8 @@ public class HomeActivity extends Activity {
 		dialog.setTitle("Patient Name");
 		dialog.setContentView(R.xml.anp_button);
 		
-		final EditText name1 = (EditText)dialog.findViewById(R.id.name1);
-		name1.setHint("First Name");
-		
-		final EditText name2 = (EditText)dialog.findViewById(R.id.name2);
-		name2.setHint("Last Name");
+		final EditText name1 = (EditText)dialog.findViewById(R.id.first_name);	
+		final EditText name2 = (EditText)dialog.findViewById(R.id.last_name);
 		
 		Button negButton = (Button) dialog.findViewById(R.id.buttonCANCEL);
         	negButton.setOnClickListener(new OnClickListener() {

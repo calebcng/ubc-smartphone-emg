@@ -7,25 +7,25 @@
     	android:layout_height="fill_parent" >
  
     <TextView
-        android:id="@+id/name1"
+        android:id="@+id/first_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Name: "
         android:textSize="18dip"/>
  
     <EditText
-        android:id="@+id/name2"
+        android:id="@+id/last_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="myName"
-        android:layout_below="@+id/name1"/>
+        android:layout_below="@+id/first_name"/>
  
      <TextView
         android:id="@+id/phn1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Provincial Health Number: "
-        android:layout_below="@+id/name2"
+        android:layout_below="@+id/last_name"
         android:textSize="18dip"/>
  
      <EditText

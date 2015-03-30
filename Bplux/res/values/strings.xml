@@ -193,8 +193,8 @@
     
     <!-- DISPLAY STORED GRAPH ACTIVITY-->
     <string name="raw_data_btn">Original Signal</string>
-    <string name="fft_data_btn">FFT Signal</string>
-    <string name="fft_img_btn">Imaginary FFT</string>
+    <string name="fft_data_btn">Frequency Spectrum</string>
+    <string name="fft_pwr_btn">Power Spectrum</string>
     <string name="export_btn">Export</string>
     <string name="delete_btn">Delete</string>
     <string name="confirm_btn">Confirm</string>

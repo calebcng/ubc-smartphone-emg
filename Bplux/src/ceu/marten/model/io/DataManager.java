@@ -94,7 +94,6 @@ public class DataManager {
 	 * write and the Buffered writer
 	 * @author Caleb Ng
 	 */
-//	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientHealthNumber) {
 	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientName) {
 		this.context = serviceContext;
 		this.recordingName = _recordingName;
@@ -139,8 +138,6 @@ public class DataManager {
 		int linecount = 0;
 		//READ
 		try {
-//			FileInputStream fIn = new FileInputStream("/storage/emulated/0/"+patientName+"INFO"+".txt");
-//			FileInputStream fIn = new FileInputStream(PInfoDirectory+newPatient.getPatientFirstName() + newPatient.getPatientLastName() + "(" + newPatient.getHealthNumber() + ")" + PatientInfoExtension);
 			FileInputStream fIn = new FileInputStream(PInfoDirectory + patientName + PatientInfoExtension);
 		    @SuppressWarnings("resource")
 			Scanner scanner = new Scanner(fIn);

@@ -152,7 +152,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		dialog.setTitle("Patient Information");
 		dialog.setContentView(R.xml.adb_button);
 		
-		final EditText name2 = (EditText)dialog.findViewById(R.id.name2);
+		final EditText name2 = (EditText)dialog.findViewById(R.id.last_name);
 		name2.setText(newPatient.getPatientName());
 		name2.setEnabled(false);
 		
@@ -616,6 +616,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	            System.out.println("FILE EXPLORE: Chosen file is: " + chosenFile);
 	            Intent intent = new Intent(PatientSessionActivity.this, DisplayStoredGraphActivity.class);
 	            intent.putExtra("FILE_NAME", chosenFile);
+	            intent.putExtra("PATIENT_NAME", newPatient.getPatientFirstName() + " " + newPatient.getPatientLastName());
 	            startActivity(intent);
 	          }
 
@@ -723,9 +724,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 						Toast toast = Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
 						toast.show();	
 					}
-					Toast toast = Toast.makeText(getApplicationContext(), "Item(s) deleted", Toast.LENGTH_SHORT);
-					toast.show();
-					
+					Toast toast = Toast.makeText(getApplicationContext(), "Successfully deleted " + mSelectedItems.size() + " items", Toast.LENGTH_SHORT);
+					toast.show();	
 				}
 			});			
 			// Set text of negative button to "Cancel"
@@ -818,9 +818,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 				// Delete file; throw an IOException if delete is unsuccessful
 				if(!recordingZipFile.delete())
 					throw new IOException("Failed to delete " + recordingZipFile.getName());
-			}
-			Toast toast = Toast.makeText(getApplicationContext(), "Successfully deleted " + mSelectedItems.size() + " items", Toast.LENGTH_SHORT);
-			toast.show();			
+			}		
 		}
 	}
 	

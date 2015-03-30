@@ -21,6 +21,8 @@ import com.bitalino.util.SensorDataConverter;
 //import com.example.bluetoothnew.R;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
+import ceu.marten.ui.NewRecordingActivity;
+
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
@@ -37,9 +39,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.TextView;
 
 /** 
  * Reads the data stored in a target recordings text file and plots
@@ -57,15 +62,16 @@ public class DisplayStoredGraphActivity extends Activity {
 	private final Handler mHandler = new Handler();
 	private Vector<Double> dataSetRAW = new Vector<Double>();
 	private Vector<Double> dataSetFFT = new Vector<Double>();
-	private Vector<Double> dataSetFFT_real = new Vector<Double>();
-	private Vector<Double> dataSetFFT_imag = new Vector<Double>();
+	private Vector<Double> dataSetPWR = new Vector<Double>();
+
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
 	public String endOfHeader = "# EndOfHeader";
+	private String graphTitle = new String();
+	private static final String TAG = NewRecordingActivity.class.getName();
 	private GraphViewSeries rawSeries;
 	private GraphViewSeries fftSeries;
-	private GraphViewSeries fftSeriesReal;
-	private GraphViewSeries fftSeriesImag;
+	private GraphViewSeries pwrSeries;
 	int setSize = 0;
 	int max=0;
 	int min=0;	
@@ -73,7 +79,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	Context context;
 	LinearLayout layout;
 	// Data for determining the appropriate scale for the x-axis
-	private int samplingFrequency = 1;
+	private int samplingFrequency = 1000;
 	// Data for determining the appropriate time stamp
 	private String startDate = "Jan 1, 2000";
 	private int startHour = 00;
@@ -85,7 +91,6 @@ public class DisplayStoredGraphActivity extends Activity {
 	private int endSecond = 00;
 	private String PeridOfDay = "AM";
 	private int sampleLength = 0;
-	private boolean fft_calculated = false;
 
   
   	@Override
@@ -95,6 +100,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
 			recordingName = extras.getString("FILE_NAME");
+			graphTitle = "Recording for " + extras.getString("PATIENT_NAME") + " at ";
 		}
 		else
 			System.out.println("Unable to retrieve FILE_NAME");
@@ -117,95 +123,55 @@ public class DisplayStoredGraphActivity extends Activity {
   		boolean checked = ((RadioButton) view).isChecked();
   		final RadioButton rawData = (RadioButton) findViewById(R.id.rawGraphBtn);
   		final RadioButton fftData = (RadioButton) findViewById(R.id.fftGraphBtn);
-//  		final RadioButton fftImag = (RadioButton) findViewById(R.id.fftImagGraphBtn);
+  		final RadioButton pwrData = (RadioButton) findViewById(R.id.pwrGraphBtn);
   		
   		// Check which button was clicked
   		switch(view.getId()) {
 	  		case R.id.rawGraphBtn:
 	  			if (checked) {
-	  				System.out.println("###DSGA### - RAW signal selected.");
+	  				// Original signal option selected
 	  				rawData.setClickable(false);
 	  				fftData.setClickable(true);
-//	  				fftImag.setClickable(true);
+	  				pwrData.setClickable(true);
 	  				
-	  				graphData(dataSetRAW);
+	  				graphData(dataSetRAW,100);
 	  			}
 	  			break;
 	  		case R.id.fftGraphBtn:
 	  			if (checked) { 
-	  				System.out.println("###DSGA### - Real FFT selected.");
+	  				// Frequency spectrum option selected
 	  				rawData.setClickable(true);
 	  				fftData.setClickable(false);
-//	  				fftImag.setClickable(true);
+	  				pwrData.setClickable(true);
 	  				
-	  				if(dataSetFFT_real.size() == 0 || dataSetFFT_imag.size() == 0 || dataSetFFT.size() == 0) {
+	  				//If FFT has not already been calculated, do so now
+	  				if(dataSetFFT.size() == 0 || dataSetPWR.size() == 0) {
 	  					// Perform FFT to compute graph series
-//	  					System.out.println("FFT size: " + dataSetFFT_real.size() + " vs. RAW size: " + dataSetRAW.size());
-	  					calculateFFT();
+	  					prgDialog = new ProgressDialog(this);		
+	  					new CalculateFFT().execute(true);
 	  				}
-	  				graphData(dataSetFFT);
+	  				else
+	  					graphData(dataSetFFT,dataSetFFT.size());
 	  			}
 	  			break;
-	  		/*case R.id.fftImagGraphBtn:
+	  		case R.id.pwrGraphBtn:
 	  			if (checked) {
-	  				System.out.println("###DSGA### - Imaginary FFT selected.");
+	  				// Power spectrum option selected
 	  				rawData.setClickable(true);
-	  				fftReal.setClickable(true);
-	  				fftImag.setClickable(false);
+	  				fftData.setClickable(true);
+	  				pwrData.setClickable(false);
 	  				
-	  				if(dataSetFFT_real.size() == 0 || dataSetFFT_imag.size() == 0) {
+	  				//If FFT has not already been calculated, do so now
+	  				if(dataSetFFT.size() == 0 || dataSetPWR.size() == 0) {
 	  					// Perform FFT to compute graph series
-	  					System.out.println("FFT size: " + dataSetFFT_real.size() + " vs. RAW size: " + dataSetRAW.size());
-	  					calculateFFT();
+	  					prgDialog = new ProgressDialog(this);		
+	  					new CalculateFFT().execute(false);
 	  				}
-	  				graphData(dataSetFFT_imag);
-	  			}*/
+	  				else
+	  					graphData(dataSetPWR,dataSetPWR.size());
+	  			}
+	  			break;
   		}
-  	}
-  	
-  	/*
-  	 * Process raw dataSet using Fast Fourier Transform (FFT)
-  	 */
-  	private void calculateFFT() {
-  		System.out.println("###DSGA### - Calculating FFT"); 
-  		int numSamples = dataSetRAW.size();
-  		double[] datapoints = new double[numSamples*2];
-  		int[] xIndex = new int[numSamples];
-  		for(int i=0; i<numSamples; i++) {
-  			datapoints[i] = (double) dataSetRAW.get(i);
-  			xIndex[i] = i;
-  		}
-  		System.out.println("Datapoint size: " + datapoints.length + " vs. Raw data size: " + numSamples);
-  		DoubleFFT_1D fft = new DoubleFFT_1D(numSamples);
-  		fft.realForwardFull(datapoints);
-
-  		fftSeries = new GraphViewSeries(new GraphViewData[] {});
-  		for(int i=0; i<datapoints.length/2; i++) {
-  			Complex c = new Complex(datapoints[2*i], datapoints[(2*i)+1]);
-  			double pointY = (double) c.abs();
-  			dataSetFFT.add(pointY);
-  			fftSeries.appendData(new GraphViewData(i,pointY), true, datapoints.length/2);
-  		}
-  		
-//  		fftSeriesReal = new GraphViewSeries(new GraphViewData[] {});
-//  		fftSeriesImag = new GraphViewSeries(new GraphViewData[] {});
-  		/*for (int i=0; i<datapoints.length; i++) {
-		  	if( i%2 == 0 ) {
-//		  		dataSetFFT_real.add(Math.pow(Math.abs(datapoints[i]), 2));
-//			  	double pointY = Math.pow(Math.abs(datapoints[i]), 2);
-		  		dataSetFFT_real.add(datapoints[i]);
-		  		double pointY = datapoints[i];
-			  	fftSeriesReal.appendData(new GraphViewData(xIndex[i/2], pointY), true, datapoints.length/2); 
-		  	}
-		  	else {
-//		  		dataSetFFT_imag.add(datapoints[i]); 
-//			  	double pointY = datapoints[i]; 	
-		  		dataSetFFT_imag.add(Math.abs(datapoints[i])); 
-			  	double pointY = Math.abs(datapoints[i]); 	
-			  	fftSeriesImag.appendData(new GraphViewData(xIndex[(i-1)/2], pointY), true, datapoints.length/2);
-		  	}		  	
-		}*/
-  		System.out.println("###DSGA### - Finished calculating FFT");
   	}
   
 
@@ -223,31 +189,33 @@ public class DisplayStoredGraphActivity extends Activity {
 		return dataRange;
 	}
 	
-	private void graphData(final Vector<Double> dataSet) {	  
+	private void graphData(final Vector<Double> dataSet, int viewPort) {	  
 	  System.out.println("Defining data set.");
-	  samplingFrequency = 1000;
 	  
 	  // Determine the appropriate graphSeries to add depending on dataSet that was passed
 	  GraphViewSeries graphSeries;
+	  TextView yAxisString = (TextView) findViewById(R.id.graph_yAxis);
+	  TextView xAxisString = (TextView) findViewById(R.id.graph_xAxis);
 	  if( dataSet == dataSetFFT ) {
-		  System.out.println("###DSGA### - Adding fftSeries");
 		  graphSeries = fftSeries;
+		  yAxisString.setText("Voltage\n(mV)");
+		  xAxisString.setText("Frequency (Hz)");
 	  }
-	  else if( dataSet == dataSetFFT_real ) {
-		  System.out.println("###DSGA### - Adding fftSeriesReal");
-		  graphSeries = fftSeriesReal;
-	  }
-	  else if (dataSet == dataSetFFT_imag) {
-		  System.out.println("###DSGA### - Adding FFTSeriesImag");
-		  graphSeries = fftSeriesImag;
-	  }
-	  else {
-		  System.out.println("###DSGA### - Adding RAWSeries");
+	 else if (dataSet == dataSetPWR ) {
+		 graphSeries = pwrSeries;
+		 yAxisString.setText("Power \n"+Html.fromHtml("(mV<sup>2</sup>)"));
+		 xAxisString.setText("Frequency (Hz)");
+	 }
+	 else {
 		  graphSeries = rawSeries;
+		  yAxisString.setText("Voltage\n(mV)");
+		  xAxisString.setText("Time (Hour:Minute:Second)");
 	  }
+//	  yAxisString.setRotation(270);
+//	  yAxisString.setWidth(50);
 
 	  // Format graph labels to show the appropriate domain on x-axis
-	  GraphView graphView = new LineGraphView(this, recordingName) {
+	  GraphView graphView = new LineGraphView(this, graphTitle) {
 		  protected String formatLabel(double value, boolean isValueX) {
 			  if (isValueX) {
 				  long xValue;
@@ -256,7 +224,7 @@ public class DisplayStoredGraphActivity extends Activity {
 					  return "00:00:00";
 				  }
 				  xValue = (long) value;
-				  if(dataSet == dataSetFFT_real || dataSet == dataSetFFT_imag || dataSet == dataSetFFT) {
+				  if(dataSet == dataSetFFT || dataSet == dataSetPWR) {
 					  // Set x-axis to use the frequency domain
 					  return String.format("%d",(int) (xValue * samplingFrequency /dataSetRAW.size()));  
 				  }
@@ -285,20 +253,16 @@ public class DisplayStoredGraphActivity extends Activity {
 	  }
 	  
 	  graphView.addSeries(graphSeries);
-	  /*if(dataSet == dataSetFFT_real) {
-		  graphView.addSeries(fftSeriesImag); 		  
-	  }*/
 	  ((LineGraphView) graphView).setDrawBackground(false);
 	  
+	  // Settings for the graph appearance
 	  graphView.setScalable(true);  
 	  graphView.setScrollable(true);
-	  if (dataSet.size() < 100)
+	  if (dataSet.size() < viewPort)
 	  	graphView.setViewPort(0,dataSet.size());
 	  else
-	  	graphView.setViewPort(0, 100);
+	  	graphView.setViewPort(0, viewPort);
 	  graphView.setManualYAxisBounds(yLabel, min);
-//	  graphView.getGraphViewStyle().setNumVerticalLabels(((yLabel-min)/yInterval) + 1);
-//	  graphView.getGraphViewStyle().setNumHorizontalLabels(xLabel/xInterval + 1);
 	  graphView.getGraphViewStyle().setGridColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
@@ -391,7 +355,11 @@ public class DisplayStoredGraphActivity extends Activity {
 	    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
 	}
   	
-	//<Params, Progress, Result>
+		/**
+		 * Asynchronous Task for reading the data points within the data file
+		 * @author Caleb Ng (2015)
+		 * //<Params, Progress, Result>
+		 */
 		class ReadFileService extends AsyncTask<Void, String, Boolean> {
 			
 			@Override
@@ -509,7 +477,9 @@ public class DisplayStoredGraphActivity extends Activity {
 //				showDialog(progress_bar_type);
 				prgDialog.setTitle("Opening File");
 				prgDialog.setMessage("Opening " + recordingName + "\nPlease wait...");
+				prgDialog.setCancelable(false);
 				prgDialog.show();
+				return;
 			}
 			
 			protected void onPostExecute(Boolean readFileSuccess) {
@@ -535,10 +505,91 @@ public class DisplayStoredGraphActivity extends Activity {
 				  	double pointY = dataSetRAW.get(i);
 				  	rawSeries.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
 				}
-				graphData(dataSetRAW);
+				graphData(dataSetRAW,100);
 				prgDialog.dismiss();
 				prgDialog = null;
+				return;
 			}
+		}
+		
+		/**
+		 * Asynchronous Task for calculating the Fourier Transform of the data set
+		 * Will compute the Frequency spectrum as well as the Power spectrum 
+		 * @author Caleb Ng (2015)
+		 * //<Params, Progress, Result>
+		 */
+		class CalculateFFT extends AsyncTask<Boolean, String, postProcessParams> {
+			@Override
+			protected postProcessParams doInBackground(Boolean... args) {	
+				// If Boolean = true, plot the Frequency spectrum
+				// If Boolean = false, plot the Power spectrum
+				Boolean freqSpectrum = args[0];
+				System.out.println("##### DisplayStoredGraph ##### - FFT parameter passed is: " + freqSpectrum);
+				int numSamples = dataSetRAW.size();
+		  		double[] datapoints = new double[numSamples*2];
+		  		int[] xIndex = new int[numSamples];
+		  		for(int i=0; i<numSamples; i++) {
+		  			datapoints[i] = (double) dataSetRAW.get(i);
+		  			xIndex[i] = i;
+		  		}
+		  		System.out.println("Datapoint size: " + datapoints.length + " vs. Raw data size: " + numSamples);
+		  		DoubleFFT_1D fft = new DoubleFFT_1D(numSamples);
+		  		fft.realForwardFull(datapoints);
+
+		  		fftSeries = new GraphViewSeries(new GraphViewData[] {});
+		  		pwrSeries = new GraphViewSeries(new GraphViewData[] {});
+		  		for(int i=0; i<datapoints.length/4; i++) {
+		  			Complex c = new Complex(datapoints[2*i], datapoints[(2*i)+1]);
+		  			double pointY = (double) c.abs();
+		  			dataSetFFT.add(pointY);
+		  			fftSeries.appendData(new GraphViewData(i,pointY), true, datapoints.length/2);
+		  			double pointY_pwr = (double) Math.pow(pointY, 2);
+					dataSetPWR.add(pointY_pwr);
+		  			pwrSeries.appendData(new GraphViewData(i,pointY_pwr), true, datapoints.length/2);
+		  			
+		  		} 		  		
+
+				postProcessParams returnParams = new postProcessParams();
+				returnParams.readFilesSuccess = true;
+				returnParams.freqSpectrum = freqSpectrum;
+				return returnParams;
+			}
+			
+			protected void onProgressUpdate(String...progress) {
+				//called when the background task makes any progress
+			}
+
+			protected void onPreExecute() {
+				//called before doInBackground() is started
+				super.onPreExecute();
+				// Show Progress Bar Dialog before calling doInBackground method
+				prgDialog.setTitle("Processing Data");
+				prgDialog.setMessage("Calculating the Fourier Transform\nPlease wait...");
+				prgDialog.show();
+				return;
+			}
+			
+			protected void onPostExecute(postProcessParams returnParams) {
+				//called after doInBackground() has finished 
+				if(!returnParams.readFilesSuccess) {
+					Log.e(TAG,"Unable to process data from file.");
+					return;
+				}
+				else {
+					if(returnParams.freqSpectrum)
+						graphData(dataSetFFT, dataSetFFT.size());
+					else
+						graphData(dataSetPWR, dataSetPWR.size());
+					prgDialog.dismiss();
+					prgDialog = null;
+					return;
+				}				
+			}
+		}
+		
+		private class postProcessParams {
+			public boolean readFilesSuccess;
+			public boolean freqSpectrum;
 		}
 	}
 
