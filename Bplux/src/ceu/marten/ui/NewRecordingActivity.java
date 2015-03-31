@@ -111,7 +111,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private int currentZoomValue = 0;
 	private String duration = null; 
 	private SharedPreferences sharedPref = null;
-	private String patientName = "DEFAULT";
+	private String patientFName = "DEFAULT";
+	private String patientLName = "DEFAULT";
 //	private String patientHealthNumber = "1234567890";
 	
 	private boolean isServiceBounded = false;
@@ -341,7 +342,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		savingDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		savingDialog.setProgress(0); //starts with 0%
 		savingDialog.setMax(100); //100%
-		patientName = extras.getString("patientName");
+		patientFName = extras.getString("patientFName");
+		patientLName = extras.getString("patientLName");
 //		patientHealthNumber = extras.getString("PHN");
 		
 		inflater = this.getLayoutInflater();
@@ -368,7 +370,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		// INIT ANDROID' WIDGETS
 		uiRecordingName = (TextView) findViewById(R.id.nr_txt_recordingName);
 //		uiRecordingName.setText(recording.getName());
-		uiRecordingName.setText("Recording session for " + this.patientName);
+		uiRecordingName.setText("Recording session for " + this.patientFName + " " + this.patientLName);
 		uiMainbutton = (Button) findViewById(R.id.nr_bttn_StartPause);
 		chronometer = new Chronometer(classContext);
 		
@@ -690,8 +692,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 							Intent intent = new Intent(classContext, BiopluxService.class);
 							intent.putExtra(KEY_RECORDING_NAME, recording.getName());// + currentDateandTime);
 							intent.putExtra(KEY_CONFIGURATION, recordingConfiguration);
-							System.out.println("##### NewRecordingActivity ##### - patientName passed is: " + patientName);
-							intent.putExtra("patientName", patientName);							
+							intent.putExtra("patientFName", patientFName);							
+							intent.putExtra("patientLName", patientLName);							
 //							intent.putExtra("PHN", patientHealthNumber);
 							startService(intent);
 							bindToService();

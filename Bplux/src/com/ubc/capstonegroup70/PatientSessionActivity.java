@@ -123,7 +123,9 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 			}
 		}
 		else {
-			newPatient.setPatientName(extras.getString("patientName"));
+//			newPatient.setPatientName(extras.getString("patientName"));
+			newPatient.setPatientFName(extras.getString("patientFName"));
+			newPatient.setPatientLName(extras.getString("patientLName"));
 			newPatient.setGender(true);
 			newPatient.setHealthNumber("0123456789");
 			newPatient.setBirthYear("1999");
@@ -330,7 +332,9 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		Intent newRecordingIntent = new Intent(this, NewRecordingActivity.class);
 		newRecordingIntent.putExtra("recordingName", recname1);
 		newRecordingIntent.putExtra("configuration", newConfiguration);
-		newRecordingIntent.putExtra("patientName", newPatient.getPatientName());
+		newRecordingIntent.putExtra("patientFName", newPatient.getPatientFirstName());
+		newRecordingIntent.putExtra("patientLName", newPatient.getPatientLastName());
+//		newRecordingIntent.putExtra("patientName", newPatient.getPatientName());
 		startActivity(newRecordingIntent);
 		overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
 	}

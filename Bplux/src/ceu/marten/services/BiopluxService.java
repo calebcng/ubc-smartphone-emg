@@ -91,7 +91,8 @@ public class BiopluxService extends Service {
 	Notification serviceNotification = null;
 	private SharedPreferences sharedPref;
 //	private String patientHealthNumber = "1234567890";
-	private String patientName = "DEFAULT";
+	private String patientFName = "DEFAULT";
+	private String patientLName = "DEFAULT";
 	
 	// Variables for handling the chronometer
 	private Chronometer chronometer;
@@ -204,7 +205,8 @@ public class BiopluxService extends Service {
 		configuration = (DeviceConfiguration) intent
 				.getSerializableExtra(NewRecordingActivity.KEY_CONFIGURATION);	
 //		patientHealthNumber = intent.getStringExtra("PHN").toString();
-		patientName = intent.getStringExtra("patientName").toString();
+		patientFName = intent.getStringExtra("patientFName").toString();
+		patientLName = intent.getStringExtra("patientLName").toString();
 		
 		//added to avoid the lagging - Brittaney
 		//if (configuration.getVisualizationFrequency()==1000) TIMER_TIME = 5;
@@ -230,7 +232,7 @@ public class BiopluxService extends Service {
 
 		if (connectToBiopluxDevice()) {
 			startChronometer();
-			dataManager = new DataManager(this, recordingName + currentDateandTime, configuration, patientName);
+			dataManager = new DataManager(this, recordingName + currentDateandTime, configuration, patientFName, patientLName);
 //			dataManager = new DataManager(this, recordingName, configuration, patientHealthNumber);
 			createNotification();
 		}
