@@ -44,7 +44,7 @@ public class PatientClass implements Serializable{
 	
 	public void setPatientName(String patient_name) {
 //		this.patient_name = patient_name;
-		Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+		Pattern pattern = Pattern.compile("(.+) (.+)");
 		Matcher matcher = pattern.matcher(patient_name);
 		if (matcher.find()) {
 				if (matcher.groupCount() == 2) {	  				

@@ -23,6 +23,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -152,7 +154,7 @@ public class HomeActivity extends Activity {
 			    	}
 			    	if (choice){
 						PatientName = spinner_array[j];
-		    			Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+		    			Pattern pattern = Pattern.compile("(.+) (.+)");
 		      			Matcher matcher = pattern.matcher(PatientName);
 		    			if (matcher.find()) {
 		      				if (matcher.groupCount() == 2) {	  				
@@ -284,6 +286,20 @@ public class HomeActivity extends Activity {
 		
 		final EditText name1 = (EditText)dialog.findViewById(R.id.first_name);	
 		final EditText name2 = (EditText)dialog.findViewById(R.id.last_name);
+		name1.setHint("First Name");
+		InputFilter filter = new InputFilter() {
+			@Override
+			public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+		        for (int i = start; i < end; i++) { 
+		             if (Character.isSpaceChar(source.charAt(i))) { 
+		            	 return "";     
+		             }     
+		        }
+				return null;
+			}  
+		};
+		name1.setFilters(new InputFilter[] { filter });
+		name2.setFilters(new InputFilter[] { filter });
 		
 		Button negButton = (Button) dialog.findViewById(R.id.buttonCANCEL);
         	negButton.setOnClickListener(new OnClickListener() {
@@ -322,7 +338,7 @@ public class HomeActivity extends Activity {
   				  	}
   				  
 	  				  PatientName = spinner_array[spinner_array_count -1];
-	  				  Pattern pattern = Pattern.compile("(\\w+) (\\w+)");
+	  				  Pattern pattern = Pattern.compile("(.+) (.+)");
 	  	      		  Matcher matcher = pattern.matcher(PatientName);
 	  	      		  if (matcher.find()) {
 	  	      			  if (matcher.groupCount() == 2) {	  				

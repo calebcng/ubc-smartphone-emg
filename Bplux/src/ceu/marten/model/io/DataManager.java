@@ -94,14 +94,12 @@ public class DataManager {
 	 * write and the Buffered writer
 	 * @author Caleb Ng
 	 */
-	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientName) {
+	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientFName, String patientLName) {
 		this.context = serviceContext;
 		this.recordingName = _recordingName;
 		this.configuration = _configuration;
 		newPatient = new PatientClass();
-		
-//		File file = new File("/storage/emulated/0/"+patientName+"INFO"+".txt");
-//		File file = new File(PInfoDirectory+newPatient.getPatientFirstName() + newPatient.getPatientLastName() + "(" + newPatient.getHealthNumber() + ")" + PatientInfoExtension);
+		String patientName = patientFName + " " + patientLName;
 		File file = new File(PInfoDirectory + patientName + PatientInfoExtension);
 		if(file.exists()) {
 			try {
@@ -112,7 +110,9 @@ public class DataManager {
 			}
 		}
 		else {
-			newPatient.setPatientName(patientName);
+			Log.e(TAG, "No patient info file found.");
+			newPatient.setPatientFName(patientFName);
+			newPatient.setPatientLName(patientLName);
 			newPatient.setGender(true);
 			newPatient.setHealthNumber("123456789");
 			newPatient.setBirthYear("1999");

@@ -94,6 +94,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	private static final int DIALOG_LOAD_FILE = 1000;
 	private static final int DIALOG_EXPORT = 1001;
 	private static final int DIALOG_DELETE = 1002;
+	private static final int DIALOG_EMPTY = 1003;
 	
 	ListAdapter adapter;
 
@@ -413,10 +414,15 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		
 	
 	public void onClickedSavedData(View view) {
-		// Start FileExplorer
-		loadFileList();
-	    showDialog(DIALOG_LOAD_FILE);
-
+		// Start FileExplorer    
+	    if(!loadFileList()) {
+        	showDialog(DIALOG_LOAD_FILE);
+        	Log.d(TAG, "No files were found for this patient.");
+        }
+        else {
+            showDialog(DIALOG_EMPTY);
+            Log.d(TAG, path.getAbsolutePath());
+        }
 		overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 	}
 	
@@ -436,8 +442,9 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	 * See the License for the specific language governing permissions and limitations under the License.
 	 */
 	// Open FileExplore
-	private void loadFileList() {
-	    try {
+	private Boolean loadFileList() {
+	    Boolean isEmpty = true;
+		try {
 	      path.mkdirs();
 	    } catch (SecurityException e) {
 	      Log.e(TAG, "unable to write on the sd card ");
@@ -450,7 +457,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	        public boolean accept(File dir, String filename) {
 	          File sel = new File(dir, filename);
 	          // Create string for filtering files based on the current patient's personal health number
-	          String fileFilter = "\\w+-" + newPatient.getHealthNumber() + "\\S+";
+	          String fileFilter = "[A-Za-z,-_'0-9]+" + newPatient.getHealthNumber() + "\\S+";
 	          // Filters based on whether the file is hidden or not, as well as whether or not it belongs to the current patient
 	          return (sel.isFile() || sel.isDirectory()) && !sel.isHidden() && filename.matches(fileFilter);
 	          
@@ -458,11 +465,14 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	      };
 
 	      String[] fList = path.list(filter);
+	      // Check if list is empty
+	      if(fList.length <= 0)
+	    	  return isEmpty=true;
+	      
 	      // Sort the list of files in alphabetical order
 	      for(int i=0; i<fList.length; i++) {
 	    	  fList[i] = fList[i].toUpperCase(Locale.getDefault());
 	      }
-//	      Arrays.sort(fList);
 	      Arrays.sort(fList,Collections.reverseOrder());
 	      fileList = new Item[fList.length];
 	      for (int i = 0; i < fList.length; i++) {
@@ -513,7 +523,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	        return view;
 	      }
 	    };
-
+	    
+	    return false;
 	  }
 
 	  private class Item {
@@ -584,11 +595,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	            path = new File(sel + "");
 
 	            loadFileList();
-
 	            removeDialog(DIALOG_LOAD_FILE);
 	            showDialog(DIALOG_LOAD_FILE);
-	            Log.d(TAG, path.getAbsolutePath());
-
 	          }
 
 	          // Checks if 'up' was clicked
@@ -611,6 +619,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 
 	            removeDialog(DIALOG_LOAD_FILE);
 	            showDialog(DIALOG_LOAD_FILE);
+	            
 	            Log.d(TAG, path.getAbsolutePath());
 
 	          }
@@ -650,6 +659,10 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 				}
 			});
 	      break;
+	    case DIALOG_EMPTY:
+		      builder.setTitle("Choose the recording you wish to open:");
+		      builder.setMessage("No recordings were found for this patient.");
+		      break;
 	      /**
 	       * Added functionality for Exporting recordings
 	       * @author Caleb Ng

@@ -233,7 +233,6 @@ public class BiopluxService extends Service {
 		if (connectToBiopluxDevice()) {
 			startChronometer();
 			dataManager = new DataManager(this, recordingName + currentDateandTime, configuration, patientFName, patientLName);
-//			dataManager = new DataManager(this, recordingName, configuration, patientHealthNumber);
 			createNotification();
 		}
 		return START_NOT_STICKY; // do not re-create service if system kills it

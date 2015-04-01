@@ -21,6 +21,7 @@ import com.bitalino.util.SensorDataConverter;
 //import com.example.bluetoothnew.R;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
+import ceu.marten.model.io.DataManager;
 import ceu.marten.ui.NewRecordingActivity;
 
 import com.jjoe64.graphview.GraphView;
@@ -54,7 +55,9 @@ import android.widget.TextView;
  */
 
 public class DisplayStoredGraphActivity extends Activity {
-    // Progress Dialog Object
+    // Tag for logging errors
+	private static final String DSGA_TAG = DisplayStoredGraphActivity.class.getName();
+	// Progress Dialog Object
     private ProgressDialog prgDialog;
     // Progress Dialog type (0 - for Horizontal progress bar)
     public static final int progress_bar_type = 0;
@@ -66,7 +69,7 @@ public class DisplayStoredGraphActivity extends Activity {
 
 	public static final File externalStorageDirectory = Environment.getExternalStorageDirectory();
 	public String recordingName = "EMG_DATA";
-	public String endOfHeader = "# EndOfHeader";
+	public String recordingTimePattern = ".{168}(\\d+).(\\d+).(\\d\\d)(\\d+).(\\d+).(\\d\\d)";
 	private String graphTitle = new String();
 	private static final String TAG = NewRecordingActivity.class.getName();
 	private GraphViewSeries rawSeries;
@@ -91,6 +94,8 @@ public class DisplayStoredGraphActivity extends Activity {
 	private int endSecond = 00;
 	private String PeridOfDay = "AM";
 	private int sampleLength = 0;
+	private String recordingDate;
+	private String recordingTime;
 
   
   	@Override
@@ -100,7 +105,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
 			recordingName = extras.getString("FILE_NAME");
-			graphTitle = "Recording for " + extras.getString("PATIENT_NAME") + " at ";
+			graphTitle = "Recording for " + extras.getString("PATIENT_NAME") + " on ";
 		}
 		else
 			System.out.println("Unable to retrieve FILE_NAME");
@@ -211,9 +216,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		  yAxisString.setText("Voltage\n(mV)");
 		  xAxisString.setText("Time (Hour:Minute:Second)");
 	  }
-//	  yAxisString.setRotation(270);
-//	  yAxisString.setWidth(50);
-
+	  graphTitle += this.recordingDate + " at " + this.recordingTime;
 	  // Format graph labels to show the appropriate domain on x-axis
 	  GraphView graphView = new LineGraphView(this, graphTitle) {
 		  protected String formatLabel(double value, boolean isValueX) {
@@ -255,13 +258,15 @@ public class DisplayStoredGraphActivity extends Activity {
 	  graphView.addSeries(graphSeries);
 	  ((LineGraphView) graphView).setDrawBackground(false);
 	  
-	  // Settings for the graph appearance
+	  // Settings for the graph to be scrollable and scalable
 	  graphView.setScalable(true);  
 	  graphView.setScrollable(true);
+	  // Settings for graph view port size
 	  if (dataSet.size() < viewPort)
 	  	graphView.setViewPort(0,dataSet.size());
 	  else
 	  	graphView.setViewPort(0, viewPort);
+	  // Settings for the graph styling
 	  graphView.setManualYAxisBounds(yLabel, min);
 	  graphView.getGraphViewStyle().setGridColor(Color.BLACK);
 	  graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.BLACK);
@@ -367,7 +372,6 @@ public class DisplayStoredGraphActivity extends Activity {
 				Scanner strings = null;
 				InputStream stream = null;
 				BufferedInputStream bstream = null; 
-//				ZipInputStream zipInput = null;
 				ZipFile zipFile = null;
 				try {
 					System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
@@ -378,59 +382,32 @@ public class DisplayStoredGraphActivity extends Activity {
 			  		while (entries.hasMoreElements()) {
 			  			ZipEntry zipEntry = entries.nextElement();
 			  			stream = zipFile.getInputStream(zipEntry);
-			  			strings = new Scanner(stream);
-//			  			bstream = new BufferedInputStream(stream);
-//			  			strings = new Scanner(bstream);
-			  			/*
-			  			  // Process non-compressed text files
-			  			  if (!zipEntry.isDirectory()) {
-			  				String fileName = zipEntry.getName();
-			  				if (fileName.endsWith(".txt")) {
-			  					zipInput = new ZipInputStream(new FileInputStream(fileName));
-			  				}
-			  			}*/
+			  			strings = new Scanner(stream);			  			
 			  			
-			  			// Extract a substring of the file header text
-//			  			System.out.println("Extracting header substring.");
-			  			/*String regexPattern = endOfHeader; //"\"ColumnLabels\"";
-			  			strings.useDelimiter(regexPattern);
-			  			String extracted = strings.next();
-			  			System.out.println("Extracted: " + extracted);*/
-			  			strings.nextLine();
-			  			
-			  			// Determine the sampling frequency from the header text
-			  			/*System.out.println("Extracting sampling frequency.");
-			  			Pattern pattern = Pattern.compile("\"SamplingFrequency\": \"(\\d+)\"");
+			  			// Determine the start date and time from the header text
+			  			System.out.println("Extracting recording start date and time.");
+			  			Pattern pattern = Pattern.compile(".{184}");
+			  			String extracted = strings.findInLine(pattern);
+			  			pattern = Pattern.compile(recordingTimePattern);
 			  			Matcher matcher = pattern.matcher(extracted);
 			  			if (matcher.find()) {
-			  				samplingFrequency = Integer.parseInt(matcher.group(1));
-			  				System.out.println(samplingFrequency);
-			  			}*/
-			  			
-			  			// Determine the start date and time from the header text - Commented out due to change in header format
-			  			/*System.out.println("Extracting start date and time.");
-			  			pattern = Pattern.compile("StartDateTime\": \"(\\w+\\s\\d+,\\s\\d+) (\\d+):(\\d+):(\\d+) (\\w+)\"");
-			  			matcher = pattern.matcher(extracted);
-			  			if (matcher.find()) {
-			  				if (matcher.groupCount() == 5) {
-				  				startDate = matcher.group(1);
-				  				startHour = Integer.parseInt(matcher.group(2));
-				  				startMinute = Integer.parseInt(matcher.group(3));
-				  				startSecond = Integer.parseInt(matcher.group(4));
-				  				PeridOfDay = matcher.group(5);
-				  				if (PeridOfDay == "PM")
-				  					endHour += 12;
-				  				System.out.println("Extracted end time to be: " + startHour + ":" + startMinute + ":" + startSecond + " on " + startDate);
-			  				}
+			  				if (matcher.groupCount() == 6) {
+				  				String Day = matcher.group(1);
+				  				String Month = matcher.group(2);
+				  				String Year = matcher.group(3);
+				  				String Hour = matcher.group(4);
+				  				String Minute = matcher.group(5);
+				  				String Second = matcher.group(6);
+				  				recordingDate = Month + "/" + Day + "/20" + Year;
+				  				recordingTime = Hour + ":" + Minute + ":" + Second;
+			  				}			  				
 			  				else
-			  					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
-			  			}*/
+			  					Log.e(DSGA_TAG, "ERROR: Insufficient number of matches found: " + matcher.groupCount());
+			  			}
 			  			
-			  			// Use tabs as a delimiter for file data
-//			  			strings.findWithinHorizon(endOfHeader,0);    		
-//			      		strings.useDelimiter("\t *");
+			  			// Use new line character as a delimiter for file data
+			  			strings.nextLine();
 			  			strings.useDelimiter("\n *");
-//			      		strings.next();
 			  		}
 				}
 				catch (FileNotFoundException error) {
@@ -445,12 +422,7 @@ public class DisplayStoredGraphActivity extends Activity {
 				while (strings.hasNext())
 				{
 					double dataPoint = Double.parseDouble(strings.next());
-//					dataSetRAW.add(SensorDataConverter.scaleEMG(dataPoint));
 					dataSetRAW.add(dataPoint);
-//					if (strings.hasNext())
-//						strings.next();
-//					else
-//						break;
 				}
 				System.out.println("Closing strings.");
 				try {
@@ -524,7 +496,6 @@ public class DisplayStoredGraphActivity extends Activity {
 				// If Boolean = true, plot the Frequency spectrum
 				// If Boolean = false, plot the Power spectrum
 				Boolean freqSpectrum = args[0];
-				System.out.println("##### DisplayStoredGraph ##### - FFT parameter passed is: " + freqSpectrum);
 				int numSamples = dataSetRAW.size();
 		  		double[] datapoints = new double[numSamples*2];
 		  		int[] xIndex = new int[numSamples];
