@@ -457,7 +457,8 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	        public boolean accept(File dir, String filename) {
 	          File sel = new File(dir, filename);
 	          // Create string for filtering files based on the current patient's personal health number
-	          String fileFilter = "[A-Za-z,-_'0-9]+" + newPatient.getHealthNumber() + "\\S+";
+	          String fileFilter = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "\\S+";
+	          System.out.println("##### PSA ##### file filter: " + fileFilter);
 	          // Filters based on whether the file is hidden or not, as well as whether or not it belongs to the current patient
 	          return (sel.isFile() || sel.isDirectory()) && !sel.isHidden() && filename.matches(fileFilter);
 	          
