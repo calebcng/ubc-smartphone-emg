@@ -105,7 +105,7 @@ public class DisplayStoredGraphActivity extends Activity {
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
 			recordingName = extras.getString("FILE_NAME");
-			graphTitle = "Recording for " + extras.getString("PATIENT_NAME") + " on ";
+			graphTitle = "Recording for " + extras.getString("PATIENT_NAME");
 		}
 		else
 			System.out.println("Unable to retrieve FILE_NAME");
@@ -208,7 +208,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  }
 	 else if (dataSet == dataSetPWR ) {
 		 graphSeries = pwrSeries;
-		 yAxisString.setText("Power \n"+Html.fromHtml("(mV<sup>2</sup>)"));
+		 yAxisString.setText("Power  \n(dB/Hz)");
 		 xAxisString.setText("Frequency (Hz)");
 	 }
 	 else {
@@ -216,7 +216,6 @@ public class DisplayStoredGraphActivity extends Activity {
 		  yAxisString.setText("Voltage\n(mV)");
 		  xAxisString.setText("Time (Hour:Minute:Second)");
 	  }
-	  graphTitle += this.recordingDate + " at " + this.recordingTime;
 	  // Format graph labels to show the appropriate domain on x-axis
 	  GraphView graphView = new LineGraphView(this, graphTitle) {
 		  protected String formatLabel(double value, boolean isValueX) {
@@ -237,7 +236,11 @@ public class DisplayStoredGraphActivity extends Activity {
 				  }						  
 					  
 			  } else {
-				return String.format("%.2f", (double) value);
+				  if(dataSet == dataSetFFT || dataSet == dataSetPWR) {
+					  return String.format("%d", (int) value);
+				  }
+				  else
+					  return String.format("%.2f", (double) value);
 			}
 		  }
 	  };
@@ -400,6 +403,8 @@ public class DisplayStoredGraphActivity extends Activity {
 				  				String Second = matcher.group(6);
 				  				recordingDate = Month + "/" + Day + "/20" + Year;
 				  				recordingTime = Hour + ":" + Minute + ":" + Second;
+				  				graphTitle += " on " + recordingDate + " at " + recordingTime;
+
 			  				}			  				
 			  				else
 			  					Log.e(DSGA_TAG, "ERROR: Insufficient number of matches found: " + matcher.groupCount());
@@ -509,16 +514,19 @@ public class DisplayStoredGraphActivity extends Activity {
 
 		  		fftSeries = new GraphViewSeries(new GraphViewData[] {});
 		  		pwrSeries = new GraphViewSeries(new GraphViewData[] {});
-		  		for(int i=0; i<datapoints.length/4; i++) {
+		  		for(int i=0; i<numSamples/2+1; i++) {
 		  			Complex c = new Complex(datapoints[2*i], datapoints[(2*i)+1]);
 		  			double pointY = (double) c.abs();
 		  			dataSetFFT.add(pointY);
 		  			fftSeries.appendData(new GraphViewData(i,pointY), true, datapoints.length/2);
-		  			double pointY_pwr = (double) Math.pow(pointY, 2);
-					dataSetPWR.add(pointY_pwr);
+		  			double pointY_pwr = (double) 2*Math.pow(pointY, 2)/(samplingFrequency * numSamples);
+					pointY_pwr = (double) 10*Math.log10(pointY_pwr);
+		  			dataSetPWR.add(pointY_pwr);
 		  			pwrSeries.appendData(new GraphViewData(i,pointY_pwr), true, datapoints.length/2);
 		  			
-		  		} 		  		
+		  		}
+		  		
+		  		System.out.println("##### DSGA ##### - N = " + numSamples + ";  PWR_N = " + dataSetPWR.size());
 
 				postProcessParams returnParams = new postProcessParams();
 				returnParams.readFilesSuccess = true;
