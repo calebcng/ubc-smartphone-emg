@@ -458,7 +458,6 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	          File sel = new File(dir, filename);
 	          // Create string for filtering files based on the current patient's personal health number
 	          String fileFilter = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "\\S+";
-	          System.out.println("##### PSA ##### file filter: " + fileFilter);
 	          // Filters based on whether the file is hidden or not, as well as whether or not it belongs to the current patient
 	          return (sel.isFile() || sel.isDirectory()) && !sel.isHidden() && filename.matches(fileFilter);
 	          
@@ -627,7 +626,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	          // File picked
 	          else {
 	            // Perform action with file picked
-	            System.out.println("FILE EXPLORE: Chosen file is: " + chosenFile);
+	            Log.d(TAG,"FILE EXPLORE: Chosen file is: " + chosenFile);
 	            Intent intent = new Intent(PatientSessionActivity.this, DisplayStoredGraphActivity.class);
 	            intent.putExtra("FILE_NAME", chosenFile);
 	            intent.putExtra("PATIENT_NAME", newPatient.getPatientFirstName() + " " + newPatient.getPatientLastName());

@@ -40,8 +40,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.app.NavUtils;
 import android.text.Html;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -100,7 +102,8 @@ public class DisplayStoredGraphActivity extends Activity {
   
   	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		System.out.println("Initiating creation of DisplayStoredGraphActivity class");
+		Log.d(TAG, "Initiating creation of DisplayStoredGraphActivity class");
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
@@ -269,6 +272,7 @@ public class DisplayStoredGraphActivity extends Activity {
 	  	graphView.setViewPort(0,dataSet.size());
 	  else
 	  	graphView.setViewPort(0, viewPort);
+//	  graphView
 	  // Settings for the graph styling
 	  graphView.setManualYAxisBounds(yLabel, min);
 	  graphView.getGraphViewStyle().setGridColor(Color.BLACK);
@@ -362,213 +366,226 @@ public class DisplayStoredGraphActivity extends Activity {
 	    super.onBackPressed();
 	    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
 	}
-  	
-		/**
-		 * Asynchronous Task for reading the data points within the data file
-		 * @author Caleb Ng (2015)
-		 * //<Params, Progress, Result>
-		 */
-		class ReadFileService extends AsyncTask<Void, String, Boolean> {
-			
-			@Override
-			protected Boolean doInBackground(Void... args) {		
-				Scanner strings = null;
-				InputStream stream = null;
-				BufferedInputStream bstream = null; 
-				ZipFile zipFile = null;
-				try {
-					System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
-			  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName);
-			  		zipFile = new ZipFile(file);
-			  		Enumeration<? extends ZipEntry> entries = zipFile.entries();
-			  				  		
-			  		while (entries.hasMoreElements()) {
-			  			ZipEntry zipEntry = entries.nextElement();
-			  			stream = zipFile.getInputStream(zipEntry);
-			  			strings = new Scanner(stream);			  			
-			  			
-			  			// Determine the start date and time from the header text
-			  			System.out.println("Extracting recording start date and time.");
-			  			Pattern pattern = Pattern.compile(".{184}");
-			  			String extracted = strings.findInLine(pattern);
-			  			pattern = Pattern.compile(recordingTimePattern);
-			  			Matcher matcher = pattern.matcher(extracted);
-			  			if (matcher.find()) {
-			  				if (matcher.groupCount() == 6) {
-				  				String Day = matcher.group(1);
-				  				String Month = matcher.group(2);
-				  				String Year = matcher.group(3);
-				  				String Hour = matcher.group(4);
-				  				String Minute = matcher.group(5);
-				  				String Second = matcher.group(6);
-				  				recordingDate = Month + "/" + Day + "/20" + Year;
-				  				recordingTime = Hour + ":" + Minute + ":" + Second;
-				  				graphTitle += " on " + recordingDate + " at " + recordingTime;
+	
+	/**
+	 * When user presses on the UP button in Action Bar, simulate a back button press to return to parent activity
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			onBackPressed();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
-			  				}			  				
-			  				else
-			  					Log.e(DSGA_TAG, "ERROR: Insufficient number of matches found: " + matcher.groupCount());
-			  			}
-			  			
-			  			// Use new line character as a delimiter for file data
-			  			strings.nextLine();
-			  			strings.useDelimiter("\n *");
-			  		}
-				}
-				catch (FileNotFoundException error) {
-					System.out.println("@IOERROR: " + error);
-					return false;
-				}
-				catch (IOException error) {
-					System.out.println("@IOERROR: " + error);
-					return false;
-				}
-				// Loops for as long as there are more data points to be read from the text file
-				while (strings.hasNext())
-				{
-					double dataPoint = Double.parseDouble(strings.next());
-					dataSetRAW.add(dataPoint);
-				}
-				System.out.println("Closing strings.");
-				try {
+	/**
+	 * Asynchronous Task for reading the data points within the data file
+	 * @author Caleb Ng (2015)
+	 * //<Params, Progress, Result>
+	 */
+	class ReadFileService extends AsyncTask<Void, String, Boolean> {
+		
+		@Override
+		protected Boolean doInBackground(Void... args) {		
+			Scanner strings = null;
+			InputStream stream = null;
+			BufferedInputStream bstream = null; 
+			ZipFile zipFile = null;
+			try {
+				System.out.println(externalStorageDirectory + Constants.APP_DIRECTORY + recordingName + Constants.ZIP_FILE_EXTENTION);
+		  		File file = new File(externalStorageDirectory + Constants.APP_DIRECTORY, recordingName);
+		  		zipFile = new ZipFile(file);
+		  		Enumeration<? extends ZipEntry> entries = zipFile.entries();
+		  				  		
+		  		while (entries.hasMoreElements()) {
+		  			ZipEntry zipEntry = entries.nextElement();
+		  			stream = zipFile.getInputStream(zipEntry);
+		  			strings = new Scanner(stream);			  			
+		  			
+		  			// Determine the start date and time from the header text
+		  			System.out.println("Extracting recording start date and time.");
+		  			Pattern pattern = Pattern.compile(".{184}");
+		  			String extracted = strings.findInLine(pattern);
+		  			pattern = Pattern.compile(recordingTimePattern);
+		  			Matcher matcher = pattern.matcher(extracted);
+		  			if (matcher.find()) {
+		  				if (matcher.groupCount() == 6) {
+			  				String Day = matcher.group(1);
+			  				String Month = matcher.group(2);
+			  				String Year = matcher.group(3);
+			  				String Hour = matcher.group(4);
+			  				String Minute = matcher.group(5);
+			  				String Second = matcher.group(6);
+			  				recordingDate = Month + "/" + Day + "/20" + Year;
+			  				recordingTime = Hour + ":" + Minute + ":" + Second;
+			  				graphTitle += " on " + recordingDate + " at " + recordingTime;
+
+		  				}			  				
+		  				else
+		  					Log.e(DSGA_TAG, "ERROR: Insufficient number of matches found: " + matcher.groupCount());
+		  			}
+		  			
+		  			// Use new line character as a delimiter for file data
+		  			strings.nextLine();
+		  			strings.useDelimiter("\n *");
+		  		}
+			}
+			catch (FileNotFoundException error) {
+				System.out.println("@IOERROR: " + error);
+				return false;
+			}
+			catch (IOException error) {
+				System.out.println("@IOERROR: " + error);
+				return false;
+			}
+			// Loops for as long as there are more data points to be read from the text file
+			while (strings.hasNext())
+			{
+				double dataPoint = Double.parseDouble(strings.next());
+				dataSetRAW.add(dataPoint);
+			}
+			System.out.println("Closing strings.");
+			try {
 //					bstream.close();
-					stream.close();
-					zipFile.close();
+				stream.close();
+				zipFile.close();
 //					zipInput.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			  	strings.close();			
-				return true;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			
-			protected void onProgressUpdate(String...progress) {
-				//called when the background task makes any progress
+		  	strings.close();			
+			return true;
+		}
+		
+		protected void onProgressUpdate(String...progress) {
+			//called when the background task makes any progress
+		}
+
+		protected void onPreExecute() {
+			//called before doInBackground() is started
+			super.onPreExecute();
+			// Show Progress Bar Dialog before calling doInBackground method
+//				showDialog(progress_bar_type);
+			prgDialog.setTitle("Opening File");
+			prgDialog.setMessage("Opening " + recordingName + "\nPlease wait...");
+			prgDialog.setCancelable(false);
+			prgDialog.show();
+			return;
+		}
+		
+		protected void onPostExecute(Boolean readFileSuccess) {
+			//called after doInBackground() has finished 
+			// Check if the file was read successfully. If not, output error message and generate sample set of data
+			if(!readFileSuccess) {
+				
+				Random randomGenerator = new Random();			
+				System.out.println("@IOERROR: Unable to read from file. Creating random dataset");
+				for(int i=0; i<100; i++)
+			    {
+					dataSetRAW.add(randomGenerator.nextDouble());
+			    }
 			}
 
-			protected void onPreExecute() {
-				//called before doInBackground() is started
-				super.onPreExecute();
-				// Show Progress Bar Dialog before calling doInBackground method
-//				showDialog(progress_bar_type);
-				prgDialog.setTitle("Opening File");
-				prgDialog.setMessage("Opening " + recordingName + "\nPlease wait...");
-				prgDialog.setCancelable(false);
-				prgDialog.show();
+			// Prepare data set for graphing
+			dataSetRAW = removeMean(dataSetRAW);
+			rawSeries = new GraphViewSeries(new GraphViewData[] {
+	        });
+			System.out.println("DSGA-TAG: Number of samples read is " + dataSetRAW.size());
+			for (int i=0; i<dataSetRAW.size(); i++) {
+			  	double pointX = i;
+			  	double pointY = dataSetRAW.get(i);
+			  	rawSeries.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
+			}
+			graphData(dataSetRAW,100);
+			prgDialog.dismiss();
+			prgDialog = null;
+			return;
+		}
+	}
+		
+	/**
+	 * Asynchronous Task for calculating the Fourier Transform of the data set
+	 * Will compute the Frequency spectrum as well as the Power spectrum 
+	 * @author Caleb Ng (2015)
+	 * //<Params, Progress, Result>
+	 */
+	class CalculateFFT extends AsyncTask<Boolean, String, postProcessParams> {
+		@Override
+		protected postProcessParams doInBackground(Boolean... args) {	
+			// If Boolean = true, plot the Frequency spectrum
+			// If Boolean = false, plot the Power spectrum
+			Boolean freqSpectrum = args[0];
+			int numSamples = dataSetRAW.size();
+	  		double[] datapoints = new double[numSamples*2];
+	  		int[] xIndex = new int[numSamples];
+	  		for(int i=0; i<numSamples; i++) {
+	  			datapoints[i] = (double) dataSetRAW.get(i);
+	  			xIndex[i] = i;
+	  		}
+	  		DoubleFFT_1D fft = new DoubleFFT_1D(numSamples);
+	  		fft.realForwardFull(datapoints);
+
+	  		fftSeries = new GraphViewSeries(new GraphViewData[] {});
+	  		pwrSeries = new GraphViewSeries(new GraphViewData[] {});
+	  		for(int i=0; i<numSamples/2+1; i++) {
+	  			Complex c = new Complex(datapoints[2*i], datapoints[(2*i)+1]);
+	  			// Take magnitude of FFT
+	  			double pointY = (double) c.abs();
+	  			dataSetFFT.add(pointY);
+	  			fftSeries.appendData(new GraphViewData(i,pointY), true, datapoints.length/2);
+	  			// Square the magnitude of FFT and normalize values by 2/(sampling Frequency * number of samples in original signal)
+	  			double pointY_pwr = (double) 2*Math.pow(pointY, 2)/(samplingFrequency * numSamples);
+	  			// Convert to decibel scale
+				pointY_pwr = (double) 10*Math.log10(pointY_pwr);
+	  			dataSetPWR.add(pointY_pwr);
+	  			pwrSeries.appendData(new GraphViewData(i,pointY_pwr), true, datapoints.length/2);
+	  			
+	  		}
+	  		
+			postProcessParams returnParams = new postProcessParams();
+			returnParams.readFilesSuccess = true;
+			returnParams.freqSpectrum = freqSpectrum;
+			return returnParams;
+		}
+		
+		protected void onProgressUpdate(String...progress) {
+			//called when the background task makes any progress
+		}
+
+		protected void onPreExecute() {
+			//called before doInBackground() is started
+			super.onPreExecute();
+			// Show Progress Bar Dialog before calling doInBackground method
+			prgDialog.setTitle("Processing Data");
+			prgDialog.setMessage("Calculating the Fourier Transform\nPlease wait...");
+			prgDialog.show();
+			return;
+		}
+		
+		protected void onPostExecute(postProcessParams returnParams) {
+			//called after doInBackground() has finished 
+			if(!returnParams.readFilesSuccess) {
+				Log.e(TAG,"Unable to process data from file.");
 				return;
 			}
-			
-			protected void onPostExecute(Boolean readFileSuccess) {
-				//called after doInBackground() has finished 
-				// Check if the file was read successfully. If not, output error message and generate sample set of data
-				if(!readFileSuccess) {
-					
-					Random randomGenerator = new Random();			
-					System.out.println("@IOERROR: Unable to read from file. Creating random dataset");
-					for(int i=0; i<100; i++)
-				    {
-						dataSetRAW.add(randomGenerator.nextDouble());
-				    }
-				}
-
-				// Prepare data set for graphing
-				dataSetRAW = removeMean(dataSetRAW);
-				rawSeries = new GraphViewSeries(new GraphViewData[] {
-		        });
-				System.out.println("DSGA-TAG: Number of samples read is " + dataSetRAW.size());
-				for (int i=0; i<dataSetRAW.size(); i++) {
-				  	double pointX = i;
-				  	double pointY = dataSetRAW.get(i);
-				  	rawSeries.appendData(new GraphViewData(pointX, pointY), true, dataSetRAW.size());
-				}
-				graphData(dataSetRAW,100);
+			else {
+				if(returnParams.freqSpectrum)
+					graphData(dataSetFFT, dataSetFFT.size());
+				else
+					graphData(dataSetPWR, dataSetPWR.size());
 				prgDialog.dismiss();
 				prgDialog = null;
 				return;
-			}
-		}
-		
-		/**
-		 * Asynchronous Task for calculating the Fourier Transform of the data set
-		 * Will compute the Frequency spectrum as well as the Power spectrum 
-		 * @author Caleb Ng (2015)
-		 * //<Params, Progress, Result>
-		 */
-		class CalculateFFT extends AsyncTask<Boolean, String, postProcessParams> {
-			@Override
-			protected postProcessParams doInBackground(Boolean... args) {	
-				// If Boolean = true, plot the Frequency spectrum
-				// If Boolean = false, plot the Power spectrum
-				Boolean freqSpectrum = args[0];
-				int numSamples = dataSetRAW.size();
-		  		double[] datapoints = new double[numSamples*2];
-		  		int[] xIndex = new int[numSamples];
-		  		for(int i=0; i<numSamples; i++) {
-		  			datapoints[i] = (double) dataSetRAW.get(i);
-		  			xIndex[i] = i;
-		  		}
-		  		System.out.println("Datapoint size: " + datapoints.length + " vs. Raw data size: " + numSamples);
-		  		DoubleFFT_1D fft = new DoubleFFT_1D(numSamples);
-		  		fft.realForwardFull(datapoints);
-
-		  		fftSeries = new GraphViewSeries(new GraphViewData[] {});
-		  		pwrSeries = new GraphViewSeries(new GraphViewData[] {});
-		  		for(int i=0; i<numSamples/2+1; i++) {
-		  			Complex c = new Complex(datapoints[2*i], datapoints[(2*i)+1]);
-		  			double pointY = (double) c.abs();
-		  			dataSetFFT.add(pointY);
-		  			fftSeries.appendData(new GraphViewData(i,pointY), true, datapoints.length/2);
-		  			double pointY_pwr = (double) 2*Math.pow(pointY, 2)/(samplingFrequency * numSamples);
-					pointY_pwr = (double) 10*Math.log10(pointY_pwr);
-		  			dataSetPWR.add(pointY_pwr);
-		  			pwrSeries.appendData(new GraphViewData(i,pointY_pwr), true, datapoints.length/2);
-		  			
-		  		}
-		  		
-		  		System.out.println("##### DSGA ##### - N = " + numSamples + ";  PWR_N = " + dataSetPWR.size());
-
-				postProcessParams returnParams = new postProcessParams();
-				returnParams.readFilesSuccess = true;
-				returnParams.freqSpectrum = freqSpectrum;
-				return returnParams;
-			}
-			
-			protected void onProgressUpdate(String...progress) {
-				//called when the background task makes any progress
-			}
-
-			protected void onPreExecute() {
-				//called before doInBackground() is started
-				super.onPreExecute();
-				// Show Progress Bar Dialog before calling doInBackground method
-				prgDialog.setTitle("Processing Data");
-				prgDialog.setMessage("Calculating the Fourier Transform\nPlease wait...");
-				prgDialog.show();
-				return;
-			}
-			
-			protected void onPostExecute(postProcessParams returnParams) {
-				//called after doInBackground() has finished 
-				if(!returnParams.readFilesSuccess) {
-					Log.e(TAG,"Unable to process data from file.");
-					return;
-				}
-				else {
-					if(returnParams.freqSpectrum)
-						graphData(dataSetFFT, dataSetFFT.size());
-					else
-						graphData(dataSetPWR, dataSetPWR.size());
-					prgDialog.dismiss();
-					prgDialog = null;
-					return;
-				}				
-			}
-		}
-		
-		private class postProcessParams {
-			public boolean readFilesSuccess;
-			public boolean freqSpectrum;
+			}				
 		}
 	}
+	
+	private class postProcessParams {
+		public boolean readFilesSuccess;
+		public boolean freqSpectrum;
+	}
+}
 
