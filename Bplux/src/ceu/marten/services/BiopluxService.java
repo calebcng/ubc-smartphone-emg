@@ -231,6 +231,7 @@ public class BiopluxService extends Service {
 		// Revisar }
 
 		if (connectToBiopluxDevice()) {
+			//Once phone is connected to the Bitalino, start the chronometer for accurate timing
 			startChronometer();
 			dataManager = new DataManager(this, recordingName + currentDateandTime, configuration, patientFName, patientLName);
 			createNotification();
@@ -490,9 +491,8 @@ public class BiopluxService extends Service {
 	}
 	
 	/**
-	 * Added Chronometer functions based from the NewRecordingActivity
-	 */
-	/**
+	 * Added Chronometer functionality from the NewRecordingActivity 
+	 * @author Caleb Ng
 	 * Starts Android' chronometer widget to display the recordings duration
 	 */
 	private void startChronometer() {
