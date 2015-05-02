@@ -47,10 +47,13 @@ public class Graph implements Serializable {
 //		graphView.setManualYAxisBounds(600, 300);
 		graphView.setManualYAxisBounds(2.0, -2.0);
 		graphView.addSeries(basicSerie);
-		graphView.setViewPort(
-				2,
-				Double.parseDouble(context.getResources().getString(
-						R.string.graph_viewport_size)));
+		graphView.setViewPort(2,Double.parseDouble(context.getResources().getString(R.string.graph_viewport_size)));
+		//if (HomeActivity.freq == 100) {
+		//	graphView.setViewPort(0,2000);
+		//}
+		//else if (HomeActivity.freq == 1000){
+		//	graphView.setViewPort(0,200);
+		//}
 		graphView.setScalable(true);
 		graphView.setCustomLabelFormatter(new CustomLabelFormatter() {
 			@SuppressLint("DefaultLocale")

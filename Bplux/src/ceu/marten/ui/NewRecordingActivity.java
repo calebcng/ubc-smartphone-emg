@@ -6,6 +6,7 @@ package ceu.marten.ui;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
@@ -68,12 +69,17 @@ import com.jjoe64.graphview.GraphView.GraphViewData;
  */
 public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> implements android.widget.PopupMenu.OnMenuItemClickListener, OnSharedPreferenceChangeListener {
 
+	
+	public double cal_num=0;
+	public boolean first=true;
+	
 	private static final String TAG = NewRecordingActivity.class.getName();
 	
 	// Keys used for communication with activity
 	public static final String KEY_DURATION = "duration";
 	public static final String KEY_RECORDING_NAME = "recordingName";
 	public static final String KEY_CONFIGURATION = "configSelected";
+	public static final String KEY_END = "recordingEnded";
 	
 	// key for recovery. Used when android kills activity
 	public static final String KEY_CHRONOMETER_BASE = "chronometerBase";
@@ -105,6 +111,9 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private int currentZoomValue = 0;
 	private String duration = null; 
 	private SharedPreferences sharedPref = null;
+	private String patientFName = "DEFAULT";
+	private String patientLName = "DEFAULT";
+//	private String patientHealthNumber = "1234567890";
 	
 	private boolean isServiceBounded = false;
 	private boolean recordingOverride = false;
@@ -117,6 +126,9 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private int bpErrorCode   = 0;
 	private boolean serviceError = false;
 	private boolean connectionError = false;
+	public static boolean btConnectError = false;
+	
+	
 	public static boolean btConnectError = false;
 	
 	// MESSENGERS USED TO COMMUNICATE ACTIVITY AND SERVICE
@@ -165,6 +177,15 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 				break;
 			}*/
 			case BiopluxService.MSG_DATA: {
+<<<<<<< HEAD
+=======
+				//if (first == true){
+				//	calibrate(msg.getData().getDouble(BiopluxService.KEY_X_VALUE),msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
+				//	first = false;
+				//}
+						
+				//else 
+>>>>>>> caleb-dev
 				appendDataToGraphs(
 						msg.getData().getDouble(BiopluxService.KEY_X_VALUE),
 						msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
@@ -187,7 +208,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			}
 			case BiopluxService.MSG_SAVED: {
 				savingDialog.dismiss();
-				saveRecordingOnInternalDB();
+//				saveRecordingOnInternalDB();
 				if (closeRecordingActivity) {
 					closeRecordingActivity = false;
 					finish();
@@ -240,6 +261,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 * graph always moves to the last value added
 	 */
 	 /*void appendDataToGraphs(double xValue, short[] data) {
+<<<<<<< HEAD
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
 				graphs[i].getSerie().appendData(
@@ -249,6 +271,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		}
 	}*/
 	void appendDataToGraphs(double xValue, double[] data) {
+=======
+>>>>>>> caleb-dev
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
 				graphs[i].getSerie().appendData(
@@ -257,8 +281,34 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 				System.out.println(xValue + " : " + data[displayChannelPosition[i]]);
 			}
 		}
+	}*/
+	
+	void appendDataToGraphs(double xValue, double[] data) {
+		if(!serviceError){
+			for (int i = 0; i < graphs.length; i++) {
+				//if (recordingConfiguration.getMacAddress().equals("EMG_Sensor")) 
+				//	graphs[i].getSerie().appendData(new GraphViewData(xValue,((data[displayChannelPosition[i]])-cal_num)*5), goToEnd, maxDataCount);//*5
+				
+				//else 
+				graphs[i].getSerie().appendData(new GraphViewData(xValue,data[displayChannelPosition[i]]), goToEnd, maxDataCount);
+				//System.out.println(xValue + " : " + data[displayChannelPosition[i]]);
+			}
+		}
 	}
 	
+<<<<<<< HEAD
+=======
+	/*void calibrate(double xValue, double[]data){
+		if(!serviceError){
+			for (int i = 0; i < graphs.length; i++) {
+				cal_num+=(data[i]);
+			}
+		}
+		cal_num=(cal_num/graphs.length);
+		//Toast.makeText(getApplicationContext(), " "+cal_num,Toast.LENGTH_SHORT).show();
+	}*/
+	
+>>>>>>> caleb-dev
 
 	/**
 	 * Sends recording duration to the service by message when recording is
@@ -266,15 +316,23 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private void sendRecordingDuration() {
 		if (isServiceBounded && serviceMessenger != null) {
-			Message msg = Message.obtain(null, BiopluxService.MSG_RECORDING_DURATION, 0, 0);
+			/*Message msg = Message.obtain(null, BiopluxService.MSG_RECORDING_DURATION, 0, 0);
 			Bundle extras = new Bundle();
-			extras.putString(KEY_DURATION, duration); 
+			extras.putString(KEY_DURATION, duration);
+			System.out.println("##### NewRecordingActivity ##### - Duration: " + duration);
 			msg.setData(extras);
 			msg.replyTo = activityMessenger;
 			try {
 				serviceMessenger.send(msg);
 			} catch (RemoteException e) {
 				Log.e(TAG, "Error sending duration to service", e);
+				displayConnectionErrorDialog(10); // 10 -> fatal error
+			}*/
+			Message msg = Message.obtain(null, BiopluxService.MSG_END_RECORDING_FLAG, 0, 0);
+			try {
+				serviceMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.e(TAG, "Error sending end flag to service", e);
 				displayConnectionErrorDialog(10); // 10 -> fatal error
 			}
 		}else{Log.e(TAG, "Error sending duration to service");}
@@ -290,10 +348,17 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 
 		// GETTING EXTRA INFO FROM INTENT
 		extras = getIntent().getExtras();
+<<<<<<< HEAD
 		recordingConfiguration = (DeviceConfiguration) extras.getSerializable(ConfigurationsActivity.KEY_CONFIGURATION);
 		//recordingConfiguration = (DeviceConfiguration) ConfigurationsActivity.myconfig;
 		recording = new DeviceRecording();
 		recording.setName(extras.getString(ConfigurationsActivity.KEY_RECORDING_NAME).toString());
+=======
+		recordingConfiguration = (DeviceConfiguration) extras.getSerializable("configuration");
+		//recordingConfiguration = (DeviceConfiguration) ConfigurationsActivity.myconfig;
+		recording = new DeviceRecording();
+		recording.setName(extras.getString("recordingName"));
+>>>>>>> caleb-dev
 		//recording.setName("Data");
 
 		// INIT GLOBAL VARIABLES
@@ -304,6 +369,9 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		savingDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		savingDialog.setProgress(0); //starts with 0%
 		savingDialog.setMax(100); //100%
+		patientFName = extras.getString("patientFName");
+		patientLName = extras.getString("patientLName");
+//		patientHealthNumber = extras.getString("PHN");
 		
 		inflater = this.getLayoutInflater();
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -328,7 +396,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		
 		// INIT ANDROID' WIDGETS
 		uiRecordingName = (TextView) findViewById(R.id.nr_txt_recordingName);
-		uiRecordingName.setText(recording.getName());
+//		uiRecordingName.setText(recording.getName());
+		uiRecordingName.setText("Recording session for " + this.patientFName + " " + this.patientLName);
 		uiMainbutton = (Button) findViewById(R.id.nr_bttn_StartPause);
 		chronometer = new Chronometer(classContext);
 		
@@ -368,11 +437,9 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		View graphsView = findViewById(R.id.nr_graphs);
 		
 		// Initializes layout parameters
-		graphParams = new LayoutParams(LayoutParams.MATCH_PARENT,
-				Integer.parseInt((getResources()
-						.getString(R.string.graph_height))));
-		detailParameters = new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+		graphParams = new LayoutParams(LayoutParams.MATCH_PARENT, 900);//Integer.parseInt((getResources().getString(0x7f090001))));//0x7f090001//R.string.graph_height
+		detailParameters = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		
 
 		
 			for (int i = 0; i < recordingConfiguration
@@ -390,31 +457,28 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			}
 		
 
-		// If just one channel is being displayed, show configuration details
-		if (recordingConfiguration.getDisplayChannelsNumber() == 1) {
-			View details = inflater.inflate(R.layout.in_ly_graph_details, null);
-			((ViewGroup) graphsView).addView(details, detailParameters);
-			
-			// get views
-			uiConfigurationName = (TextView) findViewById(R.id.nr_txt_configName);
-			uiNumberOfBits = (TextView) findViewById(R.id.nr_txt_config_nbits);
-			uiReceptionFrequency = (TextView) findViewById(R.id.nr_reception_freq);
-			uiSamplingFrequency = (TextView) findViewById(R.id.nr_sampling_freq);
-			uiActiveChannels = (TextView) findViewById(R.id.nr_txt_channels_active);
-			uiMacAddress = (TextView) findViewById(R.id.nr_txt_mac);
+			// If just one channel is being displayed, show configuration details
+			/*if (recordingConfiguration.getDisplayChannelsNumber() == 1) {
+				View details = inflater.inflate(R.layout.in_ly_graph_details, null);
+				((ViewGroup) graphsView).addView(details, detailParameters);
+				
+				// get views
+				//uiConfigurationName = (TextView) findViewById(R.id.nr_txt_configName);
+				//uiNumberOfBits = (TextView) findViewById(R.id.nr_txt_config_nbits);
+				uiReceptionFrequency = (TextView) findViewById(R.id.nr_reception_freq);
+				//uiSamplingFrequency = (TextView) findViewById(R.id.nr_sampling_freq);
+				//uiActiveChannels = (TextView) findViewById(R.id.nr_txt_channels_active);
+				uiMacAddress = (TextView) findViewById(R.id.nr_txt_mac);
 
-			// fill them
-			uiConfigurationName.setText(recordingConfiguration.getName());
-			uiReceptionFrequency.setText(String.valueOf(recordingConfiguration
-					.getVisualizationFrequency()) + " Hz");
-			uiSamplingFrequency.setText(String.valueOf(recordingConfiguration
-					.getSamplingFrequency()) + " Hz");
-			uiNumberOfBits.setText(String.valueOf(recordingConfiguration
-					.getNumberOfBits()) + " bits");
-			uiMacAddress.setText(recordingConfiguration.getMacAddress());
-			uiActiveChannels.setText(recordingConfiguration.getActiveChannels()
-					.toString());
-		}
+				// fill them
+				//uiConfigurationName.setText(recordingConfiguration.getName());
+				uiReceptionFrequency.setText(String.valueOf(recordingConfiguration.getVisualizationFrequency()) + " Hz");
+				//uiSamplingFrequency.setText(String.valueOf(recordingConfiguration.getSamplingFrequency()) + " Hz");
+				//uiNumberOfBits.setText(String.valueOf(recordingConfiguration.getNumberOfBits()) + " bits");
+				uiMacAddress.setText(recordingConfiguration.getMacAddress());
+				//uiActiveChannels.setText(recordingConfiguration.getActiveChannels().toString());
+			}*/
+
 	}
 	
 	/**
@@ -598,7 +662,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private void stopRecording(){
 		savingDialog.show();
-		stopChronometer();
+		//stopChronometer();
 		sendRecordingDuration();
 		unbindFromService();
 		stopService(new Intent(NewRecordingActivity.this, BiopluxService.class));
@@ -615,6 +679,10 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private boolean startRecording() {
 		
+<<<<<<< HEAD
+=======
+		//Toast.makeText(getApplicationContext(), "sampling: "+recordingConfiguration.getSamplingFrequency() +"visualization: "+recordingConfiguration.getVisualizationFrequency() ,Toast.LENGTH_SHORT).show();
+>>>>>>> caleb-dev
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		final ProgressDialog progress;
 		if(recordingConfiguration.getMacAddress().compareTo("test")!= 0){ // 'test' is used to launch device emulator
@@ -649,15 +717,25 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 						if(connectionError){
 							displayConnectionErrorDialog(bpErrorCode);
 						}else{
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
+							String currentDateandTime = sdf.format(new Date());
 							Intent intent = new Intent(classContext, BiopluxService.class);
-							intent.putExtra(KEY_RECORDING_NAME, recording.getName());
+							intent.putExtra(KEY_RECORDING_NAME, recording.getName());// + currentDateandTime);
 							intent.putExtra(KEY_CONFIGURATION, recordingConfiguration);
+							intent.putExtra("patientFName", patientFName);							
+							intent.putExtra("patientLName", patientLName);							
+//							intent.putExtra("PHN", patientHealthNumber);
 							startService(intent);
 							bindToService();
-							startChronometer();
+							//startChronometer();
 							uiMainbutton.setText(getString(R.string.nr_button_stop));
 							displayInfoToast(getString(R.string.nr_info_started));
 							drawState = false;
+<<<<<<< HEAD
+=======
+							//Toast.makeText(getApplicationContext(), "Recording",Toast.LENGTH_LONG).show();
+							
+>>>>>>> caleb-dev
 							if (btConnectError == true) Toast.makeText(classContext, "Bluetooth Connection Error", Toast.LENGTH_LONG).show();
 						}
 				    }
@@ -746,10 +824,12 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		chronometer.stop();
 		long elapsedMiliseconds = SystemClock.elapsedRealtime()
 				- chronometer.getBase();
-		duration = String.format("%02d:%02d:%02d",
+		/*duration = String.format("%02d:%02d:%02d",
 				(int) ((elapsedMiliseconds / (1000 * 60 * 60)) % 24), 	// hours
 				(int) ((elapsedMiliseconds / (1000 * 60)) % 60),	  	// minutes
-				(int) (elapsedMiliseconds / 1000) % 60);				// seconds
+				(int) (elapsedMiliseconds / 1000) % 60);				// seconds*/
+		duration = String.valueOf((int) (elapsedMiliseconds/1000) % 60);
+		System.out.println("##### NewRecordingActivity ##### - Duration of recording is: " + this.duration);
 	}
 
 	/**
@@ -812,11 +892,27 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	public void onMainButtonClicked(View view) {
 		// Starts recording
+		System.out.println("##### NewRecordingActivity ##### - Main Button is Clicked");
 		if (!isServiceRunning() && !recordingOverride) {
 			startRecording();
 		// Overwrites recording
 		} else if (!isServiceRunning() && recordingOverride) {
-			showOverwriteDialog();
+//			showOverwriteDialog();
+			// Reset activity variables
+			recordingOverride = false;
+			serviceError = false;
+			closeRecordingActivity = false;
+			savingDialogMessageChanged = false;
+			goToEnd = true;
+			
+			// Reset activity content
+			View graphsView = findViewById(R.id.nr_graphs);
+			((ViewGroup) graphsView).removeAllViews();
+			initActivityContentLayout();
+			savingDialog.setMessage(getString(R.string.nr_saving_dialog_adding_header_message));
+			savingDialog.setProgress(0);
+			
+			startRecording();
 		// Stops recording
 		} else if (isServiceRunning()) {
 			recordingOverride = true;

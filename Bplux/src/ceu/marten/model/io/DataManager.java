@@ -13,10 +13,17 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.bitalino.comm.BITalinoFrame;
+import com.bitalino.util.SensorDataConverter;
+import com.ubc.capstonegroup70.PatientClass;
+import com.ubc.capstonegroup70.PatientSessionActivity;
 
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.Constants;
@@ -57,8 +64,10 @@ public class DataManager {
 	private int numberOfChannelsActivated;
 
 	private String recordingName;
-	private String duration;
-	
+	private String duration = "0";
+	private String PInfoDirectory = "/storage/emulated/0/Bioplux/Patients/";
+	private String PatientInfoExtension = "INFO.txt";	
+	private PatientClass newPatient;
 	
 	private Context context;
 	
@@ -81,6 +90,83 @@ public class DataManager {
 	}
 	
 	/**
+	 * Constructor 2 - Accepts additional input for patient name. Initializes the number of channels activated, the outStream
+	 * write and the Buffered writer
+	 * @author Caleb Ng
+	 */
+	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientFName, String patientLName) {
+		this.context = serviceContext;
+		this.recordingName = _recordingName;
+		this.configuration = _configuration;
+		newPatient = new PatientClass();
+		String patientName = patientFName + " " + patientLName;
+		File file = new File(PInfoDirectory + patientName + PatientInfoExtension);
+		if(file.exists()) {
+			try {
+				readInfoFromFile(patientName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else {
+			Log.e(TAG, "No patient info file found.");
+			newPatient.setPatientFName(patientFName);
+			newPatient.setPatientLName(patientLName);
+			newPatient.setGender(true);
+			newPatient.setHealthNumber("123456789");
+			newPatient.setBirthYear("1999");
+			newPatient.setBirthMonth("01");
+			newPatient.setBirthDay("01");
+		}
+		
+		this.numberOfChannelsActivated = configuration.getActiveChannelsNumber();
+		try {
+			outStreamWriter = new OutputStreamWriter(context.openFileOutput(Constants.TEMP_FILE, Context.MODE_PRIVATE));
+		} catch (FileNotFoundException e) {
+			Log.e(TAG, "file to write frames on, not found", e);
+		}
+		bufferedWriter = new BufferedWriter(outStreamWriter);
+	}
+	
+	/**
+	 * Adapted from PatientSessionActivity.java
+	 * @param patientName
+	 * @throws IOException
+	 */
+	private void readInfoFromFile(String patientName) throws IOException{
+		int linecount = 0;
+		//READ
+		try {
+			FileInputStream fIn = new FileInputStream(PInfoDirectory + patientName + PatientInfoExtension);
+		    @SuppressWarnings("resource")
+			Scanner scanner = new Scanner(fIn);
+		    while (scanner.hasNextLine())
+		    {
+		        String currentline = scanner.nextLine();
+		        if (linecount == 0)  {
+		        	newPatient.setPatientName(currentline);
+		        	
+		        }
+		        else if (linecount == 1) newPatient.setHealthNumber(currentline);
+		        else if (linecount == 2) {
+		        	if (currentline.equals("Male")) newPatient.setGender(true);
+		        	else newPatient.setGender(false);
+		        }
+		        else if (linecount == 3) newPatient.setBirthYear(currentline);
+		        else if (linecount == 4) newPatient.setBirthMonth(currentline);
+		        else if (linecount == 5) newPatient.setBirthDay(currentline);
+		        linecount++;
+		        //Toast.makeText(context, currentline, Toast.LENGTH_SHORT).show();
+		    }
+		    
+		        
+		} catch (IOException ioe) 
+		    { ioe.printStackTrace();}
+		
+	}
+	
+	/**
 	 * Writes a frame (row) on text file that will go after the header. Returns
 	 * true if wrote successfully and false otherwise.
 	 */
@@ -88,7 +174,7 @@ public class DataManager {
 	public boolean writeFrameToTmpFile(BITalinoFrame frame, int frameSeq) {
 		sb.delete(0, sb.length());
 		try {
-			sb.append(frameSeq).append("\t");
+			/*sb.append(frameSeq).append("\t");
 			// WRITE THE DATA OF ACTIVE CHANNELS ONLY
 			
 			//Bitalino always send 6 channels but only active which you selected
@@ -98,6 +184,18 @@ public class DataManager {
 			
 			for(int i=0; i< activeChannelsArray.length;i++){
 				sb.append(frame.getAnalog(activeChannelsArray[i])).append("\t");
+			}
+			// WRITE A NEW LINE
+			bufferedWriter.write(sb.append("\n").toString());*/
+			
+			// WRITE THE DATA OF ACTIVE CHANNELS ONLY
+			//Bitalino always send 6 channels but only active which you selected
+			ArrayList<Integer> activeChannels = configuration.getActiveChannels();
+			int[] activeChannelsArray = convertToBitalinoChannelsArray(activeChannels);
+			int firstChannelUsed=activeChannelsArray[0];
+			
+			for(int i=0; i< activeChannelsArray.length;i++){
+				sb.append(SensorDataConverter.scaleEMG(frame.getAnalog(activeChannelsArray[i]))).append("\t");
 			}
 			// WRITE A NEW LINE
 			bufferedWriter.write(sb.append("\n").toString());
@@ -305,6 +403,176 @@ public class DataManager {
 		return true;
 	}
 	
+	/**
+	 * New header makes to work with EDF viewers
+	 * Creates and appends the header on the recording session file
+	 * @author Caleb Ng
+	 * 
+	 * Returns true if the text file was written successfully or false if an
+	 * exception was caught
+	 */
+	private boolean appendEDFHeader() {
+		
+		DateFormat dateFormat = DateFormat.getDateTimeInstance();
+		String tmpFilePath = context.getFilesDir() + "/" + Constants.TEMP_FILE;
+		Date date = new Date();
+		OutputStreamWriter out = null;
+		BufferedInputStream origin = null;
+		BufferedOutputStream dest = null;
+		FileInputStream fi = null;
+		
+		try {
+			/**
+			 *  Prepare information to add to Header Record
+			 *  Order of Header Record is as follows:
+			 *  	1. Data Format			2. Local Patient ID		3. Local Recording Info		4. Start Date (dd.mm.yy)	5. Start Time (hh.mm.ss)
+			 *  	6. Header byte size		7. Reserved_1			8. Number of data records	9. Duration of record		10. Number of signals
+			 *  	11. Label				12. Transducer type		13. Physical Dimension		14. Physical Min			15. Physical Max
+			 *  	16. Digital Min			17. Digital Max			18. Prefiltering			19. Number of samples		20. Reserved_2
+			 */ 
+			String dataFormat = extendString("0", 8);
+			String gender;
+			if (newPatient.getGender()) gender = "MALE";
+        	else gender = "FEMALE";
+			String birthYear = String.format(Locale.getDefault(), "%4s", newPatient.getBirthYear());
+			String birthDay = String.format(Locale.getDefault(), "%02d", Integer.parseInt(newPatient.getBirthDay()));
+			String birthMonth = String.format(Locale.getDefault(), "%02d", Integer.parseInt(newPatient.getBirthMonth()));
+			switch(Integer.parseInt(birthMonth)) {
+				case 1: birthMonth = "JAN";
+						break;
+				case 2: birthMonth = "FEB";
+						break;
+				case 3: birthMonth = "MAR";
+						break;
+				case 4: birthMonth = "APR";
+						break;
+				case 5: birthMonth = "MAY";
+						break;
+				case 6: birthMonth = "JUN";
+						break;
+				case 7: birthMonth = "JUL";
+						break;
+				case 8: birthMonth = "AUG";
+						break;
+				case 9: birthMonth = "SEP";
+						break;
+				case 10: birthMonth = "OCT";
+						break;
+				case 11: birthMonth = "NOV";
+						break;
+				case 12: birthMonth = "DEC";
+						break;
+			}
+			String localPatientID = extendString("X " + gender + " X " + newPatient.getPatientName() + " X DOB: " + birthYear + "-" + 
+												birthMonth + "-" + birthDay, 80);
+			String localRecordingInfo = extendString("BITALINO - FREESTYLE", 80);
+			String startDate = extendString("UNKNOWN",8);
+			String startTime = extendString("UNKNOWN",8);
+			Pattern pattern = Pattern.compile("\\w+-\\d+-\\d+-\\w+-\\d+__(\\d+)-(\\d+)-(\\d+).(\\d+).(\\d+).(\\d+)");
+  			Matcher matcher = pattern.matcher(recordingName);
+			if (matcher.find()) {
+  				if (matcher.groupCount() == 6) {	  				
+	  				String recordingYear = String.format(Locale.getDefault(), "%-4s", matcher.group(1));
+	  				String recordingMonth = String.format(Locale.getDefault(), "%-2s", matcher.group(2));
+	  				String recordingDay = String.format(Locale.getDefault(), "%-2s", matcher.group(3));
+	  				String recordingHour = String.format(Locale.getDefault(), "%-2s", matcher.group(4));
+	  				String recordingMinute = String.format(Locale.getDefault(), "%-2s", matcher.group(5));
+	  				String recordingSecond = String.format(Locale.getDefault(), "%-2s", matcher.group(6));
+	  				startDate = recordingDay + "." + recordingMonth + "." + recordingYear.substring(2);
+	  				startTime = recordingHour + "." + recordingMinute + "." + recordingSecond;
+  				}
+  				else {
+  					System.out.print("ERROR: Insufficient number of matches found: " + matcher.groupCount());
+  					startDate = extendString("UNKNOWN",8);
+  					startTime = extendString("UNKNOWN",8);
+  				}  					
+  			}
+			else {
+				System.out.print("ERROR: No matches found!");
+			}
+			String headerSize = extendString("512", 8);
+			String reserved44 = extendString("", 44);
+			String numberRecords = extendString("1", 8);
+			String durationRecord = extendString(duration, 8);
+			String numberSignals = extendString("1", 4);
+			String label = extendString("EEG 3", 16);
+			String transducerType = extendString("Conductive strip electrodes", 80);
+			String physicalDimensions = extendString("mV", 8);
+			String physicalMin = extendString("-5", 8);
+			String physicalMax = extendString("5", 8);
+			String digitalMin = extendString("0", 8);
+			String digitalMax = extendString("1023", 8);
+			String prefilter = extendString("HP:0.1Hz LP:75Hz", 80);
+			String numberSamples = extendString("1", 8);
+			String reserved32 = extendString("", 32);
+			
+			
+			// Output header text into file
+			out = new OutputStreamWriter(context.openFileOutput(recordingName + ".txt", Context.MODE_PRIVATE));
+			out.write(dataFormat + localPatientID + localRecordingInfo + startDate + startTime + headerSize + reserved44 
+					+ numberRecords + durationRecord + numberSignals + label + transducerType + physicalDimensions + physicalMin
+					+ physicalMax + digitalMin + digitalMax + prefilter + numberSamples + reserved32 + "\r\n");
+			
+			out.flush();
+			out.close();
+	
+			// APPEND DATA
+			FileOutputStream outBytes = new FileOutputStream(context.getFilesDir()
+											+ "/" + recordingName + Constants.TEXT_FILE_EXTENTION, true);
+			dest = new BufferedOutputStream(outBytes);
+			fi = new FileInputStream(tmpFilePath);
+			 
+			origin = new BufferedInputStream(fi, BUFFER);
+			int count;
+			byte data[] = new byte[BUFFER];
+			
+			Long tmpFileSize = (new File(tmpFilePath)).length();
+			long currentBitsCopied = 0;
+			
+			while ((count = origin.read(data, 0, BUFFER)) != -1) {
+				dest.write(data, 0, count);
+				currentBitsCopied += BUFFER;
+				sendPercentageToActivity((int)( currentBitsCopied * 100 / tmpFileSize), STATE_APPENDING_HEADER);
+			}
+	
+		} catch (FileNotFoundException e) {
+			Log.e(TAG, "File to write header on, not found", e);
+			return false;
+		} catch (IOException e) {
+			Log.e(TAG, "Write header stream exception", e);
+			return false;
+		}
+		finally{
+			try {
+				fi.close();
+				out.close();
+				origin.close();
+				dest.close();
+				context.deleteFile(Constants.TEMP_FILE);
+			} catch (IOException e) {
+				try {out.close();} catch (IOException e1) {}
+				try {origin.close();} catch (IOException e1) {}
+				try {dest.close();} catch (IOException e1) {};
+				Log.e(TAG, "Closing streams exception", e);
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Extend a string to a given length using space characters
+	 * @author Caleb Ng
+	 * 
+	 * Inputs: 	String data - original data to build string from;
+	 * 			int length - length to extend string to
+	 * Output:	String extendedString - string containing the original data extended 
+	 * 									to the length specified by length
+	 */
+	private String extendString(String data, int length) {
+		return String.format(Locale.getDefault(), "%-" + length + "s", data);
+	}
+	
 	
 	/**
 	 * Returns true if compressed successfully and false otherwise.
@@ -405,7 +673,9 @@ public class DataManager {
 		this.client = client;
 		if(!enoughStorageAvailable())
 			return false;
-		if (!appendHeader())
+//		if (!appendHeader())
+//			return false;
+		if (!appendEDFHeader())
 			return false;
 		if (!compressFile())
 			return false;
@@ -468,6 +738,5 @@ public class DataManager {
 	 */
 	public void setDuration(String _duration) {
 		this.duration = _duration;
-	}
-	
+	}	
 }

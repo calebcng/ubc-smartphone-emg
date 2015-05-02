@@ -1,6 +1,8 @@
 package ceu.marten.services;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,10 +24,12 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Chronometer;
 import ceu.marten.bitadroid.R;
 import ceu.marten.model.DeviceConfiguration;
 import ceu.marten.model.io.DataManager;
@@ -49,6 +53,7 @@ public class BiopluxService extends Service {
 	public static final int MSG_RECORDING_DURATION = 3;
 	public static final int MSG_SAVED = 4;
 	public static final int MSG_CONNECTION_ERROR = 5;
+	public static final int MSG_END_RECORDING_FLAG = 6;
 
 	public static final String KEY_X_VALUE = "xValue";
 	public static final String KEY_FRAME_DATA = "frame";
@@ -60,7 +65,9 @@ public class BiopluxService extends Service {
 	// Get 80 frames every 50 miliseconds
 	private int numberOfFrames;
 
-	public static final int TIMER_TIME = 50;// cambiar
+	
+	// This is initially 50, and lowering this  gets rid of the 1000Hz lag...
+	public int TIMER_TIME = 50;
 
 	// Used to synchronize timer and main thread
 	private static final Object weAreWritingDataToFileLock = new Object();
@@ -83,6 +90,16 @@ public class BiopluxService extends Service {
 	private boolean clientActive = false;
 	Notification serviceNotification = null;
 	private SharedPreferences sharedPref;
+//	private String patientHealthNumber = "1234567890";
+	private String patientFName = "DEFAULT";
+	private String patientLName = "DEFAULT";
+	
+	// Variables for handling the chronometer
+	private Chronometer chronometer;
+	private String duration = null; 
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
+	private String currentDateandTime;
+
 
 	// Target we publish for clients to send messages to IncomingHandler
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
@@ -118,6 +135,11 @@ public class BiopluxService extends Service {
 				dataManager.setDuration(msg.getData().getString(
 						NewRecordingActivity.KEY_DURATION));
 				break;
+			case MSG_END_RECORDING_FLAG:
+				System.out.println("##### BiopluxService ##### - End flag received.");
+				stopChronometer();
+				dataManager.setDuration(duration);
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -130,6 +152,7 @@ public class BiopluxService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
 		sharedPref = getSharedPreferences(getPackageName() + "_preferences",
 				Context.MODE_MULTI_PROCESS);
 		drawInBackground = sharedPref.getBoolean(
@@ -141,6 +164,8 @@ public class BiopluxService extends Service {
 		if ((wakeLock != null) && (wakeLock.isHeld() == false)) {
 			wakeLock.acquire();
 		}
+		
+		chronometer = new Chronometer(this);
 	}
 
 	/**
@@ -150,6 +175,7 @@ public class BiopluxService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		Log.i(TAG, "onBind");
+		
 		return mMessenger.getBinder();
 
 	}
@@ -177,7 +203,15 @@ public class BiopluxService extends Service {
 		String recordingName = intent.getStringExtra(
 				NewRecordingActivity.KEY_RECORDING_NAME).toString();
 		configuration = (DeviceConfiguration) intent
-				.getSerializableExtra(NewRecordingActivity.KEY_CONFIGURATION);
+				.getSerializableExtra(NewRecordingActivity.KEY_CONFIGURATION);	
+//		patientHealthNumber = intent.getStringExtra("PHN").toString();
+		patientFName = intent.getStringExtra("patientFName").toString();
+		patientLName = intent.getStringExtra("patientLName").toString();
+		
+		//added to avoid the lagging - Brittaney
+		//if (configuration.getVisualizationFrequency()==1000) TIMER_TIME = 5;
+		//else if (configuration.getVisualizationFrequency()==100) TIMER_TIME = 50;
+		
 		samplingFrames = (double) configuration.getVisualizationFrequency()
 				/ configuration.getSamplingFrequency();
 
@@ -197,7 +231,9 @@ public class BiopluxService extends Service {
 		// Revisar }
 
 		if (connectToBiopluxDevice()) {
-			dataManager = new DataManager(this, recordingName, configuration);
+			//Once phone is connected to the Bitalino, start the chronometer for accurate timing
+			startChronometer();
+			dataManager = new DataManager(this, recordingName + currentDateandTime, configuration, patientFName, patientLName);
 			createNotification();
 		}
 		return START_NOT_STICKY; // do not re-create service if system kills it
@@ -214,8 +250,9 @@ public class BiopluxService extends Service {
 		synchronized (weAreWritingDataToFileLock) {
 			areWeWritingDataToFile = true;
 		}
-
+		
 		BITalinoFrame[] frames = getFrames(numberOfFrames);
+		System.out.println("##### BiopluxService ##### - Number of frames is: " + frames.length);
 		for (BITalinoFrame frame : frames) {
 			// Revisar i++;
 			frameSeq = frameSeq + 1 < 16 ? frameSeq + 1 : 0;
@@ -360,7 +397,11 @@ public class BiopluxService extends Service {
 
 		for(int ind=0; ind<activeChannelsArray.length;ind++){
 			frameShort[ind]=(short) (frame.getAnalog(activeChannelsArray[ind]));
+<<<<<<< HEAD
 			frameDouble[ind]= SensorDataConverter.scaleEMG(activeChannelsArray[ind], frame.getAnalog(activeChannelsArray[ind]));
+=======
+			frameDouble[ind]= (SensorDataConverter.scaleEMG(activeChannelsArray[ind], frame.getAnalog(activeChannelsArray[ind])));
+>>>>>>> caleb-dev
 		}
 		
 		b.putDoubleArray(KEY_FRAME_DATA, frameDouble);
@@ -451,5 +492,31 @@ public class BiopluxService extends Service {
 			}.start();
 		}
 		Log.i(TAG, "service destroyed");
+	}
+	
+	/**
+	 * Added Chronometer functionality from the NewRecordingActivity 
+	 * @author Caleb Ng
+	 * Starts Android' chronometer widget to display the recordings duration
+	 */
+	private void startChronometer() {
+		currentDateandTime = sdf.format(new Date());
+		chronometer.setBase(SystemClock.elapsedRealtime());
+		chronometer.start();
+	}
+
+	/**
+	 * Stops the chronometer and calculates the duration of the recording
+	 */
+	private void stopChronometer() {
+		chronometer.stop();
+		long elapsedMiliseconds = SystemClock.elapsedRealtime()
+				- chronometer.getBase();
+		/*duration = String.format("%02d:%02d:%02d",
+				(int) ((elapsedMiliseconds / (1000 * 60 * 60)) % 24), 	// hours
+				(int) ((elapsedMiliseconds / (1000 * 60)) % 60),	  	// minutes
+				(int) (elapsedMiliseconds / 1000) % 60);				// seconds*/
+		duration = String.valueOf((int) (elapsedMiliseconds/1000) % 60);
+		System.out.println("##### BiopluxService ##### - Duration of recording is: " + this.duration);
 	}
 }

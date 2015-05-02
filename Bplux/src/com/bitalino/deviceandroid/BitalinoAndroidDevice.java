@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 //Modified by Brittaney Geisler November 2014
+=======
+//Modified by Brittaney Geisler March 2015
+>>>>>>> caleb-dev
 
 package com.bitalino.deviceandroid;
 
@@ -9,15 +13,20 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+<<<<<<< HEAD
 import android.widget.Toast;
 
 import ceu.marten.ui.HomeActivity;
 import ceu.marten.ui.NewConfigurationActivity;
+=======
+import ceu.marten.ui.HomeActivity;
+>>>>>>> caleb-dev
 import ceu.marten.ui.NewRecordingActivity;
 
 import com.bitalino.comm.BITalinoDevice;
 import com.bitalino.comm.BITalinoException;
 import com.bitalino.comm.BITalinoFrame;
+import com.ubc.capstonegroup70.PatientSessionActivity;
 
 /**
  * Wrapper for the Java SDK of Bitalino by ppires

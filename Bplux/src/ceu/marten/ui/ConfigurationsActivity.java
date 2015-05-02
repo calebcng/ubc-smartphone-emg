@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 //Modified by Brittaney Geisler November 2014
+=======
+//Modified by Brittaney Geisler March 2015
+
+//THIS ACTIVITY NEVER CALLED - March 2015
+>>>>>>> caleb-dev
 
 package ceu.marten.ui;
 
@@ -36,6 +42,7 @@ import com.haarman.listviewanimations.itemmanipulation.SwipeDismissAdapter;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.ubc.capstonegroup70.PatientSessionActivity;
 
 /**
  * Loads, from Android's internal Database, and displays a list of the device
@@ -92,6 +99,8 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
+		
+		
 		setContentView(R.layout.ly_configurations);
 
 		
@@ -154,7 +163,11 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 				startActivityForResult(modifyConfigurationIntent, MODIFY_CONFIGURATION_CODE_REQUEST);
 				overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_top);
 				configurationClickedPosition = position;
+<<<<<<< HEAD
 				HomeActivity.configset = true;
+=======
+				PatientSessionActivity.configset = true;
+>>>>>>> caleb-dev
 				//return true;
 			}
 		};

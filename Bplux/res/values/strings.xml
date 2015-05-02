@@ -35,7 +35,11 @@
     <string name="ha_button1">START</string>
     <string name="ha_button2">SAVED DATA</string>
     <string name="ha_button3">CONFIGURATION</string>
+<<<<<<< HEAD
     <string name="ha_button4">SET PATIENT NAME</string>
+=======
+    <string name="ha_button4">EDIT PATIENT INFO</string>
+>>>>>>> caleb-dev
         
     <!-- SETTINGS ACTIVITY -->
     <string name="sa_category_title">CONFIRMATION DIALOGS</string>
@@ -78,6 +82,11 @@
     <!-- CONFIGURATION LIST ADAPTER -->
     <string name="cl_active">Active</string>
     <string name="cl_display">Display</string>
+    
+    <!--  CONNECTION STATUS ACTIVITY -->
+    <string name="status_label">Current connection status:</string>
+    <string name="device_connection">DISCONNECTED</string>
+    <string name="battery_level"></string>
     
     <!-- RECORDINGS ACTIVITY -->
     <string name="ra_header_title">Stored recordings</string>
@@ -186,10 +195,20 @@
     <string name="bs_notification_title">Device connected</string>
     <string name="bs_notification_message">Service running, receiving frames..</string>
     
+    <!-- DISPLAY STORED GRAPH ACTIVITY-->
+    <string name="raw_data_btn">Original Signal</string>
+    <string name="fft_data_btn">Frequency Spectrum</string>
+    <string name="fft_pwr_btn">Power Spectrum</string>
+    <string name="export_btn">Export</string>
+    <string name="delete_btn">Delete</string>
+    <string name="confirm_btn">Confirm</string>
+    <string name="cancel_btn">Cancel</string>
+    
     <!-- DIALOGS -->
     <string name="d_hint">Recording 1</string>
     <string name="d_confirmationCheck">Never ask for confirmation again </string>
-    
+    <string name="d_fileSizeErrorMsg">File size exceeds 20 Mb</string>
+    <string name="d_fileSizeErrorTitle">ERROR</string>
     
     <!-- ATTRIBUTES -->
     <!-- CHANNELS LIST -->

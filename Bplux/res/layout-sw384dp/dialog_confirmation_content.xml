@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:textSize="16sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:text="@string/d_confirmationCheck"
             android:textColor="@color/light_grey"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
 
         <CheckBox
             android:id="@+id/checkbox_confirm"
