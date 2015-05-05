@@ -37,9 +37,9 @@ Please Note: Install instructions might vary slightly depending on your device
 	3.	From this page, you can select ‘New Recordings’, ‘Saved Recordings’, ‘Edit Patient Information’. In this case, we will select ‘Saved Recordings’
 	4.	A list of all the saved recordings under this patient will show up. 
 		The file naming convention is as follows:
-			*Patient Initials – Provincial Health Number – Birthday (YYYY-MM-DD)__Start date of recording (YYYY-MM-DD).Start time of recording 24h convention (hh.mm.ss.)*
-			*For example: “JS-0123456789-1999-01-01__2015-03-29.19.43.26.”*
-			*You can scroll through and select individual recordings. Select a recording to open it*
+			Patient Initials – Provincial Health Number – Birthday (YYYY-MM-DD)__Start date of recording (YYYY-MM-DD).Start time of recording 24h convention (hh.mm.ss.)
+			For example: “JS-0123456789-1999-01-01__2015-03-29.19.43.26.”
+			You can scroll through and select individual recordings. Select a recording to open it
 	5.	Once a recording has been opened you can scroll, zoom, and navigate through the recording
 	6.	Additionally, you have the option to view the recording in it’s original form, FFT, or Power Spectrum. The FFT and Power Spectrum show the frequency spectrum 
 	7.	To return, select the back button
