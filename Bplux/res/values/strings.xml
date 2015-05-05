@@ -35,11 +35,7 @@
     <string name="ha_button1">START</string>
     <string name="ha_button2">SAVED DATA</string>
     <string name="ha_button3">CONFIGURATION</string>
-<<<<<<< HEAD
-    <string name="ha_button4">SET PATIENT NAME</string>
-=======
     <string name="ha_button4">EDIT PATIENT INFO</string>
->>>>>>> caleb-dev
         
     <!-- SETTINGS ACTIVITY -->
     <string name="sa_category_title">CONFIRMATION DIALOGS</string>

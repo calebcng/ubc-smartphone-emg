@@ -126,7 +126,6 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	private int bpErrorCode   = 0;
 	private boolean serviceError = false;
 	private boolean connectionError = false;
-	public static boolean btConnectError = false;
 	
 	
 	public static boolean btConnectError = false;
@@ -177,15 +176,12 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 				break;
 			}*/
 			case BiopluxService.MSG_DATA: {
-<<<<<<< HEAD
-=======
 				//if (first == true){
 				//	calibrate(msg.getData().getDouble(BiopluxService.KEY_X_VALUE),msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
 				//	first = false;
 				//}
 						
 				//else 
->>>>>>> caleb-dev
 				appendDataToGraphs(
 						msg.getData().getDouble(BiopluxService.KEY_X_VALUE),
 						msg.getData().getDoubleArray(BiopluxService.KEY_FRAME_DATA));
@@ -261,24 +257,11 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 * graph always moves to the last value added
 	 */
 	 /*void appendDataToGraphs(double xValue, short[] data) {
-<<<<<<< HEAD
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
 				graphs[i].getSerie().appendData(
 						new GraphViewData(xValue,
 								data[displayChannelPosition[i]]), goToEnd, maxDataCount);
-			}
-		}
-	}*/
-	void appendDataToGraphs(double xValue, double[] data) {
-=======
->>>>>>> caleb-dev
-		if(!serviceError){
-			for (int i = 0; i < graphs.length; i++) {
-				graphs[i].getSerie().appendData(
-						new GraphViewData(xValue,
-								data[displayChannelPosition[i]]), goToEnd, maxDataCount);
-				System.out.println(xValue + " : " + data[displayChannelPosition[i]]);
 			}
 		}
 	}*/
@@ -296,8 +279,6 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		}
 	}
 	
-<<<<<<< HEAD
-=======
 	/*void calibrate(double xValue, double[]data){
 		if(!serviceError){
 			for (int i = 0; i < graphs.length; i++) {
@@ -308,7 +289,6 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		//Toast.makeText(getApplicationContext(), " "+cal_num,Toast.LENGTH_SHORT).show();
 	}*/
 	
->>>>>>> caleb-dev
 
 	/**
 	 * Sends recording duration to the service by message when recording is
@@ -348,17 +328,10 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 
 		// GETTING EXTRA INFO FROM INTENT
 		extras = getIntent().getExtras();
-<<<<<<< HEAD
-		recordingConfiguration = (DeviceConfiguration) extras.getSerializable(ConfigurationsActivity.KEY_CONFIGURATION);
-		//recordingConfiguration = (DeviceConfiguration) ConfigurationsActivity.myconfig;
-		recording = new DeviceRecording();
-		recording.setName(extras.getString(ConfigurationsActivity.KEY_RECORDING_NAME).toString());
-=======
 		recordingConfiguration = (DeviceConfiguration) extras.getSerializable("configuration");
 		//recordingConfiguration = (DeviceConfiguration) ConfigurationsActivity.myconfig;
 		recording = new DeviceRecording();
 		recording.setName(extras.getString("recordingName"));
->>>>>>> caleb-dev
 		//recording.setName("Data");
 
 		// INIT GLOBAL VARIABLES
@@ -679,10 +652,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 	 */
 	private boolean startRecording() {
 		
-<<<<<<< HEAD
-=======
 		//Toast.makeText(getApplicationContext(), "sampling: "+recordingConfiguration.getSamplingFrequency() +"visualization: "+recordingConfiguration.getVisualizationFrequency() ,Toast.LENGTH_SHORT).show();
->>>>>>> caleb-dev
 		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		final ProgressDialog progress;
 		if(recordingConfiguration.getMacAddress().compareTo("test")!= 0){ // 'test' is used to launch device emulator
@@ -731,11 +701,8 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 							uiMainbutton.setText(getString(R.string.nr_button_stop));
 							displayInfoToast(getString(R.string.nr_info_started));
 							drawState = false;
-<<<<<<< HEAD
-=======
 							//Toast.makeText(getApplicationContext(), "Recording",Toast.LENGTH_LONG).show();
 							
->>>>>>> caleb-dev
 							if (btConnectError == true) Toast.makeText(classContext, "Bluetooth Connection Error", Toast.LENGTH_LONG).show();
 						}
 				    }
@@ -764,7 +731,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 		// Initializes custom title
 		TextView customTitleView = (TextView) inflater.inflate(R.layout.dialog_custom_title, null);
 		customTitleView.setBackgroundColor(getResources().getColor(R.color.error_dialog));
-		/*switch(errorCode){
+		switch(errorCode){
 		case 1:
 			connectionErrorDialog.setMessage(getResources().getString(R.string.bp_address_incorrect));
 			break;
@@ -794,7 +761,7 @@ public class NewRecordingActivity extends OrmLiteBaseActivity<DatabaseHelper> im
 			connectionErrorDialog.setMessage("FATAL ERROR");
 			break;
 		}
-		connectionErrorDialog.show();*/
+		connectionErrorDialog.show();
 	}
 
 	/**

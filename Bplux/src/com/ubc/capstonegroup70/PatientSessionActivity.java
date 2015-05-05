@@ -456,9 +456,9 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	        @Override
 	        public boolean accept(File dir, String filename) {
 	          File sel = new File(dir, filename);
-	          // Create string for filtering files based on the current patient's personal health number
+	          // Modified by Caleb (2015) - Create string for filtering files based on the current patient's personal health number
 	          String fileFilter = String.valueOf(newPatient.getPatientFirstName().charAt(0)) + String.valueOf(newPatient.getPatientLastName().charAt(0)) + "-" + newPatient.getHealthNumber() + "\\S+";
-	          // Filters based on whether the file is hidden or not, as well as whether or not it belongs to the current patient
+	          // Modified by Caleb (2015) - Filters based on whether the file is hidden or not, as well as whether or not it belongs to the current patient
 	          return (sel.isFile() || sel.isDirectory()) && !sel.isHidden() && filename.matches(fileFilter);
 	          
 	        }
@@ -469,7 +469,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	      if(fList.length <= 0)
 	    	  return isEmpty=true;
 	      
-	      // Sort the list of files in alphabetical order
+	      // Modified - Sort the list of files in reverse alphabetical order with most recent items appearing first
 	      for(int i=0; i<fList.length; i++) {
 	    	  fList[i] = fList[i].toUpperCase(Locale.getDefault());
 	      }
@@ -638,6 +638,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	      
 	      /**
 	       * Added buttons for implementing exporting and deleting functionality
+	       * @author Caleb Ng (2015)
 	       */
 	      builder.setPositiveButton(R.string.export_btn, new DialogInterface.OnClickListener() {
 				
@@ -665,7 +666,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 		      break;
 	      /**
 	       * Added functionality for Exporting recordings
-	       * @author Caleb Ng
+	       * @author Caleb Ng (2015)
 	       */
 	    case DIALOG_EXPORT:
 	    	builder.setTitle("Choose the recording(s) you wish to export:");
@@ -708,7 +709,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 			break;
 			/**
 			 * Added functionality for deleting recordings
-			 * @author Caleb Ng
+			 * @author Caleb Ng (2015)
 			 */
 	    case DIALOG_DELETE:
 	    	builder.setTitle("Choose the recording(s) you wish to delete:");
@@ -765,10 +766,10 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	// End of FileExplore
 	
 	// File Export functions adapted from ceu.marten.services.RecordingActivity
-	// @author Caleb Ng
+	// @author Caleb Ng (2015)
 	/**
 	 * True if the selection of files is larger than 20 MB. False otherwise.
-	 * @author Caleb Ng
+	 * @author Caleb Ng (2015)
 	 */
 	private boolean selectionSizeBiggerThan20Mb(ArrayList<Integer> mSelectedItems) {
 		double summedSize = 0;
@@ -783,7 +784,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	}
 	/**
 	 * Export selected files
-	 * @author Caleb Ng
+	 * @author Caleb Ng (2015)
 	 */
 	private void sendRecordings(ArrayList<Integer> mSelectedItems) {
 		
@@ -818,7 +819,7 @@ public class PatientSessionActivity extends Activity {//implements android.widge
 	}
 	/**
 	 * Delete selected files
-	 * @author Caleb Ng
+	 * @author Caleb Ng (2015)
 	 * @throws IOException 
 	 */
 	private void deleteRecordings(ArrayList<Integer> mSelectedItems) throws IOException {

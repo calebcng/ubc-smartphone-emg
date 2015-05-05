@@ -397,11 +397,7 @@ public class BiopluxService extends Service {
 
 		for(int ind=0; ind<activeChannelsArray.length;ind++){
 			frameShort[ind]=(short) (frame.getAnalog(activeChannelsArray[ind]));
-<<<<<<< HEAD
-			frameDouble[ind]= SensorDataConverter.scaleEMG(activeChannelsArray[ind], frame.getAnalog(activeChannelsArray[ind]));
-=======
 			frameDouble[ind]= (SensorDataConverter.scaleEMG(activeChannelsArray[ind], frame.getAnalog(activeChannelsArray[ind])));
->>>>>>> caleb-dev
 		}
 		
 		b.putDoubleArray(KEY_FRAME_DATA, frameDouble);

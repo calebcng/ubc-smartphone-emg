@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-//Modified by Brittaney Geisler November 2014
-//NOTE: changed max sample frequency to 1000, originally 100 **THIS COULD CREATE ISSUES
-
-=======
 //Modified by Brittaney Geisler March 2015
 //NOTE: changed max sample frequency to 1000, originally 100 **THIS COULD CREATE ISSUES
 
 //THIS ACTIVITY NEVER CALLED - March 2015
 
->>>>>>> caleb-dev
 package ceu.marten.ui;
 
 import java.text.DateFormat;

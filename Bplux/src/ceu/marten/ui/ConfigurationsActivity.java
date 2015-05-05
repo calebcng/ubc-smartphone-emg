@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-//Modified by Brittaney Geisler November 2014
-=======
 //Modified by Brittaney Geisler March 2015
 
 //THIS ACTIVITY NEVER CALLED - March 2015
->>>>>>> caleb-dev
 
 package ceu.marten.ui;
 
@@ -163,11 +159,7 @@ public class ConfigurationsActivity extends OrmLiteBaseActivity<DatabaseHelper>
 				startActivityForResult(modifyConfigurationIntent, MODIFY_CONFIGURATION_CODE_REQUEST);
 				overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_top);
 				configurationClickedPosition = position;
-<<<<<<< HEAD
-				HomeActivity.configset = true;
-=======
 				PatientSessionActivity.configset = true;
->>>>>>> caleb-dev
 				//return true;
 			}
 		};
