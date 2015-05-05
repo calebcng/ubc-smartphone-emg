@@ -41,6 +41,7 @@ import ceu.marten.ui.SettingsActivity;
  * device
  * 
  * @author Carlos Marten
+ * Modified by Caleb Ng 2015
  * 
  */
 public class BiopluxService extends Service {
@@ -136,7 +137,6 @@ public class BiopluxService extends Service {
 						NewRecordingActivity.KEY_DURATION));
 				break;
 			case MSG_END_RECORDING_FLAG:
-				System.out.println("##### BiopluxService ##### - End flag received.");
 				stopChronometer();
 				dataManager.setDuration(duration);
 				break;
@@ -232,6 +232,7 @@ public class BiopluxService extends Service {
 
 		if (connectToBiopluxDevice()) {
 			//Once phone is connected to the Bitalino, start the chronometer for accurate timing
+			//@author Caleb Ng (2015)
 			startChronometer();
 			dataManager = new DataManager(this, recordingName + currentDateandTime, configuration, patientFName, patientLName);
 			createNotification();
@@ -492,7 +493,7 @@ public class BiopluxService extends Service {
 	
 	/**
 	 * Added Chronometer functionality from the NewRecordingActivity 
-	 * @author Caleb Ng
+	 * @author Caleb Ng (2015)
 	 * Starts Android' chronometer widget to display the recordings duration
 	 */
 	private void startChronometer() {

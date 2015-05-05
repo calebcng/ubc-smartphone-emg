@@ -44,6 +44,7 @@ import android.util.Log;
 /**
  * Saves and compresses recording data into android' external file system
  * @author Carlos Marten
+ * Modified by Caleb Ng 2015
  */
 public class DataManager {
 	
@@ -92,7 +93,7 @@ public class DataManager {
 	/**
 	 * Constructor 2 - Accepts additional input for patient name. Initializes the number of channels activated, the outStream
 	 * write and the Buffered writer
-	 * @author Caleb Ng
+	 * @author Caleb Ng (2015)
 	 */
 	public DataManager(Context serviceContext, String _recordingName, DeviceConfiguration _configuration, String patientFName, String patientLName) {
 		this.context = serviceContext;
@@ -133,6 +134,8 @@ public class DataManager {
 	 * Adapted from PatientSessionActivity.java
 	 * @param patientName
 	 * @throws IOException
+	 * @author Brittaney Geisler - March 2015
+	 * Added by Caleb Ng (2015)
 	 */
 	private void readInfoFromFile(String patientName) throws IOException{
 		int linecount = 0;
@@ -169,6 +172,7 @@ public class DataManager {
 	/**
 	 * Writes a frame (row) on text file that will go after the header. Returns
 	 * true if wrote successfully and false otherwise.
+	 * Modified by Brittaney Geisler and Caleb Ng (2015)
 	 */
 	private final StringBuilder sb = new StringBuilder(400);
 	public boolean writeFrameToTmpFile(BITalinoFrame frame, int frameSeq) {
@@ -189,11 +193,13 @@ public class DataManager {
 			bufferedWriter.write(sb.append("\n").toString());*/
 			
 			// WRITE THE DATA OF ACTIVE CHANNELS ONLY
-			//Bitalino always send 6 channels but only active which you selected
+			//Only using the EMG sensor which is connected to the first channel
+			//Therefore set only the first channel as active
 			ArrayList<Integer> activeChannels = configuration.getActiveChannels();
 			int[] activeChannelsArray = convertToBitalinoChannelsArray(activeChannels);
 			int firstChannelUsed=activeChannelsArray[0];
 			
+			//Convert the incoming data into the proper EMG scale before saving to the text file
 			for(int i=0; i< activeChannelsArray.length;i++){
 				sb.append(SensorDataConverter.scaleEMG(frame.getAnalog(activeChannelsArray[i]))).append("\t");
 			}
@@ -406,7 +412,7 @@ public class DataManager {
 	/**
 	 * New header makes to work with EDF viewers
 	 * Creates and appends the header on the recording session file
-	 * @author Caleb Ng
+	 * @author Caleb Ng (2015)
 	 * 
 	 * Returns true if the text file was written successfully or false if an
 	 * exception was caught
@@ -562,7 +568,7 @@ public class DataManager {
 	
 	/**
 	 * Extend a string to a given length using space characters
-	 * @author Caleb Ng
+	 * @author Caleb Ng (2015)
 	 * 
 	 * Inputs: 	String data - original data to build string from;
 	 * 			int length - length to extend string to
