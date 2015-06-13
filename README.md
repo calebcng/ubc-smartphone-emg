@@ -4,7 +4,7 @@
 Minimum requirements: Android 4.0 and newer
 
 ### Developer Documentation
-Please see the developer documentation found here: http://bit.ly/1HBDTa5
+Please see the developer documentation found here: http://bit.ly/1GjLub3
 
 ###Install Application
 Please Note: Install instructions might vary slightly depending on your device
