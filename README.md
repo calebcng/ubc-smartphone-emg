@@ -3,6 +3,10 @@
 
 Minimum requirements: Android 4.0 and newer
 
+### Developer Documentation
+Please see:
+* https://drive.google.com/file/d/0B3uwMIAn6M9fQkpYWGhxV19Ca2c/view?usp=sharing
+
 ###Install Application
 Please Note: Install instructions might vary slightly depending on your device
 	1.	Go to Settings > Security on your Android device
@@ -16,41 +20,41 @@ Please Note: Install instructions might vary slightly depending on your device
 	2.	Ensure the hardware is powered on and the STATUS light is pulsing slowly
 	3.	Go to Bluetooth settings menu of the Android smartphone or tablet (typically found under general settings menu).
 	4.	Enable Bluetooth 
-	5.	Select “bitalino” device from the list of devices available for pairing. If a list does not appear, try refreshing or searching for devices. 
+	5.	Select â€œbitalinoâ€ device from the list of devices available for pairing. If a list does not appear, try refreshing or searching for devices. 
 	6.	When prompted to enter a PIN or password, enter 1234
 	7.	This should successfully complete the pairing 
 
 ###Start Recording w/ Patient:
 	1.	First ensure Bluetooth is enabled on your device, and that it is paired with the Bitalino device. 
-	2.	Open the application and select the ‘Bluetooth’ button. From here, select the Bitalino device. If the device has not been already paired, the application will re-direct you to set up a Bluetooth connection through the smartphone or tablet’s Bluetooth settings menu. 
+	2.	Open the application and select the â€˜Bluetoothâ€™ button. From here, select the Bitalino device. If the device has not been already paired, the application will re-direct you to set up a Bluetooth connection through the smartphone or tabletâ€™s Bluetooth settings menu. 
 	3.	Select Patient. If there are no patients, the application will prompt you to enter a new patient as follows:
 		*	Enter Patient Name, Provincial Health # (Ensure these first two are correct as you cannot change these two later), Gender, & Birthday
 	4.	If there are patients, scroll through and select the patient you want. You can also delete and create new patients via their respective buttons
-	5.	Once a patient has been selected or created, you may now select ‘Start Session’
-	6.	From this page, you can select ‘New Recordings’, ‘Saved Recordings’, ‘Edit Patient Information’. In this case, to start a Recording, we will select ‘New Recording’	
-	7.	Once this has been selected a Recording Session will open for the selected patient. Press ‘Start Recording’ to begin the recording process
+	5.	Once a patient has been selected or created, you may now select â€˜Start Sessionâ€™
+	6.	From this page, you can select â€˜New Recordingsâ€™, â€˜Saved Recordingsâ€™, â€˜Edit Patient Informationâ€™. In this case, to start a Recording, we will select â€˜New Recordingâ€™	
+	7.	Once this has been selected a Recording Session will open for the selected patient. Press â€˜Start Recordingâ€™ to begin the recording process
 	8.	Pending the Bitalino being properly connected and turned on, the recording process will begin and the white STATUS light will pulse fast. To end and save the recording press stop recording. The recording will the be saved to Saved Recordings
 
 ###View Saved Recording:
 	1.	Select Patient.
-	2.	Once a patient has been selected or created, you may now select ‘Start Session’
-	3.	From this page, you can select ‘New Recordings’, ‘Saved Recordings’, ‘Edit Patient Information’. In this case, we will select ‘Saved Recordings’
+	2.	Once a patient has been selected or created, you may now select â€˜Start Sessionâ€™
+	3.	From this page, you can select â€˜New Recordingsâ€™, â€˜Saved Recordingsâ€™, â€˜Edit Patient Informationâ€™. In this case, we will select â€˜Saved Recordingsâ€™
 	4.	A list of all the saved recordings under this patient will show up. 
 		The file naming convention is as follows:
-			Patient Initials – Provincial Health Number – Birthday (YYYY-MM-DD)__Start date of recording (YYYY-MM-DD).Start time of recording 24h convention (hh.mm.ss.)
-			For example: “JS-0123456789-1999-01-01__2015-03-29.19.43.26.”
+			Patient Initials â€“ Provincial Health Number â€“ Birthday (YYYY-MM-DD)__Start date of recording (YYYY-MM-DD).Start time of recording 24h convention (hh.mm.ss.)
+			For example: â€œJS-0123456789-1999-01-01__2015-03-29.19.43.26.â€
 			You can scroll through and select individual recordings. Select a recording to open it
 	5.	Once a recording has been opened you can scroll, zoom, and navigate through the recording
-	6.	Additionally, you have the option to view the recording in it’s original form, FFT, or Power Spectrum. The FFT and Power Spectrum show the frequency spectrum 
+	6.	Additionally, you have the option to view the recording in itâ€™s original form, FFT, or Power Spectrum. The FFT and Power Spectrum show the frequency spectrum 
 	7.	To return, select the back button
 
 ###Export/Delete Saved Recording:
 	1.	Select Patient
-	2.	Once a patient has been selected or created, you may now select ‘Start Session’
-	3.	From this page, you can select ‘New Recordings’, ‘Saved Recordings’, ‘Edit Patient Information’. In this case, we will select ‘Saved Recordings’
+	2.	Once a patient has been selected or created, you may now select â€˜Start Sessionâ€™
+	3.	From this page, you can select â€˜New Recordingsâ€™, â€˜Saved Recordingsâ€™, â€˜Edit Patient Informationâ€™. In this case, we will select â€˜Saved Recordingsâ€™
 	4.	A list of all the saved recordings under this patient will show up
-	5.	To Delete a recording, first select ‘Delete’ and then select the recording you would like to delete
-	6.	To Export a recording, first select ‘Export’ and then select the recording you would like to Export. A prompt will pop up asking how you would like to Export the recording
+	5.	To Delete a recording, first select â€˜Deleteâ€™ and then select the recording you would like to delete
+	6.	To Export a recording, first select â€˜Exportâ€™ and then select the recording you would like to Export. A prompt will pop up asking how you would like to Export the recording
 	7.	To return, select the back button
 	
 
